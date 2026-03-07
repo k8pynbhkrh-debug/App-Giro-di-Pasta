@@ -1249,6 +1249,7 @@ function startRoundCountdown(game) {
   game.roundStarted = true;
   updateRoundCountdownUi(durationSeconds);
   roundCountdownEl.classList.remove('start-ready');
+  roundCountdownEl.classList.remove('start-pulse');
   const playerName = game.players[game.activePlayerTurnIndex];
   handoverInfoEl.textContent = `${playerName} kocht jetzt`;
   upsertCurrentGame(game);
@@ -1302,6 +1303,7 @@ function setGameSubView(mode) {
   if (isHandover) {
     scoreSectionEl.open = false;
     roundCountdownEl.classList.remove('start-ready');
+    roundCountdownEl.classList.remove('start-pulse');
     stopRoundCountdown();
     clearInlineTimers();
   } else {
@@ -1378,6 +1380,7 @@ function revealCurrentRecipe(game) {
   finishGameBtn.textContent = 'Runde beenden';
   roundCountdownEl.classList.remove('hidden');
   roundCountdownEl.classList.toggle('start-ready', !game.roundStarted);
+  roundCountdownEl.classList.toggle('start-pulse', !game.roundStarted);
   const roundIsRunning = !!game.roundStarted;
   finishGameBtn.disabled = !roundIsRunning;
   if (game.roundStarted) resumeRoundCountdown(game);
@@ -2118,97 +2121,3 @@ if (spectatorMode) {
 } else {
   renderFromCurrentGame();
 }
-
-const scoreTracker = [];
-
-function addPlayer(name) {
-  if (!name || !name.trim()) return;
-  scoreTracker.push({ name: name.trim(), points: 0 });
-  renderScoreTracker();
-}
-
-function addPoints(player, points) {
-  const entry = scoreTracker.find(item => item.name === player);
-  if (!entry) return;
-  entry.points += points;
-  renderScoreTracker();
-}
-
-function getScores() {
-  return scoreTracker.slice();
-}
-
-const recipes = [
-"Spaghetti Aglio e Olio",
-"Pesto Pasta",
-"Tomato Basil Pasta",
-"Garlic Chili Pasta",
-"Olive Lemon Pasta"
-];
-
-function drawRecipe() {
-  const index = Math.floor(Math.random() * recipes.length);
-  return recipes[index];
-}
-
-const scorePlayerNameEl = document.getElementById('scorePlayerName');
-const scoreAddPlayerBtn = document.getElementById('scoreAddPlayer');
-const scoreTrackerListEl = document.getElementById('scoreTrackerList');
-const timerStart5MinBtn = document.getElementById('timerStart5Min');
-const timerDisplayEl = document.getElementById('timerDisplay');
-const drawRecipeBtnEl = document.getElementById('drawRecipeBtn');
-const selectedRecipeEl = document.getElementById('selectedRecipe');
-
-let timerInterval5Min = null;
-let timerSeconds5Min = 300;
-
-function renderScoreTracker() {
-  if (!scoreTrackerListEl) return;
-  scoreTrackerListEl.innerHTML = '';
-  scoreTracker.forEach(entry => {
-    const li = document.createElement('li');
-    li.textContent = `${entry.name}: ${entry.points}`;
-    scoreTrackerListEl.appendChild(li);
-  });
-}
-
-function renderTimerDisplay() {
-  if (!timerDisplayEl) return;
-  const minutes = Math.floor(timerSeconds5Min / 60);
-  const seconds = timerSeconds5Min % 60;
-  timerDisplayEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-}
-
-if (scoreAddPlayerBtn) {
-  scoreAddPlayerBtn.addEventListener('click', () => {
-    addPlayer(scorePlayerNameEl ? scorePlayerNameEl.value : '');
-    if (scorePlayerNameEl) scorePlayerNameEl.value = '';
-  });
-}
-
-if (timerStart5MinBtn) {
-  timerStart5MinBtn.addEventListener('click', () => {
-    if (timerInterval5Min) clearInterval(timerInterval5Min);
-    timerSeconds5Min = 300;
-    renderTimerDisplay();
-    timerInterval5Min = setInterval(() => {
-      timerSeconds5Min -= 1;
-      renderTimerDisplay();
-      if (timerSeconds5Min <= 0) {
-        clearInterval(timerInterval5Min);
-        timerInterval5Min = null;
-        alert("Time is up!");
-      }
-    }, 1000);
-  });
-}
-
-if (drawRecipeBtnEl) {
-  drawRecipeBtnEl.addEventListener('click', () => {
-    const recipe = drawRecipe();
-    if (selectedRecipeEl) selectedRecipeEl.textContent = `Selected recipe: ${recipe}`;
-  });
-}
-
-renderTimerDisplay();
-renderScoreTracker();

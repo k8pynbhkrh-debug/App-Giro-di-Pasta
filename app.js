@@ -1293,6 +1293,7 @@ function resumeRoundCountdown(game) {
 function setGameSubView(mode) {
   const isHandover = mode === 'handover';
   handoverActionsEl.classList.toggle('hidden', !isHandover);
+  cookStartRowEl.classList.toggle('hidden', isHandover);
   ingredientIllustrationEl.classList.toggle('hidden', isHandover);
   difficultyIndicatorEl.classList.toggle('hidden', isHandover);
   tipTextEl.classList.toggle('hidden', isHandover);
@@ -1569,6 +1570,7 @@ const backToSummaryBtn = document.getElementById('backToSummary');
 
 const handoverInfoEl = document.getElementById('handoverInfo');
 const handoverActionsEl = document.getElementById('handoverActions');
+const cookStartRowEl = document.getElementById('cookStartRow');
 const showRecipeTopBtn = document.getElementById('showRecipeTop');
 const skipRecipeTopBtn = document.getElementById('skipRecipeTop');
 const recipeTitleEl = document.getElementById('recipeTitle');
@@ -1745,9 +1747,9 @@ generateBtn.addEventListener('click', () => {
   game.finished = false;
 
   if (eligibleRecipes.length < realRecipeTarget) {
-    showStatus(`Es gibt nur ${eligibleRecipes.length} passende Rezepte. Geplant: ${realRecipeCount} Rezepte + ${jokerRecipes} Joker (20%). Katalog: ${catalogCheck.supplementalCount} ergänzte Rezepte, ${catalogCheck.missingFromPdfCount} ohne PDF-Match.`);
+    statusEl.classList.add('hidden');
   } else {
-    showStatus(`${totalRounds} Runden erstellt: ${realRecipeCount} Rezepte + ${jokerRecipes} Joker (20%). Zeit pro Rezept: ${roundMinutes} min. 6 Runden = 150 g pro Person. Katalog: ${catalogCheck.supplementalCount} ergänzte Rezepte, ${catalogCheck.missingFromPdfCount} ohne PDF-Match.`);
+    statusEl.classList.add('hidden');
   }
 
   upsertCurrentGame(game);

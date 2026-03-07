@@ -311,7 +311,7 @@
     .game-headline {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-end;
       gap: 8px;
       margin-top: 2px;
       margin-bottom: 8px;
@@ -612,8 +612,6 @@
 
     <main class="page">
       <section id="landing">
-        <h2>Neues Spiel anlegen</h2>
-        <p>Vergib einen Titel wie "Freitag 13.2." oder "Männertreff". Spielstände bleiben gespeichert.</p>
         <div class="grid" style="margin-top:8px;">
           <label for="gameTitle">Spieltitel
             <input type="text" id="gameTitle" placeholder="z. B. Freitag 13.2.">
@@ -627,8 +625,9 @@
       </section>
 
       <section id="config" class="hidden">
-        <h2>Planung</h2>
-        <p id="currentGameLabel" class="subtle"></p>
+        <div class="landing-list">
+          <div id="currentGameLabel" class="game-load"></div>
+        </div>
         <div class="grid" style="margin-top:8px;">
           <label for="players">Spieler-/Gruppenanzahl (max. 6)
             <input type="number" id="players" min="1" max="6" value="4">
@@ -656,8 +655,8 @@
       </section>
 
       <section id="summary" class="hidden">
-        <h2>Rezepte und Einkauf</h2>
         <h3>Rundenplan</h3>
+        <p class="subtle">(Reihenfolge kann sich im Kochspiel ändern)</p>
         <ul id="recipeList"></ul>
         <h3>Zusatzrezepte (optional, max. 2)</h3>
         <p class="subtle">Nur passende Rezepte aus deinen Kriterien. Diese werden ans Ende angehängt.</p>
@@ -667,7 +666,7 @@
         </div>
         <h3>Einkaufsliste</h3>
         <ul id="shoppingList"></ul>
-        <h3>Export für Apple Erinnerungen</h3>
+        <h3>Export</h3>
         <textarea id="shoppingExport" readonly></textarea>
         <div class="button-row">
           <button id="exportShopping">Einkaufsliste exportieren</button>
@@ -677,7 +676,6 @@
       </section>
 
       <section id="playersSetup" class="hidden">
-        <h2>Spieler eingeben</h2>
         <p>Reihenfolge im Uhrzeigersinn am Tisch.</p>
         <div id="playerInputs" class="grid" style="margin-top:8px;"></div>
         <div class="button-row">
@@ -688,8 +686,7 @@
 
       <section id="game" class="hidden">
         <div class="game-headline">
-          <h2>Kochspiel</h2>
-          <div class="headline-right">
+          <div id="cookStartRow" class="headline-right">
             <span class="cook-start-label">Kochen starten:</span>
             <button id="roundCountdown" class="countdown-chip hidden"><span id="roundCountdownValue">--:--</span></button>
           </div>

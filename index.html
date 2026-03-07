@@ -411,6 +411,12 @@
       font-size: .86rem;
       width: fit-content;
       margin: 0;
+      cursor: pointer;
+    }
+
+    .countdown-chip.start-ready {
+      border-color: #3a7d44;
+      box-shadow: 0 0 0 2px rgba(58, 125, 68, 0.14);
     }
 
     .export-list {
@@ -462,13 +468,17 @@
       background-position: center;
       position: relative;
       overflow: hidden;
+      display: grid;
+      place-items: center;
+      color: #6b6255;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-size: .8rem;
     }
 
-    .ingredient-illustration::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, rgba(255, 250, 241, 0.05), rgba(22, 15, 7, 0.16));
+    .ingredient-illustration::before {
+      content: attr(data-placeholder);
     }
 
     .recipe-title {
@@ -553,13 +563,15 @@
     }
 
     #roundCountdown {
-      border: none;
-      background: transparent;
-      padding: 0;
+      border: 1px solid #cabaa2;
+      background: #fffaf1;
+      padding: 6px 12px;
       font-weight: 700;
       color: #2f2a23;
       min-width: 70px;
       justify-content: flex-end;
+      font-size: 1.35rem;
+      line-height: 1;
     }
 
     #difficultyIndicator,
@@ -677,8 +689,7 @@
         <div class="game-headline">
           <h2>Kochspiel</h2>
           <div class="headline-right">
-            <div id="roundCountdown" class="countdown-chip hidden">Zeit: <span id="roundCountdownValue">--:--</span></div>
-            <button id="startCooking" class="secondary hidden">Kochen starten</button>
+            <button id="roundCountdown" class="countdown-chip hidden">Kochen starten: <span id="roundCountdownValue">--:--</span></button>
           </div>
         </div>
         <div class="handover-line">

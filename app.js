@@ -783,20 +783,18 @@ function getCardImageForRecipe(recipeName) {
   return cardImagePool[index];
 }
 
-function setRecipeIllustrationWithFallback(imagePath) {
-  if (!imagePath) {
-    ingredientIllustrationEl.style.backgroundImage = 'none';
-    return;
-  }
+function getAccentForRound(round) {
+  if (round.isJoker) return '#2b0b0b';
+  const tags = classifyRecipe(round);
+  if (tags.isMeat) return '#C0392B';
+  if (tags.isAnimalProduct) return '#F4B400';
+  return '#3A7D44';
+}
 
-  const probe = new Image();
-  probe.onload = () => {
-    ingredientIllustrationEl.style.backgroundImage = `url('${imagePath}')`;
-  };
-  probe.onerror = () => {
-    ingredientIllustrationEl.style.backgroundImage = `url('${FALLBACK_IMAGE}')`;
-  };
-  probe.src = imagePath;
+function setRecipeIllustrationPlaceholder(accent) {
+  ingredientIllustrationEl.style.backgroundImage = 'none';
+  ingredientIllustrationEl.dataset.placeholder = 'Bild Platzhalter';
+  ingredientIllustrationEl.style.border = `2px solid ${accent}`;
 }
 
 function getAllRecipes() {
@@ -1249,8 +1247,8 @@ function startRoundCountdown(game) {
   const durationSeconds = roundMinutes * 60;
   game.roundTimerEndsAt = Date.now() + durationSeconds * 1000;
   game.roundStarted = true;
-  startCookingBtn.classList.add('hidden');
   updateRoundCountdownUi(durationSeconds);
+  roundCountdownEl.classList.remove('start-ready');
   const playerName = game.players[game.activePlayerTurnIndex];
   handoverInfoEl.textContent = `${playerName} kocht jetzt`;
   upsertCurrentGame(game);
@@ -1300,10 +1298,10 @@ function setGameSubView(mode) {
   nextRecipeBtn.classList.add('hidden');
   skipRecipeBtn.classList.toggle('hidden', isHandover);
   finishGameBtn.classList.toggle('hidden', isHandover);
-  startCookingBtn.classList.toggle('hidden', isHandover);
+  roundCountdownEl.classList.toggle('hidden', isHandover);
   if (isHandover) {
     scoreSectionEl.open = false;
-    roundCountdownEl.classList.add('hidden');
+    roundCountdownEl.classList.remove('start-ready');
     stopRoundCountdown();
     clearInlineTimers();
   } else {
@@ -1336,9 +1334,8 @@ function renderRoundHandover(game, fixedPlayerIndex = null) {
   difficultyIndicatorEl.textContent = 'Schwierigkeit ●●○';
   tipTextEl.textContent = 'Tipp: Rezeptkarte wird nach der Übergabe angezeigt.';
   stepListEl.innerHTML = '<li>Wenn das Handy uebergeben wurde, druecke auf "Rezept anzeigen".</li>';
-  ingredientIllustrationEl.style.borderLeft = '4px solid #c8b9a5';
+  setRecipeIllustrationPlaceholder('#cabaa2');
   recipeTitleEl.style.borderBottomColor = '#cabaa2';
-  ingredientIllustrationEl.style.backgroundImage = 'none';
 
   upsertCurrentGame(game);
 }
@@ -1367,13 +1364,10 @@ function revealCurrentRecipe(game) {
   handoverInfoEl.textContent = game.roundStarted ? `${playerName} kocht jetzt` : `${playerName} ist dran`;
   recipeTitleEl.textContent = round.name;
   recipeMetaEl.textContent = `Runde ${game.gameIndex + 1} von ${game.rounds.length}${round.isJoker ? ' - Joker' : ''}`;
-  const tags = classifyRecipe(round);
-  const accent = tags.isMeat ? '#C0392B' : (tags.isAnimalProduct ? '#F4B400' : '#3A7D44');
-  ingredientIllustrationEl.style.borderLeft = `4px solid ${accent}`;
+  const accent = getAccentForRound(round);
   recipeTitleEl.style.borderBottomColor = accent;
   difficultyIndicatorEl.textContent = 'Schwierigkeit ●●○';
-  const recipeImage = getCardImageForRecipe(round.name);
-  setRecipeIllustrationWithFallback(recipeImage);
+  setRecipeIllustrationPlaceholder(accent);
 
   const steps = getRecipeSteps(round);
   const tipLine = steps.find(step => step.toLowerCase().startsWith('tipp:')) || 'Tipp: Mit ruhiger Hitze arbeiten.';
@@ -1382,10 +1376,15 @@ function revealCurrentRecipe(game) {
 
   game.awaitingRecipeReveal = false;
   finishGameBtn.textContent = 'Runde beenden';
-  startCookingBtn.classList.toggle('hidden', game.roundStarted);
+  roundCountdownEl.classList.remove('hidden');
+  roundCountdownEl.classList.toggle('start-ready', !game.roundStarted);
   const roundIsRunning = !!game.roundStarted;
   finishGameBtn.disabled = !roundIsRunning;
-  resumeRoundCountdown(game);
+  if (game.roundStarted) resumeRoundCountdown(game);
+  else {
+    const roundMinutes = Math.max(1, parseInt(game.settings.roundMinutes || 8, 10));
+    updateRoundCountdownUi(roundMinutes * 60);
+  }
   renderScoreboard(game);
   upsertCurrentGame(game);
 }
@@ -1414,9 +1413,8 @@ function renderFinal(game) {
   tipTextEl.textContent = 'Tipp: Neues Spiel starten oder gespeichertes Spiel laden.';
   stopRoundCountdown();
   clearInlineTimers();
-  ingredientIllustrationEl.style.borderLeft = '4px solid #c8b9a5';
+  setRecipeIllustrationPlaceholder('#cabaa2');
   recipeTitleEl.style.borderBottomColor = '#cabaa2';
-  ingredientIllustrationEl.style.backgroundImage = 'none';
   const ranking = game.players
     .map((name, idx) => ({ name, score: game.scores[idx] }))
     .sort((a, b) => b.score - a.score);
@@ -1430,7 +1428,7 @@ function renderFinal(game) {
 
   skipRecipeBtn.disabled = true;
   finishGameBtn.disabled = true;
-  startCookingBtn.classList.add('hidden');
+  roundCountdownEl.classList.add('hidden');
   startAnotherGameBtn.classList.remove('hidden');
   upsertCurrentGame(game);
 }
@@ -1581,7 +1579,6 @@ const stepListEl = document.getElementById('stepList');
 const scoreSectionEl = document.getElementById('scoreSection');
 const scoreSummaryEl = document.getElementById('scoreSummary');
 const scoreListEl = document.getElementById('scoreList');
-const startCookingBtn = document.getElementById('startCooking');
 const nextRecipeBtn = document.getElementById('nextRecipe');
 const skipRecipeBtn = document.getElementById('skipRecipe');
 const finishGameBtn = document.getElementById('finishGame');
@@ -1965,7 +1962,7 @@ skipRecipeBtn.addEventListener('click', () => {
   skipCurrentRecipe(game);
 });
 
-startCookingBtn.addEventListener('click', () => {
+roundCountdownEl.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game || game.finished || game.awaitingRecipeReveal) return;
   if (game.roundStarted) return;

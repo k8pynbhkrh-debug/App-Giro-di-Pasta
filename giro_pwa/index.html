@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#F7F7F7">
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <title>Giro di Pasta</title>
+  <style>
+    :root {
+      --bg: #f2ebdf;
+      --surface: #ffffff;
+      --text: #111111;
+      --muted: #555555;
+      --line: #e4dccf;
+      --shadow: 0 8px 24px rgba(17, 17, 17, 0.07);
+      --radius: 22px;
+      --meat: #c0392b;
+      --veg: #f4b400;
+      --vegan: #3a7d44;
+      --neutral-btn: #f9f6ef;
+      --neutral-btn-line: #d8cdbd;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 8%, rgba(255, 255, 255, 0.45), transparent 36%),
+        radial-gradient(circle at 88% 12%, rgba(236, 221, 198, 0.48), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: "Inter", system-ui, sans-serif;
+      padding: 14px;
+      display: grid;
+      place-items: center;
+    }
+
+    .phone {
+      width: 100%;
+      max-width: 460px;
+      min-height: min(94vh, 920px);
+      background: var(--surface);
+      border-radius: 30px;
+      box-shadow: 0 18px 42px rgba(17, 17, 17, 0.14);
+      overflow: hidden;
+      border: 1px solid #e7ddce;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+
+    .topbar-side {
+      min-width: 74px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .topbar-side.right {
+      justify-content: flex-end;
+    }
+
+    .brand {
+      margin: 0;
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      text-align: center;
+      flex: 1;
+    }
+
+    .menu {
+      position: absolute;
+      top: 62px;
+      left: 12px;
+      right: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: var(--shadow);
+      padding: 12px;
+      display: none;
+      z-index: 30;
+    }
+
+    .menu.open {
+      display: block;
+    }
+
+    .menu-title {
+      font-size: .78rem;
+      letter-spacing: .08em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .game-list {
+      display: grid;
+      gap: 6px;
+      margin: 8px 0 10px;
+    }
+
+    .game-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .game-load {
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .game-delete {
+      min-width: 32px;
+      width: 32px;
+      padding: 6px 0;
+      border-radius: 10px;
+    }
+
+    .page {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+      padding-bottom: 26px;
+    }
+
+    section {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    h2,
+    h3 {
+      margin: 0 0 8px;
+      font-family: "Playfair Display", Georgia, serif;
+      font-weight: 600;
+      letter-spacing: 0.005em;
+      color: var(--text);
+    }
+
+    h2 {
+      font-size: 1.35rem;
+    }
+
+    h3 {
+      font-size: 1.08rem;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .subtle {
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-weight: 600;
+      color: var(--text);
+      font-size: .93rem;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      font: inherit;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid #dddddd;
+      border-radius: 12px;
+      padding: 10px 11px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+      font-size: .9rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .toggles {
+      display: grid;
+      gap: 8px;
+    }
+
+    .rules-box {
+      border: 1px solid #dddddd;
+      border-radius: 12px;
+      background: #fff;
+      overflow: hidden;
+    }
+
+    .rule-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .rule-row + .rule-row {
+      border-top: 1px solid #ededed;
+    }
+
+    .rule-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin: 0;
+      justify-self: end;
+      accent-color: #3a7d44;
+    }
+
+    .button-row {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      border-radius: 12px;
+      border: 1px solid var(--neutral-btn-line);
+      background: var(--neutral-btn);
+      color: var(--text);
+      padding: 9px 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s ease, border-color .2s ease;
+    }
+
+    button:hover {
+      background: #fffdf8;
+      border-color: #cabba8;
+    }
+
+    .primary {
+      background: #fff;
+      border-color: var(--neutral-btn-line);
+      color: var(--text);
+    }
+
+    .secondary {
+      background: #fff;
+      border-color: var(--neutral-btn-line);
+      color: var(--text);
+    }
+
+    .danger {
+      background: #fff;
+      border-color: var(--neutral-btn-line);
+      color: var(--text);
+    }
+
+    .stat {
+      border: 1px solid #e3e3e3;
+      border-left: 4px solid #c8b9a5;
+      border-radius: 12px;
+      padding: 10px;
+      color: #333;
+      background: #fcfcfc;
+      margin-top: 10px;
+    }
+
+    .game-headline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 2px;
+      margin-bottom: 8px;
+    }
+
+    .game-headline h2 {
+      margin: 0;
+    }
+
+    .headline-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .handover-line p {
+      margin: 0;
+      font-weight: 600;
+      color: #2f2a23;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 14, 8, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      padding: 16px;
+    }
+
+    .modal.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 380px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .qr-img-wrap {
+      display: grid;
+      place-items: center;
+      border: 1px solid #ece5d9;
+      border-radius: 14px;
+      background: #fffdf8;
+      padding: 10px;
+      min-height: 220px;
+    }
+
+    .qr-img-wrap img {
+      width: 200px;
+      height: 200px;
+    }
+
+    .inline-timer-btn {
+      border: 1px solid #ccbca4;
+      background: #fffaf0;
+      border-radius: 8px;
+      padding: 1px 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-left: 2px;
+      margin-right: 2px;
+    }
+
+    .inline-timer-live {
+      display: inline-block;
+      min-width: 42px;
+      text-align: center;
+      font-weight: 700;
+      color: #2f5f37;
+    }
+
+    .countdown-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #dccdb6;
+      border-radius: 999px;
+      background: #fffaf1;
+      padding: 6px 10px;
+      font-weight: 700;
+      font-size: .86rem;
+      width: fit-content;
+      margin: 0;
+    }
+
+    .export-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .landing-list {
+      margin-top: 8px;
+      border: 1px solid #e7dfd1;
+      border-radius: 12px;
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+      background: #fffdf8;
+    }
+
+    #shoppingList,
+    #scoreList,
+    #stepList,
+    #recipeList {
+      list-style: none;
+      margin: 6px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    #shoppingList li,
+    #scoreList li,
+    #stepList li,
+    #recipeList li {
+      border: 1px solid #ebebeb;
+      border-radius: 12px;
+      padding: 9px;
+      background: #fff;
+    }
+
+    #gameCard {
+      gap: 10px;
+    }
+
+    .ingredient-illustration {
+      height: 160px;
+      border-radius: 18px;
+      border: 1px solid #ececec;
+      background-color: #f8f3e9;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ingredient-illustration::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(255, 250, 241, 0.05), rgba(22, 15, 7, 0.16));
+    }
+
+    .recipe-title {
+      margin: 0;
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 1.5rem;
+      line-height: 1.2;
+      color: var(--text);
+      display: inline-block;
+      border-bottom: 3px solid #cabaa2;
+      padding-bottom: 4px;
+    }
+
+    .difficulty {
+      font-weight: 600;
+      color: #333;
+      font-size: .94rem;
+    }
+
+    .tip-text {
+      font-size: .92rem;
+      color: var(--muted);
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .score-dropdown {
+      border: 1px solid #e7dfd1;
+      border-radius: 12px;
+      background: #fffdf8;
+      padding: 6px 8px;
+      margin-top: 14px;
+    }
+
+    .score-dropdown summary {
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+
+    .score-dropdown summary::-webkit-details-marker {
+      display: none;
+    }
+
+    #scoreList {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .score-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 6px 8px;
+    }
+
+    .score-item strong {
+      font-size: .82rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .score-controls {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .score-controls button {
+      min-width: 30px;
+      padding: 4px 0;
+      font-size: .76rem;
+      line-height: 1;
+      border-radius: 8px;
+    }
+
+    .score-heading {
+      margin-top: 8px;
+      margin-bottom: 6px;
+      font-size: 1rem;
+    }
+
+    #roundCountdown {
+      border: none;
+      background: transparent;
+      padding: 0;
+      font-weight: 700;
+      color: #2f2a23;
+      min-width: 70px;
+      justify-content: flex-end;
+    }
+
+    #difficultyIndicator,
+    #tipText {
+      border: 1px solid #ebebeb;
+      border-radius: 12px;
+      padding: 9px;
+      background: #fff;
+    }
+
+    @media (max-width: 410px) {
+      #scoreList {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <header class="topbar">
+      <div class="topbar-side">
+        <button id="qrToggle" title="Zuschauermodus">QR</button>
+      </div>
+      <h1 class="brand">Giro di Pasta</h1>
+      <div class="topbar-side right">
+        <button id="menuToggle">Spiele</button>
+      </div>
+      <div id="menu" class="menu">
+        <div class="menu-title">Spielverwaltung</div>
+        <div id="gameList" class="game-list"></div>
+        <div class="button-row">
+          <button id="createGame" class="primary">Neues Spiel</button>
+          <button id="restartGame" class="danger">Spiel neu starten</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="page">
+      <section id="landing">
+        <h2>Neues Spiel anlegen</h2>
+        <p>Vergib einen Titel wie "Freitag 13.2." oder "Männertreff". Spielstände bleiben gespeichert.</p>
+        <div class="grid" style="margin-top:8px;">
+          <label for="gameTitle">Spieltitel
+            <input type="text" id="gameTitle" placeholder="z. B. Freitag 13.2.">
+          </label>
+        </div>
+        <div class="button-row">
+          <button id="startNewGame" class="primary">Neues Spiel starten</button>
+        </div>
+        <h3 style="margin-top:10px;">Bestehende Spiele</h3>
+        <div id="landingGameList" class="landing-list"></div>
+      </section>
+
+      <section id="config" class="hidden">
+        <h2>Planung</h2>
+        <p id="currentGameLabel" class="subtle"></p>
+        <div class="grid" style="margin-top:8px;">
+          <label for="players">Spieler-/Gruppenanzahl (max. 6)
+            <input type="number" id="players" min="1" max="6" value="4">
+          </label>
+          <label for="recipesPerPerson">Rezepte pro Person (25 g pro Runde)
+            <input type="number" id="recipesPerPerson" min="6" max="10" value="6">
+          </label>
+          <label for="roundMinutes">Zeit pro Rezept (Minuten)
+            <input type="number" id="roundMinutes" min="1" max="30" value="8">
+          </label>
+          <div>
+            <label>Ernährungsregeln</label>
+            <div class="rules-box">
+              <label class="rule-row"><span>Fleisch erlaubt</span><input type="checkbox" id="meatAllowed" checked></label>
+              <label class="rule-row"><span>Tierische Produkte erlaubt</span><input type="checkbox" id="animalAllowed" checked></label>
+              <label class="rule-row"><span>Fisch erlaubt</span><input type="checkbox" id="fishAllowed" checked></label>
+              <label class="rule-row"><span>Scharf gewünscht</span><input type="checkbox" id="spicyAllowed" checked></label>
+            </div>
+          </div>
+        </div>
+        <div class="button-row">
+          <button id="generate" class="primary">Rezepte generieren</button>
+        </div>
+        <p id="status" class="stat hidden"></p>
+      </section>
+
+      <section id="summary" class="hidden">
+        <h2>Rezepte und Einkauf</h2>
+        <h3>Rundenplan</h3>
+        <ul id="recipeList"></ul>
+        <h3>Zusatzrezepte (optional, max. 2)</h3>
+        <p class="subtle">Nur passende Rezepte aus deinen Kriterien. Diese werden ans Ende angehängt.</p>
+        <select id="extraRecipeSelect" multiple size="6"></select>
+        <div class="button-row">
+          <button id="addExtraRecipes">Auswahl hinzufügen</button>
+        </div>
+        <h3>Einkaufsliste</h3>
+        <ul id="shoppingList"></ul>
+        <h3>Export für Apple Erinnerungen</h3>
+        <textarea id="shoppingExport" readonly></textarea>
+        <div class="button-row">
+          <button id="exportShopping">Einkaufsliste exportieren</button>
+          <button id="startGame" class="primary">Weiter zu Spielernamen</button>
+          <button id="newRound">Neu planen</button>
+        </div>
+      </section>
+
+      <section id="playersSetup" class="hidden">
+        <h2>Spieler eingeben</h2>
+        <p>Reihenfolge im Uhrzeigersinn am Tisch.</p>
+        <div id="playerInputs" class="grid" style="margin-top:8px;"></div>
+        <div class="button-row">
+          <button id="confirmPlayers" class="primary">Kochspiel starten</button>
+          <button id="backToSummary">Zurück</button>
+        </div>
+      </section>
+
+      <section id="game" class="hidden">
+        <div class="game-headline">
+          <h2>Kochspiel</h2>
+          <div class="headline-right">
+            <div id="roundCountdown" class="countdown-chip hidden">Zeit: <span id="roundCountdownValue">--:--</span></div>
+            <button id="startCooking" class="secondary hidden">Kochen starten</button>
+          </div>
+        </div>
+        <div class="handover-line">
+          <p id="handoverInfo"></p>
+        </div>
+        <div id="handoverActions" class="button-row">
+          <button id="showRecipeTop" class="secondary">Rezept anzeigen</button>
+          <button id="skipRecipeTop">Rezept skippen</button>
+        </div>
+        <article id="gameCard" class="grid">
+          <div id="ingredientIllustration" class="ingredient-illustration" aria-hidden="true"></div>
+          <h3 id="recipeTitle" class="recipe-title"></h3>
+          <p id="recipeMeta" class="subtle"></p>
+          <ul id="stepList"></ul>
+          <p id="difficultyIndicator" class="difficulty">Schwierigkeit ●●○</p>
+          <p id="tipText" class="tip-text">Tipp: Hitze kontrollieren für perfekte Emulsion.</p>
+        </article>
+        <details id="scoreSection" class="score-dropdown">
+          <summary id="scoreSummary">Punktestand</summary>
+          <h3 class="score-heading">Punktestand:</h3>
+          <ul id="scoreList"></ul>
+        </details>
+        <div class="button-row">
+          <button id="nextRecipe" class="secondary hidden">Rezept anzeigen</button>
+          <button id="skipRecipe">Rezept skippen</button>
+          <button id="finishGame">Runde beenden</button>
+          <button id="startAnotherGame" class="primary hidden">Neues Spiel starten</button>
+        </div>
+      </section>
+
+      <section id="spectator" class="hidden">
+        <h2>Zuschauermodus</h2>
+        <p class="subtle">Live-Punktetabelle und Rezeptübersicht (ohne Joker-Runden).</p>
+        <h3>Punkte</h3>
+        <ul id="spectatorScoreList"></ul>
+        <h3>Rezepte im Spiel</h3>
+        <ul id="spectatorRecipeList"></ul>
+      </section>
+    </main>
+  </div>
+
+  <div id="qrModal" class="modal">
+    <div class="modal-card">
+      <h3>Zuschauermodus teilen</h3>
+      <p class="subtle">QR-Code scannen für Read-Only-Ansicht.</p>
+      <div class="qr-img-wrap">
+        <img id="qrImage" alt="QR Code Zuschauer-Link">
+      </div>
+      <p id="qrHint" class="subtle"></p>
+      <div class="button-row">
+        <button id="copySpectatorLink">Link kopieren</button>
+        <button id="closeQrModal" class="secondary">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="exportModal" class="modal">
+    <div class="modal-card">
+      <h3>Einkaufsliste exportieren</h3>
+      <div class="export-list">
+        <button id="exportWhatsapp">WhatsApp</button>
+        <button id="exportReminders">Apple Erinnerungen</button>
+        <button id="exportPdf">PDF-Export</button>
+        <button id="exportClipboard">Zwischenablage</button>
+      </div>
+      <div class="button-row">
+        <button id="closeExportModal" class="secondary">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'girodiPasta-cache-v2';
+const CACHE_NAME = "giro-pasta-v1";
 const urlsToCache = [
   './',
   './index.html',

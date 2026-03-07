@@ -769,6 +769,9 @@ const cardImagePool = [
   'assets/cards/extract_569.jpg'
 ];
 
+// Hinweis: Bitte die Datei "assets/fallback.png" anlegen, damit Bild-Fallbacks sichtbar sind.
+const FALLBACK_IMAGE = 'assets/fallback.png';
+
 function getCardImageForRecipe(recipeName) {
   if (!recipeName || cardImagePool.length === 0) return '';
   let hash = 0;
@@ -778,6 +781,22 @@ function getCardImageForRecipe(recipeName) {
   }
   const index = Math.abs(hash) % cardImagePool.length;
   return cardImagePool[index];
+}
+
+function setRecipeIllustrationWithFallback(imagePath) {
+  if (!imagePath) {
+    ingredientIllustrationEl.style.backgroundImage = 'none';
+    return;
+  }
+
+  const probe = new Image();
+  probe.onload = () => {
+    ingredientIllustrationEl.style.backgroundImage = `url('${imagePath}')`;
+  };
+  probe.onerror = () => {
+    ingredientIllustrationEl.style.backgroundImage = `url('${FALLBACK_IMAGE}')`;
+  };
+  probe.src = imagePath;
 }
 
 function getAllRecipes() {
@@ -1354,7 +1373,7 @@ function revealCurrentRecipe(game) {
   recipeTitleEl.style.borderBottomColor = accent;
   difficultyIndicatorEl.textContent = 'Schwierigkeit ●●○';
   const recipeImage = getCardImageForRecipe(round.name);
-  ingredientIllustrationEl.style.backgroundImage = recipeImage ? `url('${recipeImage}')` : 'none';
+  setRecipeIllustrationWithFallback(recipeImage);
 
   const steps = getRecipeSteps(round);
   const tipLine = steps.find(step => step.toLowerCase().startsWith('tipp:')) || 'Tipp: Mit ruhiger Hitze arbeiten.';
@@ -2075,14 +2094,10 @@ if (channel) {
   });
 }
 
-// Service Worker registrieren, damit die PWA offline funktioniert
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js').catch(err => {
-      console.error('Service Worker Registrierung fehlgeschlagen:', err);
-    });
-  });
-}
+qrImageEl.onerror = () => {
+  qrImageEl.onerror = null;
+  qrImageEl.src = FALLBACK_IMAGE;
+};
 
 renderGameList();
 renderLandingGameList();

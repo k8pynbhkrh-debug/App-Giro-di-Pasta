@@ -1,9 +1,0 @@
-{
-  "name": "Giro di Pasta",
-  "short_name": "GiroPasta",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#fff7ef",
-  "theme_color": "#d94f04",
-  "icons": []
-}

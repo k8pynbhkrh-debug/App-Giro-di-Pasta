@@ -1483,18 +1483,63 @@ function formatCountdown(totalSeconds) {
 }
 
 function parseStepDuration(stepText) {
-  const match = stepText.match(/\[(\d+)(?:\s*-\s*(\d+))?\s*(s|sec|min|m)\]/i);
+  const match = stepText.match(
+    /(?:\[(\d+)(?:\s*-\s*(\d+))?\s*(s|sek(?:\.|unden?)?|sec(?:onds?)?|min(?:\.|uten?)?|m)\])|(?:\b(\d+)(?:\s*-\s*(\d+))?\s*(s|sek(?:\.|unden?)?|sec(?:onds?)?|min(?:\.|uten?)?|m)\b)/i
+  );
   if (!match) return null;
-  const first = parseInt(match[1], 10);
-  const second = match[2] ? parseInt(match[2], 10) : null;
-  const unit = (match[3] || '').toLowerCase();
+  const firstRaw = match[1] || match[4];
+  const secondRaw = match[2] || match[5] || null;
+  const unit = (match[3] || match[6] || '').toLowerCase();
+  const first = parseInt(firstRaw, 10);
+  const second = secondRaw ? parseInt(secondRaw, 10) : null;
+  if (!Number.isFinite(first)) return null;
   const rawValue = second || first;
-  const seconds = unit.startsWith('m') ? rawValue * 60 : rawValue;
+  const seconds = unit.startsWith('m') || unit.startsWith('min') ? rawValue * 60 : rawValue;
   return {
     fullMatch: match[0],
-    valueText: second ? String(second) : String(first),
+    valueText: match[0].replace(/^\[|\]$/g, '').trim(),
     seconds
   };
+}
+
+function withHeatHint(stepText) {
+  if (/^\[[^\]]+\]\s*/.test(stepText)) return stepText;
+
+  const lower = stepText.toLowerCase();
+  const offHeat = [
+    'vom herd',
+    'restwärme',
+    'restwaerme',
+    'off-heat',
+    'nicht kochen'
+  ];
+  const lowHeat = [
+    'sanft',
+    'niedrig',
+    'leise',
+    'bei bedarf minimal wasser',
+    'kurz köcheln',
+    'kurz köcheln',
+    'kurz koecheln'
+  ];
+  const highHeat = [
+    'heiß anbraten',
+    'heiss anbraten',
+    'kräftig anbraten',
+    'kraeftig anbraten',
+    'knusprig',
+    'trocken rösten',
+    'trocken rösten',
+    'trocken roesten',
+    'anrösten',
+    'anrösten',
+    'anroesten'
+  ];
+
+  if (offHeat.some(term => lower.includes(term))) return `[AUS] ${stepText}`;
+  if (lowHeat.some(term => lower.includes(term))) return `[NIEDRIG] ${stepText}`;
+  if (highHeat.some(term => lower.includes(term))) return `[HOCH] ${stepText}`;
+  return `[MITTEL] ${stepText}`;
 }
 
 function getPlayerDefaultNames(count) {
@@ -1829,7 +1874,8 @@ function renderStepsWithTimers(steps) {
 
   steps
     .filter(step => !step.toLowerCase().startsWith('tipp:'))
-    .forEach(step => {
+    .forEach(rawStep => {
+      const step = withHeatHint(rawStep);
       const li = document.createElement('li');
       const parsed = parseStepDuration(step);
 

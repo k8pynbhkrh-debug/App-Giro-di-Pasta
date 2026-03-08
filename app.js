@@ -1324,31 +1324,88 @@ const recipeGuidesById = {
   }
 };
 
-const cardImagePool = [
-  'assets/cards/extract_429.jpg',
-  'assets/cards/extract_430.jpg',
-  'assets/cards/extract_464.jpg',
-  'assets/cards/extract_465.jpg',
-  'assets/cards/extract_498.jpg',
-  'assets/cards/extract_499.jpg',
-  'assets/cards/extract_532.jpg',
-  'assets/cards/extract_533.jpg',
-  'assets/cards/extract_568.jpg',
-  'assets/cards/extract_569.jpg'
+const RECIPE_IMAGE_IDS_IN_ORDER = [
+  'aglio_olio_peperoncino',
+  'cacio_pepe',
+  'carbonara',
+  'gricia',
+  'amatriciana',
+  'puttanesca',
+  'aglio_olio_acciughe',
+  'sardellen_pangrattato',
+  'sardellen_limone',
+  'pomodoro_basilico',
+  'arrabbiata',
+  'marinara',
+  'ricotta_pomodoro_peperoncino',
+  'burro_salvia',
+  'funghi_burro',
+  'ricotta_limone',
+  'ricotta_gorgonzola',
+  'gorgonzola_noci',
+  'parmigiano_burro',
+  'pistazie_limone',
+  'pasta_assassina',
+  'ragu_bolognese',
+  'ragu_bianco',
+  'salsiccia_finocchio',
+  'speck_cipolla',
+  'pollo_panna',
+  'pollo_funghi',
+  'tonno_pomodoro',
+  'tonno_capperi',
+  'salmone_panna',
+  'salmone_limone',
+  'gamberi_aglio',
+  'gamberi_zucchine',
+  'vongole_bianco',
+  'vongole_pomodoro',
+  'frutti_di_mare',
+  'bottarga_limone',
+  'melanzane_pomodoro',
+  'zucchine_menta',
+  'spinaci_ricotta',
+  'crema_zucca',
+  'taleggio_pepe',
+  'stracchino_noci',
+  'quattro_formaggi',
+  'pesto_genovese',
+  'pesto_rosso',
+  'pasta_latte',
+  'pasta_burro_zucchero',
+  'pasta_dolce_noci',
+  'pasta_dolce_ricotta',
+  'joker'
 ];
 
 // Hinweis: Bitte die Datei "assets/fallback.png" anlegen, damit Bild-Fallbacks sichtbar sind.
 const FALLBACK_IMAGE = 'assets/fallback.png';
 
-function getCardImageForRecipe(recipeName) {
-  if (!recipeName || cardImagePool.length === 0) return '';
-  let hash = 0;
-  for (let i = 0; i < recipeName.length; i++) {
-    hash = ((hash << 5) - hash) + recipeName.charCodeAt(i);
-    hash |= 0;
+const recipeImageIdByName = (() => {
+  const map = Object.create(null);
+  const baseCount = Math.min(recipesData.length, RECIPE_IMAGE_IDS_IN_ORDER.length);
+
+  for (let i = 0; i < baseCount; i++) {
+    map[normalizeForId(recipesData[i].name)] = RECIPE_IMAGE_IDS_IN_ORDER[i];
   }
-  const index = Math.abs(hash) % cardImagePool.length;
-  return cardImagePool[index];
+
+  // Zusätzliche Alias-Schreibweisen für Legacy-Namen.
+  map.pasta_al_latte = 'pasta_latte';
+  map.pasta_con_burro_e_zucchero = 'pasta_burro_zucchero';
+  map.pasta_dolce_con_noci = 'pasta_dolce_noci';
+  map.pasta_dolce_con_ricotta = 'pasta_dolce_ricotta';
+  map.ricotta_e_pomodoro_al_peperoncino = 'ricotta_pomodoro_peperoncino';
+  map.pasta_all_assassina = 'pasta_assassina';
+
+  return map;
+})();
+
+function getCardImageForRecipe(recipeName) {
+  if (!recipeName) return '';
+  const key = normalizeForId(recipeName);
+  const imageId = recipeImageIdByName[key];
+  if (!imageId) return '';
+  return `assets/recipes/${imageId}.png`;
 }
 
 function getAccentForRound(round) {
@@ -1361,8 +1418,26 @@ function getAccentForRound(round) {
 
 function setRecipeIllustrationPlaceholder(accent) {
   ingredientIllustrationEl.style.backgroundImage = 'none';
+  ingredientIllustrationEl.style.backgroundColor = '#f8f3e9';
   ingredientIllustrationEl.dataset.placeholder = 'Bild Platzhalter';
   ingredientIllustrationEl.style.border = `2px solid ${accent}`;
+}
+
+function setRecipeIllustration(round, accent) {
+  const imagePath = round?.isJoker ? '' : getCardImageForRecipe(round?.name || '');
+  ingredientIllustrationEl.style.border = `2px solid ${accent}`;
+
+  if (!imagePath) {
+    setRecipeIllustrationPlaceholder(accent);
+    return;
+  }
+
+  ingredientIllustrationEl.style.backgroundColor = '#f8f3e9';
+  ingredientIllustrationEl.style.backgroundImage = `url("${imagePath}")`;
+  ingredientIllustrationEl.style.backgroundSize = 'contain';
+  ingredientIllustrationEl.style.backgroundRepeat = 'no-repeat';
+  ingredientIllustrationEl.style.backgroundPosition = 'center';
+  delete ingredientIllustrationEl.dataset.placeholder;
 }
 
 function getAllRecipes() {
@@ -1727,8 +1802,8 @@ function renderScoreboard(game) {
     li.innerHTML = `
       <strong>${game.players[index]}: ${score} Pkt</strong>
       <div class="score-controls">
-        <button data-score="${index}" data-delta="-1" data-kind="wrong" title="Falscher Tipp" ${scoringLocked ? 'disabled' : ''}>-1</button>
-        <button data-score="${index}" data-delta="2" data-kind="correct" title="Richtiger Tipp" ${scoringLocked ? 'disabled' : ''}>+2</button>
+        <button data-score="${index}" data-delta="-1" data-kind="wrong" title="Falscher Tipp (-1)" ${scoringLocked ? 'disabled' : ''}>Falsch</button>
+        <button data-score="${index}" data-delta="2" data-kind="correct" title="Richtiger Tipp (+2)" ${scoringLocked ? 'disabled' : ''}>Richtig</button>
       </div>
     `;
     scoreListEl.appendChild(li);
@@ -1946,7 +2021,7 @@ function revealCurrentRecipe(game) {
   recipeTitleEl.style.borderBottomColor = accent;
   const recipeGuide = getRecipeGuide(round);
   difficultyIndicatorEl.textContent = getDifficultyIndicatorText(recipeGuide.difficulty);
-  setRecipeIllustrationPlaceholder(accent);
+  setRecipeIllustration(round, accent);
 
   tipTextEl.textContent = `Tipp: ${recipeGuide.tip}`;
   renderStepsWithTimers(recipeGuide.steps);

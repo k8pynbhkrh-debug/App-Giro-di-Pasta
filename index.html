@@ -455,7 +455,9 @@
     #shoppingList,
     #scoreList,
     #stepList,
-    #recipeList {
+    #recipeList,
+    #spectatorScoreList,
+    #spectatorRecipeList {
       list-style: none;
       margin: 6px 0 0;
       padding: 0;
@@ -466,11 +468,60 @@
     #shoppingList li,
     #scoreList li,
     #stepList li,
-    #recipeList li {
+    #recipeList li,
+    #spectatorScoreList li,
+    #spectatorRecipeList li {
       border: 1px solid #ebebeb;
       border-radius: 12px;
       padding: 9px;
       background: #fff;
+    }
+
+    .spectator-status-card {
+      border: 1px solid #ebebeb;
+      border-radius: 12px;
+      padding: 9px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .spectator-turn {
+      margin: 0;
+      font-weight: 600;
+      color: #2f2a23;
+    }
+
+    .spectator-timer {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ccbca4;
+      border-radius: 8px;
+      background: #fffaf0;
+      padding: 4px 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      min-width: 70px;
+      color: #2f2a23;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .spectator-panel {
+      margin-top: 10px;
+      border: 1px solid #e7dfd1;
+      border-radius: 12px;
+      background: #fffdf8;
+      padding: 10px;
+    }
+
+    .spectator-panel h3 {
+      margin-bottom: 6px;
+      font-size: 1rem;
     }
 
     #gameCard {
@@ -726,13 +777,18 @@
 
       <section id="spectator" class="hidden">
         <h2>Zuschauermodus</h2>
-        <p class="subtle">Live-Punktetabelle und Rezeptübersicht (ohne Joker-Runden).</p>
-        <p id="spectatorRoundInfo" class="subtle"></p>
-        <p id="spectatorTimer" class="subtle"></p>
-        <h3>Punkte</h3>
-        <ul id="spectatorScoreList"></ul>
-        <h3>Rezepte im Spiel</h3>
-        <ul id="spectatorRecipeList"></ul>
+        <div class="spectator-status-card">
+          <p id="spectatorRoundInfo" class="spectator-turn"></p>
+          <span id="spectatorTimer" class="spectator-timer">08:00</span>
+        </div>
+        <div class="spectator-panel">
+          <h3>Punktestand</h3>
+          <ul id="spectatorScoreList"></ul>
+        </div>
+        <div class="spectator-panel">
+          <h3>Rezepte im Spiel</h3>
+          <ul id="spectatorRecipeList"></ul>
+        </div>
       </section>
     </main>
   </div>

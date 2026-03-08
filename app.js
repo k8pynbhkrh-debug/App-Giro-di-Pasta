@@ -2228,7 +2228,7 @@ function startSpectatorCountdown(roundTimerEndsAt) {
 
   const update = () => {
     const remaining = Math.max(0, Math.ceil((roundTimerEndsAt - Date.now()) / 1000));
-    spectatorTimerEl.textContent = `Timer: ${formatCountdown(remaining)}`;
+    spectatorTimerEl.textContent = formatCountdown(remaining);
     if (remaining <= 0) stopSpectatorCountdown();
   };
 
@@ -2240,14 +2240,14 @@ function renderSpectator(game) {
   hideAllSections();
   spectatorSection.classList.remove('hidden');
   spectatorRoundInfoEl.textContent = '';
-  spectatorTimerEl.textContent = '';
+  spectatorTimerEl.textContent = '08:00';
   spectatorScoreListEl.innerHTML = '';
   spectatorRecipeListEl.innerHTML = '';
 
   if (!game) {
     stopSpectatorCountdown();
     spectatorRoundInfoEl.textContent = 'Kein aktives Spiel gefunden.';
-    spectatorTimerEl.textContent = 'Timer: -';
+    spectatorTimerEl.textContent = '--:--';
     const li = document.createElement('li');
     li.textContent = 'Kein Spiel gefunden.';
     spectatorScoreListEl.appendChild(li);
@@ -2257,24 +2257,19 @@ function renderSpectator(game) {
   const players = game.players || [];
   const rounds = game.rounds || [];
   const currentPlayerName = players[game.activePlayerTurnIndex] || 'Unbekannt';
-  const currentRound = rounds[game.gameIndex] || null;
 
   if (game.finished || game.gameIndex >= rounds.length) {
     spectatorRoundInfoEl.textContent = 'Spiel beendet.';
     stopSpectatorCountdown();
-    spectatorTimerEl.textContent = 'Timer: beendet';
-  } else if (game.awaitingRecipeReveal) {
-    spectatorRoundInfoEl.textContent = `${currentPlayerName} ist dran.`;
-    stopSpectatorCountdown();
-    spectatorTimerEl.textContent = 'Timer: nicht gestartet';
+    spectatorTimerEl.textContent = '00:00';
   } else {
-    const roundName = currentRound?.isJoker ? 'Joker-Runde' : (currentRound?.name || 'Unbekanntes Rezept');
-    spectatorRoundInfoEl.textContent = `${currentPlayerName} kocht: ${roundName}`;
+    spectatorRoundInfoEl.textContent = `${currentPlayerName} ist dran.`;
     if (game.roundStarted && game.roundTimerEndsAt) {
       startSpectatorCountdown(game.roundTimerEndsAt);
     } else {
       stopSpectatorCountdown();
-      spectatorTimerEl.textContent = 'Timer: nicht gestartet';
+      const roundMinutes = Math.max(1, parseInt(game.settings?.roundMinutes || 8, 10));
+      spectatorTimerEl.textContent = formatCountdown(roundMinutes * 60);
     }
   }
 

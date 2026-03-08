@@ -1877,6 +1877,61 @@ function clearInlineTimers() {
   inlineTimerIntervals.clear();
 }
 
+function getTimerAudioContext() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+  if (!window.__giroTimerAudioContext) {
+    window.__giroTimerAudioContext = new AudioContextClass();
+  }
+  return window.__giroTimerAudioContext;
+}
+
+function primeInlineTimerSound() {
+  const ctx = getTimerAudioContext();
+  if (!ctx) return;
+  if (ctx.state === 'suspended') {
+    ctx.resume().catch(() => {});
+  }
+}
+
+function playInlineTimerDoneSound() {
+  const ctx = getTimerAudioContext();
+  if (!ctx) {
+    if (navigator.vibrate) navigator.vibrate(120);
+    return;
+  }
+
+  if (ctx.state === 'suspended') {
+    ctx.resume()
+      .then(() => playInlineTimerDoneSound())
+      .catch(() => {
+        if (navigator.vibrate) navigator.vibrate(120);
+      });
+    return;
+  }
+
+  const now = ctx.currentTime;
+  const gain = ctx.createGain();
+  gain.connect(ctx.destination);
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.12, now + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+
+  const toneA = ctx.createOscillator();
+  toneA.type = 'sine';
+  toneA.frequency.setValueAtTime(880, now);
+  toneA.connect(gain);
+  toneA.start(now);
+  toneA.stop(now + 0.17);
+
+  const toneB = ctx.createOscillator();
+  toneB.type = 'sine';
+  toneB.frequency.setValueAtTime(1175, now + 0.2);
+  toneB.connect(gain);
+  toneB.start(now + 0.2);
+  toneB.stop(now + 0.37);
+}
+
 function renderStepsWithTimers(steps) {
   clearInlineTimers();
   stepListEl.innerHTML = '';
@@ -1907,6 +1962,7 @@ function renderStepsWithTimers(steps) {
       timerBtn.addEventListener('click', () => {
         const total = parseInt(timerBtn.dataset.seconds || '0', 10);
         if (!Number.isFinite(total) || total <= 0) return;
+        primeInlineTimerSound();
 
         const live = document.createElement('span');
         live.className = 'inline-timer-live';
@@ -1920,6 +1976,7 @@ function renderStepsWithTimers(steps) {
             live.textContent = '0s';
             clearInterval(intervalId);
             inlineTimerIntervals.delete(intervalId);
+            playInlineTimerDoneSound();
             return;
           }
           live.textContent = `${remaining}s`;

@@ -2216,17 +2216,66 @@ function renderFinal(game) {
   upsertCurrentGame(game);
 }
 
+function stopSpectatorCountdown() {
+  if (spectatorCountdownIntervalId) {
+    clearInterval(spectatorCountdownIntervalId);
+    spectatorCountdownIntervalId = null;
+  }
+}
+
+function startSpectatorCountdown(roundTimerEndsAt) {
+  stopSpectatorCountdown();
+
+  const update = () => {
+    const remaining = Math.max(0, Math.ceil((roundTimerEndsAt - Date.now()) / 1000));
+    spectatorTimerEl.textContent = `Timer: ${formatCountdown(remaining)}`;
+    if (remaining <= 0) stopSpectatorCountdown();
+  };
+
+  update();
+  spectatorCountdownIntervalId = setInterval(update, 1000);
+}
+
 function renderSpectator(game) {
   hideAllSections();
   spectatorSection.classList.remove('hidden');
+  spectatorRoundInfoEl.textContent = '';
+  spectatorTimerEl.textContent = '';
   spectatorScoreListEl.innerHTML = '';
   spectatorRecipeListEl.innerHTML = '';
 
   if (!game) {
+    stopSpectatorCountdown();
+    spectatorRoundInfoEl.textContent = 'Kein aktives Spiel gefunden.';
+    spectatorTimerEl.textContent = 'Timer: -';
     const li = document.createElement('li');
     li.textContent = 'Kein Spiel gefunden.';
     spectatorScoreListEl.appendChild(li);
     return;
+  }
+
+  const players = game.players || [];
+  const rounds = game.rounds || [];
+  const currentPlayerName = players[game.activePlayerTurnIndex] || 'Unbekannt';
+  const currentRound = rounds[game.gameIndex] || null;
+
+  if (game.finished || game.gameIndex >= rounds.length) {
+    spectatorRoundInfoEl.textContent = 'Spiel beendet.';
+    stopSpectatorCountdown();
+    spectatorTimerEl.textContent = 'Timer: beendet';
+  } else if (game.awaitingRecipeReveal) {
+    spectatorRoundInfoEl.textContent = `${currentPlayerName} ist dran.`;
+    stopSpectatorCountdown();
+    spectatorTimerEl.textContent = 'Timer: nicht gestartet';
+  } else {
+    const roundName = currentRound?.isJoker ? 'Joker-Runde' : (currentRound?.name || 'Unbekanntes Rezept');
+    spectatorRoundInfoEl.textContent = `${currentPlayerName} kocht: ${roundName}`;
+    if (game.roundStarted && game.roundTimerEndsAt) {
+      startSpectatorCountdown(game.roundTimerEndsAt);
+    } else {
+      stopSpectatorCountdown();
+      spectatorTimerEl.textContent = 'Timer: nicht gestartet';
+    }
   }
 
   (game.players || []).forEach((name, idx) => {
@@ -2236,17 +2285,23 @@ function renderSpectator(game) {
     spectatorScoreListEl.appendChild(li);
   });
 
-  (game.rounds || [])
-    .filter(round => !round.isJoker)
-    .forEach((round, idx) => {
+  const recipeRounds = rounds.filter(round => !round.isJoker);
+  if (recipeRounds.length === 0) {
+    const li = document.createElement('li');
+    li.textContent = 'Keine Rezepte vorhanden.';
+    spectatorRecipeListEl.appendChild(li);
+  } else {
+    recipeRounds.forEach((round, idx) => {
       const li = document.createElement('li');
       li.textContent = `${idx + 1}. ${round.name}`;
       spectatorRecipeListEl.appendChild(li);
     });
+  }
 }
 
 function renderFromCurrentGame() {
   if (spectatorMode) return;
+  stopSpectatorCountdown();
   const game = getCurrentGame();
   hideAllSections();
 
@@ -2369,6 +2424,8 @@ const finishGameBtn = document.getElementById('finishGame');
 const startAnotherGameBtn = document.getElementById('startAnotherGame');
 
 const spectatorSection = document.getElementById('spectator');
+const spectatorRoundInfoEl = document.getElementById('spectatorRoundInfo');
+const spectatorTimerEl = document.getElementById('spectatorTimer');
 const spectatorScoreListEl = document.getElementById('spectatorScoreList');
 const spectatorRecipeListEl = document.getElementById('spectatorRecipeList');
 
@@ -2393,6 +2450,7 @@ const spectatorMode = !!spectatorGameId;
 let roundCountdownIntervalId = null;
 const inlineTimerIntervals = new Set();
 let spectatorPollIntervalId = null;
+let spectatorCountdownIntervalId = null;
 let screenWakeLock = null;
 
 menuToggleBtn.addEventListener('click', () => {

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v5";
+const CACHE_VERSION = "v6";
 const CACHE_NAME = `giro-di-pasta-${CACHE_VERSION}`;
 const CORE_ASSETS = [
   "./",
@@ -68,17 +68,17 @@ self.addEventListener("fetch", event => {
 
   if (isImage) {
     event.respondWith((async () => {
-      const cached = await caches.match(request);
-      if (cached) return cached;
       try {
-        const networkResponse = await fetch(request);
+        const networkResponse = await fetch(request, { cache: "no-store" });
         if (isSameOrigin && networkResponse && networkResponse.ok) {
           const cache = await caches.open(CACHE_NAME);
           cache.put(request, networkResponse.clone());
         }
         return networkResponse;
       } catch (error) {
-        return caches.match(request);
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        throw error;
       }
     })());
     return;

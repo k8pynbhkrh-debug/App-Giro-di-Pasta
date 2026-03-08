@@ -1416,11 +1416,15 @@ function getAccentForRound(round) {
   return '#3A7D44';
 }
 
-function setRecipeIllustrationPlaceholder(accent) {
+function setGameFrameAccent(accent) {
+  gameSection.style.borderColor = accent || '#cabaa2';
+}
+
+function setRecipeIllustrationPlaceholder() {
   ingredientIllustrationEl.style.backgroundImage = 'none';
   ingredientIllustrationEl.style.backgroundColor = '#f8f3e9';
+  ingredientIllustrationEl.style.border = 'none';
   ingredientIllustrationEl.dataset.placeholder = 'Bild Platzhalter';
-  ingredientIllustrationEl.style.border = `2px solid ${accent}`;
 }
 
 let illustrationRequestToken = 0;
@@ -1430,18 +1434,18 @@ function setRecipeIllustration(round, accent) {
   const token = ++illustrationRequestToken;
 
   if (!imagePath) {
-    setRecipeIllustrationPlaceholder(accent);
+    setRecipeIllustrationPlaceholder();
     return;
   }
 
   // Show placeholder while loading; switch only when image is confirmed available.
-  setRecipeIllustrationPlaceholder(accent);
+  setRecipeIllustrationPlaceholder();
 
   const probe = new Image();
   probe.onload = () => {
     if (token !== illustrationRequestToken) return;
-    ingredientIllustrationEl.style.border = `2px solid ${accent}`;
-    ingredientIllustrationEl.style.backgroundColor = '#f8f3e9';
+    ingredientIllustrationEl.style.border = 'none';
+    ingredientIllustrationEl.style.backgroundColor = 'transparent';
     ingredientIllustrationEl.style.backgroundImage = `url("${imagePath}")`;
     ingredientIllustrationEl.style.backgroundSize = 'contain';
     ingredientIllustrationEl.style.backgroundRepeat = 'no-repeat';
@@ -1450,7 +1454,7 @@ function setRecipeIllustration(round, accent) {
   };
   probe.onerror = () => {
     if (token !== illustrationRequestToken) return;
-    setRecipeIllustrationPlaceholder(accent);
+    setRecipeIllustrationPlaceholder();
   };
   probe.src = imagePath;
 }
@@ -2038,8 +2042,9 @@ function renderRoundHandover(game, fixedPlayerIndex = null) {
   difficultyIndicatorEl.textContent = 'Schwierigkeit ●●○';
   tipTextEl.textContent = 'Tipp: Rezeptkarte wird nach der Übergabe angezeigt.';
   stepListEl.innerHTML = '<li>Wenn das Handy uebergeben wurde, druecke auf "Rezept anzeigen".</li>';
-  setRecipeIllustrationPlaceholder('#cabaa2');
+  setRecipeIllustrationPlaceholder();
   recipeTitleEl.style.borderBottomColor = '#cabaa2';
+  setGameFrameAccent('#cabaa2');
 
   upsertCurrentGame(game);
 }
@@ -2070,6 +2075,7 @@ function revealCurrentRecipe(game) {
   recipeMetaEl.textContent = `Runde ${game.gameIndex + 1} von ${game.rounds.length}${round.isJoker ? ' - Joker' : ''}`;
   const accent = getAccentForRound(round);
   recipeTitleEl.style.borderBottomColor = accent;
+  setGameFrameAccent(accent);
   const recipeGuide = getRecipeGuide(round);
   difficultyIndicatorEl.textContent = getDifficultyIndicatorText(recipeGuide.difficulty);
   setRecipeIllustration(round, accent);
@@ -2117,8 +2123,9 @@ function renderFinal(game) {
   tipTextEl.textContent = 'Tipp: Neues Spiel starten oder gespeichertes Spiel laden.';
   stopRoundCountdown();
   clearInlineTimers();
-  setRecipeIllustrationPlaceholder('#cabaa2');
+  setRecipeIllustrationPlaceholder();
   recipeTitleEl.style.borderBottomColor = '#cabaa2';
+  setGameFrameAccent('#cabaa2');
   const ranking = game.players
     .map((name, idx) => ({ name, score: game.scores[idx] }))
     .sort((a, b) => b.score - a.score);

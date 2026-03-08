@@ -1877,6 +1877,31 @@ function clearInlineTimers() {
   inlineTimerIntervals.clear();
 }
 
+async function requestScreenWakeLock() {
+  if (!('wakeLock' in navigator)) return;
+  if (screenWakeLock) return;
+
+  try {
+    screenWakeLock = await navigator.wakeLock.request('screen');
+    screenWakeLock.addEventListener('release', () => {
+      screenWakeLock = null;
+    });
+  } catch (error) {
+    // Wake Lock ist optional und nicht auf allen Geräten verfügbar.
+  }
+}
+
+async function releaseScreenWakeLock() {
+  if (!screenWakeLock) return;
+  try {
+    await screenWakeLock.release();
+  } catch (error) {
+    // Ignorieren.
+  } finally {
+    screenWakeLock = null;
+  }
+}
+
 function getTimerAudioContext() {
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return null;
@@ -1932,6 +1957,25 @@ function playInlineTimerDoneSound() {
   toneB.stop(now + 0.37);
 }
 
+function speakInlineTimerDone() {
+  if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
+    return false;
+  }
+
+  try {
+    const utterance = new SpeechSynthesisUtterance('Nächster Schritt');
+    utterance.lang = 'de-DE';
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utterance);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 function renderStepsWithTimers(steps) {
   clearInlineTimers();
   stepListEl.innerHTML = '';
@@ -1963,6 +2007,7 @@ function renderStepsWithTimers(steps) {
         const total = parseInt(timerBtn.dataset.seconds || '0', 10);
         if (!Number.isFinite(total) || total <= 0) return;
         primeInlineTimerSound();
+        if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
 
         const live = document.createElement('span');
         live.className = 'inline-timer-live';
@@ -1976,7 +2021,9 @@ function renderStepsWithTimers(steps) {
             live.textContent = '0s';
             clearInterval(intervalId);
             inlineTimerIntervals.delete(intervalId);
-            playInlineTimerDoneSound();
+            if (!speakInlineTimerDone()) {
+              playInlineTimerDoneSound();
+            }
             return;
           }
           live.textContent = `${remaining}s`;
@@ -2004,6 +2051,7 @@ function updateRoundCountdownUi(remainingSeconds) {
 }
 
 function startRoundCountdown(game) {
+  void requestScreenWakeLock();
   stopRoundCountdown();
   const roundMinutes = Math.max(1, parseInt(game.settings.roundMinutes || 8, 10));
   const durationSeconds = roundMinutes * 60;
@@ -2122,6 +2170,7 @@ function skipCurrentRecipe(game) {
 }
 
 function revealCurrentRecipe(game) {
+  void requestScreenWakeLock();
   const round = game.rounds[game.gameIndex];
   const playerName = game.players[game.activePlayerTurnIndex];
   setGameSubView('recipe');
@@ -2378,6 +2427,7 @@ const spectatorMode = !!spectatorGameId;
 let roundCountdownIntervalId = null;
 const inlineTimerIntervals = new Set();
 let spectatorPollIntervalId = null;
+let screenWakeLock = null;
 
 menuToggleBtn.addEventListener('click', () => {
   menuEl.classList.toggle('open');
@@ -2898,6 +2948,22 @@ if ("serviceWorker" in navigator) {
     }
   });
 }
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    void requestScreenWakeLock();
+  } else {
+    void releaseScreenWakeLock();
+  }
+});
+
+window.addEventListener('beforeunload', () => {
+  void releaseScreenWakeLock();
+});
+
+document.addEventListener('pointerdown', () => {
+  void requestScreenWakeLock();
+}, { passive: true });
 
 renderGameList();
 renderLandingGameList();

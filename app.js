@@ -1423,21 +1423,36 @@ function setRecipeIllustrationPlaceholder(accent) {
   ingredientIllustrationEl.style.border = `2px solid ${accent}`;
 }
 
+let illustrationRequestToken = 0;
+
 function setRecipeIllustration(round, accent) {
   const imagePath = round?.isJoker ? '' : getCardImageForRecipe(round?.name || '');
-  ingredientIllustrationEl.style.border = `2px solid ${accent}`;
+  const token = ++illustrationRequestToken;
 
   if (!imagePath) {
     setRecipeIllustrationPlaceholder(accent);
     return;
   }
 
-  ingredientIllustrationEl.style.backgroundColor = '#f8f3e9';
-  ingredientIllustrationEl.style.backgroundImage = `url("${imagePath}")`;
-  ingredientIllustrationEl.style.backgroundSize = 'contain';
-  ingredientIllustrationEl.style.backgroundRepeat = 'no-repeat';
-  ingredientIllustrationEl.style.backgroundPosition = 'center';
-  delete ingredientIllustrationEl.dataset.placeholder;
+  // Show placeholder while loading; switch only when image is confirmed available.
+  setRecipeIllustrationPlaceholder(accent);
+
+  const probe = new Image();
+  probe.onload = () => {
+    if (token !== illustrationRequestToken) return;
+    ingredientIllustrationEl.style.border = `2px solid ${accent}`;
+    ingredientIllustrationEl.style.backgroundColor = '#f8f3e9';
+    ingredientIllustrationEl.style.backgroundImage = `url("${imagePath}")`;
+    ingredientIllustrationEl.style.backgroundSize = 'contain';
+    ingredientIllustrationEl.style.backgroundRepeat = 'no-repeat';
+    ingredientIllustrationEl.style.backgroundPosition = 'center';
+    delete ingredientIllustrationEl.dataset.placeholder;
+  };
+  probe.onerror = () => {
+    if (token !== illustrationRequestToken) return;
+    setRecipeIllustrationPlaceholder(accent);
+  };
+  probe.src = imagePath;
 }
 
 function getAllRecipes() {
@@ -1502,44 +1517,34 @@ function parseStepDuration(stepText) {
   };
 }
 
-function withHeatHint(stepText) {
-  if (/^\[[^\]]+\]\s*/.test(stepText)) return stepText;
+function hasHeatHint(stepText) {
+  return /^\[[^\]]+\]\s*/.test(stepText);
+}
 
+function requiresOffHeat(stepText) {
   const lower = stepText.toLowerCase();
-  const offHeat = [
+  const offHeatTerms = [
     'vom herd',
     'restwärme',
     'restwaerme',
     'off-heat',
     'nicht kochen'
   ];
-  const lowHeat = [
-    'sanft',
-    'niedrig',
-    'leise',
-    'bei bedarf minimal wasser',
-    'kurz köcheln',
-    'kurz köcheln',
-    'kurz koecheln'
-  ];
-  const highHeat = [
-    'heiß anbraten',
-    'heiss anbraten',
-    'kräftig anbraten',
-    'kraeftig anbraten',
-    'knusprig',
-    'trocken rösten',
-    'trocken rösten',
-    'trocken roesten',
-    'anrösten',
-    'anrösten',
-    'anroesten'
-  ];
+  return offHeatTerms.some(term => lower.includes(term));
+}
 
-  if (offHeat.some(term => lower.includes(term))) return `[AUS] ${stepText}`;
-  if (lowHeat.some(term => lower.includes(term))) return `[NIEDRIG] ${stepText}`;
-  if (highHeat.some(term => lower.includes(term))) return `[HOCH] ${stepText}`;
-  return `[MITTEL] ${stepText}`;
+function applyCriticalHeatHints(steps) {
+  const enhanced = steps.map(step => String(step || '').trim());
+
+  enhanced.forEach((step, index) => {
+    if (!requiresOffHeat(step)) return;
+
+    const targetIndex = index > 0 ? index - 1 : index;
+    if (hasHeatHint(enhanced[targetIndex])) return;
+    enhanced[targetIndex] = `[AUS] ${enhanced[targetIndex]}`;
+  });
+
+  return enhanced;
 }
 
 function getPlayerDefaultNames(count) {
@@ -1871,11 +1876,11 @@ function clearInlineTimers() {
 function renderStepsWithTimers(steps) {
   clearInlineTimers();
   stepListEl.innerHTML = '';
+  const preparedSteps = applyCriticalHeatHints(
+    steps.filter(step => !step.toLowerCase().startsWith('tipp:'))
+  );
 
-  steps
-    .filter(step => !step.toLowerCase().startsWith('tipp:'))
-    .forEach(rawStep => {
-      const step = withHeatHint(rawStep);
+  preparedSteps.forEach(step => {
       const li = document.createElement('li');
       const parsed = parseStepDuration(step);
 

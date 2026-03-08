@@ -653,14 +653,29 @@ function normalizeForId(text) {
     .replace(/^_|_$/g, '');
 }
 
-const PDF_DEFAULT_STEPS = [
-  '1. [MITTEL] Basis anroesten [30-60 s]',
-  '2. Hauptzutat zugeben',
-  '3. Sauce oder Basis aufbauen',
-  '4. Pasta in Pfanne schwenken',
-  '5. Mit Nudelwasser cremig ziehen',
-  'Tipp: Hitze kontrollieren fuer perfekte Emulsion'
-];
+const DEFAULT_RECIPE_GUIDE = {
+  difficulty: 'mittel',
+  steps: [
+    'Basis in der Pfanne vorbereiten und sanft erhitzen',
+    'Hauptzutaten nach und nach zugeben',
+    'Mit etwas Nudelwasser die Sauce aufbauen',
+    'Pasta in der Pfanne schwenken und emulgieren',
+    'Zum Schluss abschmecken und direkt servieren'
+  ],
+  tip: 'Hitze kontrollieren und Sauce mit Nudelwasser cremig ziehen.'
+};
+
+const JOKER_RECIPE_GUIDE = {
+  difficulty: 'leicht',
+  steps: [
+    'Joker ziehen und als Gruppe ein freies Rezept festlegen',
+    'Verfügbare Zutaten aus der Einkaufsliste auswählen',
+    'In 5 kurzen Schritten eure eigene Zubereitung planen',
+    'Rezept kochen und gemeinsam abschmecken',
+    'Normal raten und die Runde wie gewohnt werten'
+  ],
+  tip: 'Joker-Runden sind flexibel, aber sollten zur Einkaufsplanung passen.'
+};
 
 const supplementalRecipes = [
   {
@@ -756,6 +771,559 @@ const pdfRecipeNames = [
   'Pasta dolce con ricotta'
 ];
 
+const recipeGuidesById = {
+  "aglio_e_olio_e_peperoncino": {
+    "difficulty": "leicht",
+    "steps": [
+      "Knoblauch in kaltem Öl ansetzen, dann sanft erwärmen",
+      "Chili kurz mitziehen lassen",
+      "Pasta + 2-4 EL Nudelwasser zugeben",
+      "30-60 Sek. schwenken bis glänzend",
+      "Petersilie unterheben"
+    ],
+    "tip": "Knoblauch darf nicht braun werden (bitter). Hitze niedrig, Emulsion über Nudelwasser"
+  },
+  "cacio_e_pepe": {
+    "difficulty": "mittel",
+    "steps": [
+      "Pfeffer trocken rösten",
+      "2-3 EL Nudelwasser zugeben und pfeffrige Basis rühren",
+      "Pasta zugeben und kurz schwenken",
+      "Pfanne vom Herd; Käse einrieseln lassen und kräftig rühren",
+      "Bei Bedarf minimal Wasser nachgeben"
+    ],
+    "tip": "Käse niemals auf hoher Hitze einarbeiten-sonst klumpt er. Stärke im Wasser stabilisiert"
+  },
+  "carbonara": {
+    "difficulty": "mittel",
+    "steps": [
+      "Pancetta knusprig auslassen",
+      "Eier + Käse + Pfeffer glatt rühren",
+      "Pasta in Pfanne, 1-2 EL Nudelwasser",
+      "Pfanne vom Herd; Eiermix zugeben und sofort rühren",
+      "Cremig ziehen, sofort servieren"
+    ],
+    "tip": "Ziel ist Emulsion, nicht Rührei. Pfanne muss deutlich von der Hitze weg sein"
+  },
+  "gricia": {
+    "difficulty": "mittel",
+    "steps": [
+      "Guanciale langsam auslassen bis knusprig",
+      "Pfeffer kurz im Fett rösten",
+      "Pasta + Nudelwasser zugeben",
+      "Vom Herd; Pecorino einrühren bis cremig",
+      "Mit Guanciale-Crunch servieren"
+    ],
+    "tip": "Käse immer off-heat. Mit wenig Wasser starten, dann nach Bedarf emulgieren"
+  },
+  "amatriciana": {
+    "difficulty": "mittel",
+    "steps": [
+      "Guanciale auslassen",
+      "Optional mit Weißwein ablöschen, kurz reduzieren",
+      "Tomate zugeben und sanft köcheln",
+      "Pasta unterheben, 30 Sek. schwenken",
+      "Pecorino beim Servieren"
+    ],
+    "tip": "Für Party-Tempo: Tomatenbasis vorgekocht warmhalten, aber praxisnah"
+  },
+  "puttanesca": {
+    "difficulty": "leicht",
+    "steps": [
+      "Knoblauch in Öl, Sardellen darin auflösen",
+      "Kapern + Oliven zugeben",
+      "Tomaten zugeben und 5-10 Min. simmern",
+      "Pasta unterheben",
+      "Kurz emulgieren, servieren"
+    ],
+    "tip": "Kapern abspülen. Sardellen sind salzig-erst probieren, dann nachsalzen"
+  },
+  "aglio_olio_e_acciughe": {
+    "difficulty": "leicht",
+    "steps": [
+      "Knoblauch sanft im Öl erwärmen",
+      "Sardellen einrühren, bis sie zerfallen",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren, Petersilie unterheben",
+      "Servieren"
+    ],
+    "tip": "Nicht überhitzen-sonst wird's streng. Salz meist nicht nötig"
+  },
+  "sardellen_e_pangrattato": {
+    "difficulty": "leicht",
+    "steps": [
+      "Brösel in wenig Öl goldbraun rösten, rausnehmen",
+      "Sardellen im Öl schmelzen",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren",
+      "Mit Bröseln toppen"
+    ],
+    "tip": "Brösel separat halten-so bleiben sie knusprig. Tomaten-Variante falls gewünscht"
+  },
+  "sardellen_e_limone": {
+    "difficulty": "leicht",
+    "steps": [
+      "Knoblauch im Öl sanft erwärmen",
+      "Sardellen einrühren bis sie zerfallen",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren",
+      "Abrieb (und wenig Saft) am Ende zugeben"
+    ],
+    "tip": "Zitrone dosieren-Abrieb bringt Aroma ohne die Emulsion zu kippen ( je nach Variante)"
+  },
+  "pomodoro_e_basilico": {
+    "difficulty": "leicht",
+    "steps": [
+      "Knoblauch/Zwiebel in Öl anschwitzen",
+      "Tomate zugeben, salzen",
+      "10-20 Min. leise köcheln Party: vorgekocht",
+      "Pasta zugeben, mit Nudelwasser binden",
+      "Basilikum am Schluss"
+    ],
+    "tip": "Basilikum nie mitkochen. Für Party: Sugo-Basis warmhalten"
+  },
+  "arrabbiata": {
+    "difficulty": "leicht",
+    "steps": [
+      "Knoblauch in Öl, Chili kurz mitziehen",
+      "Tomaten 5-15 Min. simmern",
+      "Pasta zugeben",
+      "Mit Nudelwasser binden",
+      "Petersilie + Pecorino beim Servieren"
+    ],
+    "tip": "In Mini-Portionen wirkt Chili stärker. Lieber nachschärfen als übertreiben"
+  },
+  "marinara": {
+    "difficulty": "leicht",
+    "steps": [
+      "Knoblauch sanft in Öl anrösten",
+      "Tomate zugeben, 10 Min. köcheln",
+      "Oregano einrühren",
+      "Pasta unterheben, schwenken",
+      "Kräuter-Finish"
+    ],
+    "tip": "Marinara ist teils mehrdeutig; hier ist die Tomaten-Oregano-Sugo-Variante (siehe LCI)"
+  },
+  "ricotta_e_pomodoro_al_peperoncino": {
+    "difficulty": "leicht",
+    "steps": [
+      "Tomatensauce erwärmen, Chili zugeben",
+      "Ricotta mit etwas Nudelwasser cremig rühren",
+      "Pasta in Tomate schwenken",
+      "Ricotta-Creme unterziehen (nicht kochen)",
+      "Servieren"
+    ],
+    "tip": "Ricotta darf nicht sprudelnd kochen-wird körnig"
+  },
+  "burro_e_salvia": {
+    "difficulty": "leicht",
+    "steps": [
+      "Butter schmelzen, leicht nussig werden lassen",
+      "Salbei kurz knusprig braten",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren",
+      "Mit Käse abrunden"
+    ],
+    "tip": "Butter nur haselnussfarben, nicht dunkel"
+  },
+  "funghi_e_burro": {
+    "difficulty": "mittel",
+    "steps": [
+      "Pilze heiß anbraten bis trocken",
+      "Butter zugeben, aromatisieren, salzen",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren",
+      "Petersilie, servieren"
+    ],
+    "tip": "Für 5-10 Min: Pilze vorgaren; sonst brauchen sie Zeit"
+  },
+  "ricotta_al_limone": {
+    "difficulty": "leicht",
+    "steps": [
+      "Ricotta mit Abrieb, Pfeffer, Öl glatt rühren",
+      "1-2 EL Nudelwasser einarbeiten",
+      "Pasta zugeben",
+      "Emulgieren",
+      "Mit wenig Saft abschmecken"
+    ],
+    "tip": "Abrieb ist der Hauptgeschmack; Saft nur dosiert"
+  },
+  "ricotta_e_gorgonzola": {
+    "difficulty": "leicht",
+    "steps": [
+      "Gorgonzola sehr sanft mit Milch schmelzen",
+      "Ricotta einrühren bis glatt",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren",
+      "Pfeffer, servieren"
+    ],
+    "tip": "Niedrige Hitze. So trennt die Sauce nicht"
+  },
+  "gorgonzola_e_noci": {
+    "difficulty": "leicht",
+    "steps": [
+      "Nüsse trocken rösten und hacken",
+      "Gorgonzola in Milch bei niedriger Hitze schmelzen",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren",
+      "Nüsse als Finish"
+    ],
+    "tip": "Nüsse zuletzt für Crunch"
+  },
+  "parmigiano_e_burro": {
+    "difficulty": "leicht",
+    "steps": [
+      "Butter schmelzen (nicht bräunen)",
+      "Pasta + 2-4 EL Nudelwasser zugeben",
+      "Vom Herd; Parmesan einrühren",
+      "Cremig ziehen, Wasser nach Bedarf",
+      "Servieren"
+    ],
+    "tip": "Emulsion über Restwärme und stärkehaltiges Wasser"
+  },
+  "pistazie_e_limone": {
+    "difficulty": "leicht",
+    "steps": [
+      "Pistazien mit Öl zu Pesto mixen",
+      "Abrieb + Salz einrühren",
+      "Pasta + Nudelwasser zugeben",
+      "Cremig schwenken",
+      "Mit Käse servieren"
+    ],
+    "tip": "Pesto nicht kochen; Abrieb am Ende"
+  },
+  "pasta_all_assassina": {
+    "difficulty": "mittel",
+    "steps": [
+      "Passata + Wasser zu Tomatenbrühe",
+      "Knoblauch+Chili anrösten",
+      "Trockene Spaghetti anrösten",
+      "Brühe etappenweise zugeben, reduzieren lassen",
+      "Röstaroma kontrollieren, servieren"
+    ],
+    "tip": "Fast anbrennen ist Teil der Technik; schwarz ist zu weit"
+  },
+  "ragu_alla_bolognese": {
+    "difficulty": "schwer",
+    "steps": [
+      "Sofiritto anschwitzen, Fleisch bräunen",
+      "Wein ablöschen, reduzieren",
+      "Tomate+Milch zugeben",
+      "Sehr leise 2-3 Std. simmern Party: vorkochen",
+      "Mit Pasta mischen"
+    ],
+    "tip": "App-Logik: Ragù als vorbereitete Basis, im Spiel nur portioniertes Erwärmen + Mantecatura"
+  },
+  "ragu_bianco": {
+    "difficulty": "schwer",
+    "steps": [
+      "Sofiritto anschwitzen, Fleisch bräunen",
+      "Weißwein ablöschen",
+      "Brühe zugeben, leise schmoren",
+      "45-90 Min. Party: vorkochen",
+      "Pasta unterheben"
+    ],
+    "tip": "Zeit ist Kernzutat; daher Prep-Flag im Spiel"
+  },
+  "salsiccia_e_finocchio": {
+    "difficulty": "mittel",
+    "steps": [
+      "Salsiccia krümelig braten",
+      "Zwiebel zugeben, weich werden lassen",
+      "Optional Tomate/ Wein kurz einkochen",
+      "Pasta + Nudelwasser binden",
+      "Servieren"
+    ],
+    "tip": "Für 5-10 Min: Salsiccia vorbraten; sonst dauerts"
+  },
+  "speck_e_cipolla": {
+    "difficulty": "leicht",
+    "steps": [
+      "Zwiebel langsam glasig werden lassen",
+      "Speck rösten",
+      "Optional Tomate kurz ziehen lassen",
+      "Pasta schwenken",
+      "Pfeffer, servieren"
+    ],
+    "tip": "Speck ist salzig; Zwiebel nicht zu heiß bräunen"
+  },
+  "pollo_e_panna": {
+    "difficulty": "mittel",
+    "steps": [
+      "Hähnchen kräftig anbraten bis gar",
+      "Zwiebel/Knoblauch kurz anschwitzen",
+      "Sahne zugeben, kurz einkochen",
+      "Pasta + Parmesan binden",
+      "Servieren"
+    ],
+    "tip": "Für Party: Hähnchen vorgegart nutzen, aber sicher/schnell"
+  },
+  "pollo_e_funghi": {
+    "difficulty": "mittel",
+    "steps": [
+      "Pilze heiß anbraten bis trocken",
+      "Hähnchen zugeben und gar braten",
+      "Optional Sahne kurz einkochen",
+      "Pasta schwenken",
+      "Kräuter-Finish"
+    ],
+    "tip": "Für Schnellmodus: Pilze vorbraten"
+  },
+  "tonno_e_pomodoro": {
+    "difficulty": "leicht",
+    "steps": [
+      "Zwiebel/Knoblauch anschwitzen",
+      "Tomate simmern",
+      "Thunflsch kurz einrühren",
+      "Pasta schwenken",
+      "Petersilie, servieren"
+    ],
+    "tip": "Thunflsch nicht lange kochen"
+  },
+  "tonno_e_capperi": {
+    "difficulty": "leicht",
+    "steps": [
+      "Knoblauch+Kapern kurz anschwitzen",
+      "Tomate kurz simmern",
+      "Thunflsch zugeben",
+      "Pasta schwenken",
+      "Servieren"
+    ],
+    "tip": "Kapern abspülen; in bianco als Variante"
+  },
+  "salmone_e_panna": {
+    "difficulty": "mittel",
+    "steps": [
+      "Lachs kurz anrösten",
+      "Sahne zugeben, 2-3 Min. köcheln",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren",
+      "Kräuter-Finish"
+    ],
+    "tip": "Frischer Lachs nur kurz, geräucherter Lachs eher am Ende"
+  },
+  "salmone_e_limone": {
+    "difficulty": "mittel",
+    "steps": [
+      "Lachs kurz garen oder sanft erwärmen",
+      "Pasta + Nudelwasser, Abrieb einrühren",
+      "Emulgieren",
+      "Mit wenig Saft abschmecken",
+      "Servieren"
+    ],
+    "tip": "Säure immer zuletzt; senza panna als Referenz, Sahne optional"
+  },
+  "gamberi_e_aglio": {
+    "difficulty": "mittel",
+    "steps": [
+      "Knoblauch anschwitzen",
+      "Garnelen 1-3 Min. braten",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren",
+      "Petersilie, servieren"
+    ],
+    "tip": "Garnelen nicht übergaren; küchenfertige Garnelen machens party-tauglich"
+  },
+  "gamberi_e_zucchine": {
+    "difficulty": "mittel",
+    "steps": [
+      "Zucchini anbraten bis bissfest",
+      "Garnelen kurz garen",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren",
+      "Petersilie, servieren"
+    ],
+    "tip": "Zucchini erst am Ende salzen"
+  },
+  "vongole_in_bianco": {
+    "difficulty": "schwer",
+    "steps": [
+      "Vongole spurgare (Stunden) falls weggelassen",
+      "Vongole öffnen (Deckel), Flüssigkeit auffangen",
+      "Flüssigkeit filtern",
+      "Pasta emulgieren",
+      "Petersilie, servieren"
+    ],
+    "tip": "Sand-Management ist Picht; ohne Vorbereitung nicht party-tauglich"
+  },
+  "vongole_e_pomodoro": {
+    "difficulty": "schwer",
+    "steps": [
+      "Vongole spurgare (Stunden)",
+      "Tomate kurz köcheln",
+      "Vongole öffnen, Flüssigkeit filtern und zur Sauce",
+      "Pasta schwenken",
+      "Petersilie, servieren"
+    ],
+    "tip": "Tomate meist nur macchiato, damit Meeresaroma bleibt"
+  },
+  "frutti_di_mare": {
+    "difficulty": "schwer",
+    "steps": [
+      "Meeresfrüchte sauber vorbereiten falls shortcut",
+      "Garzeiten stafieln",
+      "Tomate + Muschelwasser kurz simmern",
+      "Pasta schwenken",
+      "Petersilie, servieren"
+    ],
+    "tip": "Hygiene Timing sind Kern; ohne Prep nicht 5-10 Min"
+  },
+  "bottarga_e_limone": {
+    "difficulty": "leicht",
+    "steps": [
+      "Öl sanft aromatisieren",
+      "Pasta + Nudelwasser zugeben",
+      "Vom Herd; Bottarga einrühren",
+      "Abrieb als Finish",
+      "Servieren"
+    ],
+    "tip": "Bottarga nicht kochen; extra als Finish"
+  },
+  "melanzane_e_pomodoro": {
+    "difficulty": "schwer",
+    "steps": [
+      "Melanzane frittieren/roasten Party: vorab",
+      "Tomatensauce kochen",
+      "Pasta in Sauce, Melanzane unterheben",
+      "Basilikum",
+      "Ricotta salata als Finish"
+    ],
+    "tip": "Ohne vorbereitete Melanzane kein 5-10-Min-Rezept; mit Prep sehr gut"
+  },
+  "zucchine_e_menta": {
+    "difficulty": "leicht",
+    "steps": [
+      "Zucchini fein reiben/hobeln, kurz in Öl garen",
+      "Pasta + Nudelwasser zugeben",
+      "Minze einrühren",
+      "Käse cremig binden",
+      "Servieren"
+    ],
+    "tip": "Minze ganz am Ende"
+  },
+  "spinaci_e_ricotta": {
+    "difficulty": "leicht",
+    "steps": [
+      "Spinat kurz zusammenfallen lassen",
+      "Ricotta mit Nudelwasser cremig rühren",
+      "Pasta zugeben",
+      "Emulgieren, würzen",
+      "Parmesan-Finish"
+    ],
+    "tip": "TK-Spinat ausdrücken; Ricotta nicht kochen"
+  },
+  "crema_di_zucca": {
+    "difficulty": "mittel",
+    "steps": [
+      "Kürbis weich garen und pürieren Party: vorab",
+      "Creme erwärmen",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren",
+      "Käse, servieren"
+    ],
+    "tip": "Als vorbereitete Basis-Sauce ideal"
+  },
+  "taleggio_e_pepe": {
+    "difficulty": "leicht",
+    "steps": [
+      "Taleggio sehr sanft mit Milch schmelzen",
+      "Pfeffer einrühren",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren",
+      "Extra Pfeffer, servieren"
+    ],
+    "tip": "Kein Kochen-Käse trennt; Pfeffer frisch mahlen"
+  },
+  "stracchino_e_noci": {
+    "difficulty": "leicht",
+    "steps": [
+      "Nüsse rösten und hacken",
+      "Stracchino mit wenig Milch cremig rühren",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren",
+      "Nüsse als Finish"
+    ],
+    "tip": "Niedrige Hitze; Nüsse zuletzt"
+  },
+  "quattro_formaggi": {
+    "difficulty": "mittel",
+    "steps": [
+      "Käse klein schneiden/reiben",
+      "Bei niedriger Hitze mit Milch schmelzen",
+      "Pasta + Nudelwasser zugeben",
+      "Emulgieren, pfefiern",
+      "Servieren"
+    ],
+    "tip": "Nicht sprudelnd kochen; Käse-Mix kann variieren"
+  },
+  "pesto_genovese": {
+    "difficulty": "mittel",
+    "steps": [
+      "Knoblauch+Salz+Pinienkerne mörsern",
+      "Basilikum kurz einarbeiten",
+      "Käse einrühren",
+      "Öl in dünnem Strahl zugeben",
+      "Mit Pasta + Nudelwasser mischen"
+    ],
+    "tip": "Pesto nie kochen. Basilikum kühl halten (Oxidation)"
+  },
+  "pesto_rosso": {
+    "difficulty": "leicht",
+    "steps": [
+      "Tomaten ggf. wässern",
+      "Mit Mandeln+Öl mixen",
+      "Käse+Basilikum zugeben",
+      "Mit Pasta + Nudelwasser cremig ziehen",
+      "Servieren"
+    ],
+    "tip": "Salz kontrollieren; no-cook"
+  },
+  "pasta_al_latte": {
+    "difficulty": "mittel",
+    "steps": [
+      "Milch mit Zucker+Schale erhitzen",
+      "Nudeln in Milch garen, rühren",
+      "Kurz eindicken lassen",
+      "In Schalen füllen",
+      "Mit Zimt/Zucker toppen"
+    ],
+    "tip": "Brennt leicht an: niedrige Hitze und ständig rühren; Schale entfernen"
+  },
+  "pasta_con_burro_e_zucchero": {
+    "difficulty": "leicht",
+    "steps": [
+      "Butter schmelzen",
+      "Pasta zugeben, schwenken",
+      "Zucker einrieseln lassen und kurz glasieren",
+      "Sofort servieren",
+      "Optional Zimt/Abrieb obenauf"
+    ],
+    "tip": "Kein klarer italienischer Standard-als Game-Variante behandeln und als markieren"
+  },
+  "pasta_dolce_con_noci": {
+    "difficulty": "mittel",
+    "steps": [
+      "Nüsse hacken, rösten",
+      "Zucker (und Kakao) anrösten, mit wenig Wasser lösen",
+      "Pasta zugeben und glasieren",
+      "Nüsse darüber",
+      "Zitronenabrieb als Finish"
+    ],
+    "tip": "Für Mini-Portionen: mehr Aroma, weniger Zucker"
+  },
+  "pasta_dolce_con_ricotta": {
+    "difficulty": "leicht",
+    "steps": [
+      "Ricotta mit Zucker+Zimt cremig rühren",
+      "Pasta kochen und abtropfen",
+      "Pasta in Ricotta-Creme mischen",
+      "Warm halten, nicht kochen",
+      "Mit Abrieb/Zimt toppen"
+    ],
+    "tip": "Ricotta-Creme nur warm, nicht heiß. Stark regional/nischig-als Dessert markieren"
+  }
+};
+
 const cardImagePool = [
   'assets/cards/extract_429.jpg',
   'assets/cards/extract_430.jpg',
@@ -813,16 +1381,23 @@ function getCatalogCheck() {
   };
 }
 
-function getRecipeSteps(recipe) {
+function getDifficultyIndicatorText(difficulty) {
+  if (difficulty === 'schwer') return 'Schwierigkeit ●●●';
+  if (difficulty === 'leicht') return 'Schwierigkeit ●○○';
+  return 'Schwierigkeit ●●○';
+}
+
+function getRecipeGuide(recipe) {
   if (recipe.isJoker) {
-    return [
-      'Ihr entscheidet als Gruppe frei, welches Rezept ihr jetzt kocht.',
-      'Nehmt verfuegbare Zutaten oder Reste aus der Einkaufsliste.',
-      'Kochzeit selbst festlegen und nach Geschmack anpassen.',
-      'Am Ende wird normal geraten und gepunktet.'
-    ];
+    return JOKER_RECIPE_GUIDE;
   }
-  return PDF_DEFAULT_STEPS;
+
+  const key = normalizeForId(recipe.name || '');
+  return recipeGuidesById[key] || DEFAULT_RECIPE_GUIDE;
+}
+
+function getRecipeSteps(recipe) {
+  return getRecipeGuide(recipe).steps;
 }
 
 function formatCountdown(totalSeconds) {
@@ -1369,13 +1944,12 @@ function revealCurrentRecipe(game) {
   recipeMetaEl.textContent = `Runde ${game.gameIndex + 1} von ${game.rounds.length}${round.isJoker ? ' - Joker' : ''}`;
   const accent = getAccentForRound(round);
   recipeTitleEl.style.borderBottomColor = accent;
-  difficultyIndicatorEl.textContent = 'Schwierigkeit ●●○';
+  const recipeGuide = getRecipeGuide(round);
+  difficultyIndicatorEl.textContent = getDifficultyIndicatorText(recipeGuide.difficulty);
   setRecipeIllustrationPlaceholder(accent);
 
-  const steps = getRecipeSteps(round);
-  const tipLine = steps.find(step => step.toLowerCase().startsWith('tipp:')) || 'Tipp: Mit ruhiger Hitze arbeiten.';
-  tipTextEl.textContent = tipLine;
-  renderStepsWithTimers(steps);
+  tipTextEl.textContent = `Tipp: ${recipeGuide.tip}`;
+  renderStepsWithTimers(recipeGuide.steps);
 
   game.awaitingRecipeReveal = false;
   finishGameBtn.textContent = 'Runde beenden';

@@ -1531,6 +1531,66 @@ function recomputeShoppingArtifacts(game) {
 const STORAGE_KEY = 'giro_di_pasta_games_v1';
 const SYNC_ENDPOINT_KEY = 'giro_di_pasta_sync_endpoint';
 
+function closeOtherSwipeRows(container, exceptRow) {
+  if (!container) return;
+  container.querySelectorAll('.swipe-row.reveal-delete').forEach(row => {
+    if (row !== exceptRow) row.classList.remove('reveal-delete');
+  });
+}
+
+function makeRowSwipeable(row, container) {
+  const content = row.querySelector('.swipe-content');
+  if (!content) return;
+
+  let startX = 0;
+  let dragging = false;
+
+  const finish = event => {
+    if (!dragging) return;
+    dragging = false;
+    if (event.pointerId && row.hasPointerCapture(event.pointerId)) {
+      row.releasePointerCapture(event.pointerId);
+    }
+    const deltaX = event.clientX - startX;
+    const shouldReveal = deltaX < -32;
+    row.classList.toggle('reveal-delete', shouldReveal);
+    content.style.transform = '';
+  };
+
+  row.addEventListener('pointerdown', event => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    dragging = true;
+    startX = event.clientX;
+    closeOtherSwipeRows(container, row);
+    if (event.pointerId) row.setPointerCapture(event.pointerId);
+  });
+
+  row.addEventListener('pointermove', event => {
+    if (!dragging) return;
+    const deltaX = event.clientX - startX;
+    if (deltaX < 0) {
+      const clamped = Math.max(deltaX, -90);
+      content.style.transform = `translateX(${clamped}px)`;
+    } else {
+      content.style.transform = `translateX(${Math.min(deltaX, 10)}px)`;
+    }
+  });
+
+  row.addEventListener('pointerup', finish);
+  row.addEventListener('pointercancel', finish);
+  row.addEventListener('pointerleave', () => {
+    if (!dragging) return;
+    dragging = false;
+    content.style.transform = '';
+  });
+
+  row.addEventListener('click', event => {
+    if (!row.classList.contains('reveal-delete')) return;
+    const isDelete = event.target instanceof HTMLElement && event.target.classList.contains('swipe-action');
+    if (!isDelete) row.classList.remove('reveal-delete');
+  });
+}
+
 function getSyncEndpointBase() {
   const raw = localStorage.getItem(SYNC_ENDPOINT_KEY) || '';
   return raw.replace(/\/+$/, '');
@@ -1681,7 +1741,10 @@ function renderGameList() {
 
   games.forEach(game => {
     const row = document.createElement('div');
-    row.className = 'game-row';
+    row.className = 'game-row swipe-row';
+
+    const content = document.createElement('div');
+    content.className = 'swipe-content';
 
     const loadBtn = document.createElement('button');
     loadBtn.className = 'game-load';
@@ -1692,15 +1755,19 @@ function renderGameList() {
       loadBtn.style.background = '#fffaf1';
     }
 
+    content.appendChild(loadBtn);
+
     const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'game-delete';
+    deleteBtn.className = 'swipe-action';
     deleteBtn.dataset.deleteId = game.id;
-    deleteBtn.textContent = '✕';
+    deleteBtn.textContent = 'Löschen';
     deleteBtn.title = 'Spiel löschen';
 
-    row.appendChild(loadBtn);
+    row.appendChild(content);
     row.appendChild(deleteBtn);
     gameListEl.appendChild(row);
+
+    makeRowSwipeable(row, gameListEl);
   });
 }
 
@@ -1716,22 +1783,29 @@ function renderLandingGameList() {
 
   games.slice().reverse().forEach(game => {
     const row = document.createElement('div');
-    row.className = 'game-row';
+    row.className = 'game-row swipe-row';
+
+    const content = document.createElement('div');
+    content.className = 'swipe-content';
 
     const button = document.createElement('button');
     button.className = 'game-load';
     button.dataset.gameId = game.id;
     button.textContent = formatGameLabel(game);
 
+    content.appendChild(button);
+
     const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'game-delete';
+    deleteBtn.className = 'swipe-action';
     deleteBtn.dataset.landingDeleteId = game.id;
-    deleteBtn.textContent = '✕';
+    deleteBtn.textContent = 'Löschen';
     deleteBtn.title = 'Spiel löschen';
 
-    row.appendChild(button);
+    row.appendChild(content);
     row.appendChild(deleteBtn);
     landingGameListEl.appendChild(row);
+
+    makeRowSwipeable(row, landingGameListEl);
   });
 }
 

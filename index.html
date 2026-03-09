@@ -122,10 +122,55 @@
     }
 
     .game-row {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #e7dfd1;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .game-row + .game-row {
+      margin-top: 6px;
+    }
+
+    .swipe-content {
+      transition: transform 0.18s ease;
+    }
+
+    .game-row.reveal-delete .swipe-content {
+      transform: translateX(-82px);
+    }
+
+    .swipe-action {
+      position: absolute;
+      inset: 0 0 0 auto;
+      width: 82px;
+      border: none;
+      border-left: 1px solid #e2c7c7;
+      background: #fbeaea;
+      color: #8a1f25;
+      font-weight: 700;
       display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 6px;
-      align-items: center;
+      place-items: center;
+      transform: translateX(100%);
+      transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+
+    .game-row.reveal-delete .swipe-action {
+      transform: translateX(0);
+    }
+
+    .game-row .game-load {
+      width: 100%;
+      text-align: left;
+      border-radius: 0;
+      border: none;
+      background: transparent;
+      padding: 11px 12px;
+    }
+
+    .game-row .game-load:hover {
+      background: #fffdf8;
     }
 
     .game-load {
@@ -133,13 +178,6 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-
-    .game-delete {
-      min-width: 32px;
-      width: 32px;
-      padding: 6px 0;
-      border-radius: 10px;
     }
 
     .page {

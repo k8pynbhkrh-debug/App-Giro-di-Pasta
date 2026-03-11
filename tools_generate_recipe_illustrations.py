@@ -5,9 +5,22 @@ import struct
 import binascii
 import random
 
+from pathlib import Path
+
 W, H = 1600, 820
-OUT_DIR = "/Users/eric/Documents/GitHub/giro-di-pasta-app/assets/recipes"
-os.makedirs(OUT_DIR, exist_ok=True)
+# Write into the current repo's assets directory; skip files that already exist.
+OUT_DIR = Path(__file__).resolve().parent / "assets" / "recipes"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+# Optional filter: if scripts/remaining_recipe_ids.txt exists, only render those ids.
+REMAINING_IDS_PATH = Path(__file__).resolve().parent / "scripts" / "remaining_recipe_ids.txt"
+TARGET_IDS = None
+if REMAINING_IDS_PATH.exists():
+    TARGET_IDS = {
+        line.strip()
+        for line in REMAINING_IDS_PATH.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    }
 
 RECIPES = [
 {"id":"aglio_olio_peperoncino","ingredients":["garlic","olive oil","chili"]},
@@ -255,5 +268,19 @@ def draw_recipe(recipe):
     for _ in range(2600): put(px, rnd.randint(140,W-140), rnd.randint(80,H-80), (90,90,90,rnd.randint(8,22)))
     save_png(os.path.join(OUT_DIR, f"{rid}.png"), W, H, px)
 
-for r in RECIPES: draw_recipe(r)
-print(f"generated {len(RECIPES)} images in {OUT_DIR}")
+rendered = 0
+skipped = 0
+for r in RECIPES:
+    rid = r["id"]
+    if TARGET_IDS is not None and rid not in TARGET_IDS:
+        continue
+    out_path = OUT_DIR / f"{rid}.png"
+    if out_path.exists():
+        skipped += 1
+        continue
+    draw_recipe(r)
+    rendered += 1
+
+print(f"generated {rendered} images in {OUT_DIR}")
+if skipped:
+    print(f"skipped {skipped} (already exist)")

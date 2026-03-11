@@ -1544,16 +1544,21 @@ function makeRowSwipeable(row, container) {
 
   let startX = 0;
   let dragging = false;
+  let wasOpen = false;
 
   const finish = event => {
     if (!dragging) return;
     dragging = false;
+    const deltaX = event.clientX - startX;
+    const thresholdOpen = -32;
+    const thresholdClose = 16;
+    let nextOpen = wasOpen;
+    if (wasOpen && deltaX > thresholdClose) nextOpen = false;
+    else if (!wasOpen && deltaX < thresholdOpen) nextOpen = true;
+    row.classList.toggle('reveal-delete', nextOpen);
     if (event.pointerId && row.hasPointerCapture(event.pointerId)) {
       row.releasePointerCapture(event.pointerId);
     }
-    const deltaX = event.clientX - startX;
-    const shouldReveal = deltaX < -32;
-    row.classList.toggle('reveal-delete', shouldReveal);
     content.style.transform = '';
   };
 
@@ -1561,6 +1566,7 @@ function makeRowSwipeable(row, container) {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
     dragging = true;
     startX = event.clientX;
+    wasOpen = row.classList.contains('reveal-delete');
     closeOtherSwipeRows(container, row);
     if (event.pointerId) row.setPointerCapture(event.pointerId);
   });
@@ -1568,26 +1574,23 @@ function makeRowSwipeable(row, container) {
   row.addEventListener('pointermove', event => {
     if (!dragging) return;
     const deltaX = event.clientX - startX;
-    if (deltaX < 0) {
-      const clamped = Math.max(deltaX, -90);
-      content.style.transform = `translateX(${clamped}px)`;
-    } else {
-      content.style.transform = `translateX(${Math.min(deltaX, 10)}px)`;
-    }
+    const base = wasOpen ? -82 : 0;
+    const clamped = Math.max(Math.min(base + deltaX, 10), -90);
+    content.style.transform = `translateX(${clamped}px)`;
   });
 
   row.addEventListener('pointerup', finish);
   row.addEventListener('pointercancel', finish);
-  row.addEventListener('pointerleave', () => {
-    if (!dragging) return;
-    dragging = false;
-    content.style.transform = '';
-  });
+  row.addEventListener('pointerleave', finish);
 
   row.addEventListener('click', event => {
     if (!row.classList.contains('reveal-delete')) return;
     const isDelete = event.target instanceof HTMLElement && event.target.classList.contains('swipe-action');
-    if (!isDelete) row.classList.remove('reveal-delete');
+    if (!isDelete) {
+      row.classList.remove('reveal-delete');
+      event.preventDefault();
+      event.stopPropagation();
+    }
   });
 }
 

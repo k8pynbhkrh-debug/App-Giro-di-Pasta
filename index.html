@@ -24,6 +24,9 @@
       --vegan: #3a7d44;
       --neutral-btn: #f9f6ef;
       --neutral-btn-line: #d8cdbd;
+      --timer-green: #0f9d58;
+      --timer-yellow: #d58b00;
+      --timer-red: #c0392b;
     }
 
     * {
@@ -199,6 +202,8 @@
       border-width: 2px;
       border-color: #cabaa2;
       transition: border-color .2s ease;
+      position: relative;
+      overflow: hidden;
     }
 
     h2,
@@ -317,6 +322,7 @@
       font-weight: 600;
       cursor: pointer;
       transition: background .2s ease, border-color .2s ease;
+      min-height: 46px;
     }
 
     button:hover {
@@ -501,6 +507,176 @@
       padding: 0;
       display: grid;
       gap: 8px;
+    }
+
+    .score-strip {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 10px;
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 6px 10px;
+      background: #fffef9;
+      font-weight: 700;
+      font-size: .9rem;
+      color: #2f2a23;
+      min-height: 34px;
+    }
+
+    .score-strip span { display: inline-flex; gap: 4px; align-items: baseline; }
+
+    .big-action {
+      width: 100%;
+      min-height: 72px;
+      font-size: 1.08rem;
+      border-radius: 18px;
+      padding: 14px 16px;
+      letter-spacing: 0.01em;
+    }
+
+    .reveal-screen {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 20% 10%, rgba(255,255,255,0.75), transparent 42%),
+                  radial-gradient(circle at 80% 12%, rgba(234,219,196,0.65), transparent 40%),
+                  #f7f2e8;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+      padding: 22px;
+      z-index: 30;
+    }
+
+    .reveal-screen.open { display: flex; }
+
+    .reveal-kicker {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      color: #5c5142;
+      margin: 0;
+    }
+
+    .reveal-player {
+      font-family: "Playfair Display", Georgia, serif;
+      font-size: 1.6rem;
+      margin: 0;
+      color: #1f1a12;
+    }
+
+    .reveal-hint {
+      margin: 0;
+      color: #4a4339;
+      font-size: 1rem;
+    }
+
+    .start-row { margin-top: 4px; }
+
+    .timer-label {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    .timer-green { color: var(--timer-green); }
+    .timer-yellow { color: var(--timer-yellow); }
+    .timer-red { color: var(--timer-red); }
+
+    #game.cooking-mode {
+      overflow: hidden;
+    }
+
+    #game.cooking-mode .game-headline,
+    #game.cooking-mode .handover-line,
+    #game.cooking-mode #handoverActions,
+    #game.cooking-mode #ingredientIllustration,
+    #game.cooking-mode #tipText,
+    #game.cooking-mode #difficultyIndicator,
+    #game.cooking-mode #recipeMeta,
+    #game.cooking-mode .menu,
+    #game.cooking-mode .qr-img-wrap {
+      display: none !important;
+    }
+
+    #game.cooking-mode #scoreSection {
+      display: none;
+    }
+
+    #game.cooking-mode #gameCard {
+      padding: 8px 14px 180px;
+      display: grid;
+      gap: 10px;
+    }
+
+    #game.cooking-mode #recipeTitle {
+      text-align: center;
+      border-bottom: none;
+      font-size: 1.35rem;
+      margin-top: 6px;
+    }
+
+    #game.cooking-mode #stepList {
+      list-style: decimal;
+      padding-left: 18px;
+      font-size: 1.05rem;
+      line-height: 1.35;
+      margin: 0;
+      max-height: 48vh;
+      overflow: hidden;
+    }
+
+    #game.cooking-mode #stepList button {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    #game.cooking-mode #roundCountdown {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 18px;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      pointer-events: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    #game.cooking-mode #roundCountdownValue {
+      font-size: clamp(120px, 22vw, 160px);
+      line-height: .9;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    #game.cooking-mode .button-row {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    #game.cooking-mode #nextRecipe,
+    #game.cooking-mode #skipRecipe,
+    #game.cooking-mode #startAnotherGame {
+      display: none;
+    }
+
+    #game.cooking-mode #finishGame {
+      min-height: 64px;
+      padding: 12px 16px;
+      font-size: 1rem;
     }
 
     #shoppingList li,
@@ -779,6 +955,16 @@
       </section>
 
       <section id="game" class="hidden">
+        <div id="scoreStrip" class="score-strip"></div>
+
+        <div id="revealScreen" class="reveal-screen">
+          <p class="reveal-kicker">Next Cook</p>
+          <p id="revealPlayer" class="reveal-player"></p>
+          <p class="reveal-hint">Tippe, um das Rezept einzublenden.</p>
+          <button id="revealRecipeBtn" class="primary big-action">Rezept anzeigen</button>
+          <button id="skipRecipeReveal" class="secondary" style="min-height:60px;">Rezept skippen</button>
+        </div>
+
         <div class="game-headline">
           <div id="cookStartRow" class="headline-right">
             <span class="cook-start-label">Kochen starten:</span>
@@ -799,6 +985,9 @@
           <ul id="stepList"></ul>
           <p id="difficultyIndicator" class="difficulty">Schwierigkeit ●●○</p>
           <p id="tipText" class="tip-text">Tipp: Hitze kontrollieren für perfekte Emulsion.</p>
+          <div id="startCookingRow" class="start-row hidden">
+            <button id="startCookingBtn" class="primary big-action">START COOKING</button>
+          </div>
         </article>
         <details id="scoreSection" class="score-dropdown">
           <summary id="scoreSummary">Punktestand</summary>

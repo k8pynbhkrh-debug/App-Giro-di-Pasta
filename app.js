@@ -1890,6 +1890,17 @@ function renderPlayerInputs(game) {
   }
 }
 
+function renderScoreStrip(game) {
+  if (!scoreStripEl) return;
+  if (!game || !Array.isArray(game.players) || game.players.length === 0) {
+    scoreStripEl.textContent = '';
+    return;
+  }
+  scoreStripEl.textContent = game.players
+    .map((name, idx) => `${name} ${game.scores?.[idx] ?? 0}`)
+    .join('   ');
+}
+
 function renderScoreboard(game) {
   scoreListEl.innerHTML = '';
   scoreSummaryEl.textContent = 'Punktestand';
@@ -1915,6 +1926,7 @@ function renderScoreboard(game) {
   const topTwo = ranking[1] ? `2. ${ranking[1].name} (${ranking[1].score})` : '';
   const compact = [topOne, topTwo].filter(Boolean).join(' | ');
   if (compact) scoreSummaryEl.textContent = `Punktestand: ${compact}`;
+  renderScoreStrip(game);
 }
 
 function clearInlineTimers() {
@@ -1944,6 +1956,16 @@ async function releaseScreenWakeLock() {
     // Ignorieren.
   } finally {
     screenWakeLock = null;
+  }
+}
+
+async function tryLockPortrait() {
+  if (!('orientation' in screen) || typeof screen.orientation?.lock !== 'function') return false;
+  try {
+    await screen.orientation.lock('portrait');
+    return true;
+  } catch (error) {
+    return false;
   }
 }
 
@@ -2088,33 +2110,62 @@ function stopRoundCountdown() {
   }
 }
 
-function updateRoundCountdownUi(remainingSeconds) {
+function updateRoundCountdownUi(remainingSeconds, totalSeconds = null) {
+  const safeRemaining = Math.max(0, Math.floor(remainingSeconds));
+  const total = totalSeconds || currentRoundDurationSeconds || safeRemaining || 1;
+  const ratio = total > 0 ? safeRemaining / total : 1;
+  let toneClass = 'timer-green';
+  if (ratio <= 0.2) toneClass = 'timer-red';
+  else if (ratio <= 0.5) toneClass = 'timer-yellow';
+
+  roundCountdownEl.classList.remove('timer-green', 'timer-yellow', 'timer-red');
+  roundCountdownEl.classList.add(toneClass);
   roundCountdownEl.classList.remove('hidden');
-  roundCountdownValueEl.textContent = formatCountdown(remainingSeconds);
+  roundCountdownValueEl.textContent = formatCountdown(safeRemaining);
+}
+
+function handleTimerSignals(remainingSeconds) {
+  if (remainingSeconds <= 0) {
+    if (navigator.vibrate) navigator.vibrate([220, 90, 320]);
+    return;
+  }
+
+  if (!tenSecondWarningFired && remainingSeconds <= 10) {
+    tenSecondWarningFired = true;
+    if (navigator.vibrate) navigator.vibrate(160);
+  }
 }
 
 function startRoundCountdown(game) {
   void requestScreenWakeLock();
+  void tryLockPortrait();
   stopRoundCountdown();
   const roundMinutes = Math.max(1, parseInt(game.settings.roundMinutes || 8, 10));
   const durationSeconds = roundMinutes * 60;
+  currentRoundDurationSeconds = durationSeconds;
+  tenSecondWarningFired = false;
   game.roundTimerEndsAt = Date.now() + durationSeconds * 1000;
   game.roundStarted = true;
-  updateRoundCountdownUi(durationSeconds);
+  setGameSubView('cooking');
+  updateRoundCountdownUi(durationSeconds, durationSeconds);
   roundCountdownEl.classList.remove('start-ready');
   roundCountdownEl.classList.remove('start-pulse');
+  if (navigator.vibrate) navigator.vibrate(180);
   const playerName = game.players[game.activePlayerTurnIndex];
   handoverInfoEl.textContent = `${playerName} kocht jetzt`;
+  finishGameBtn.disabled = false;
   upsertCurrentGame(game);
 
   roundCountdownIntervalId = setInterval(() => {
     const remaining = Math.ceil((game.roundTimerEndsAt - Date.now()) / 1000);
     if (remaining <= 0) {
-      updateRoundCountdownUi(0);
+      updateRoundCountdownUi(0, durationSeconds);
+      handleTimerSignals(0);
       stopRoundCountdown();
       return;
     }
-    updateRoundCountdownUi(remaining);
+    updateRoundCountdownUi(remaining, durationSeconds);
+    handleTimerSignals(remaining);
   }, 1000);
 }
 
@@ -2125,35 +2176,51 @@ function resumeRoundCountdown(game) {
     return;
   }
 
+  currentRoundDurationSeconds = Math.max(1, parseInt(game.settings.roundMinutes || 8, 10)) * 60;
   const initial = Math.ceil((game.roundTimerEndsAt - Date.now()) / 1000);
   if (initial <= 0) {
-    updateRoundCountdownUi(0);
+    updateRoundCountdownUi(0, currentRoundDurationSeconds);
     return;
   }
 
-  updateRoundCountdownUi(initial);
+  setGameSubView('cooking');
+  roundCountdownEl.classList.remove('start-ready');
+  roundCountdownEl.classList.remove('start-pulse');
+  tenSecondWarningFired = initial <= 10;
+  if (tenSecondWarningFired && initial > 0 && navigator.vibrate) navigator.vibrate(120);
+
+  updateRoundCountdownUi(initial, currentRoundDurationSeconds);
   roundCountdownIntervalId = setInterval(() => {
     const remaining = Math.ceil((game.roundTimerEndsAt - Date.now()) / 1000);
     if (remaining <= 0) {
-      updateRoundCountdownUi(0);
+      updateRoundCountdownUi(0, currentRoundDurationSeconds);
+      handleTimerSignals(0);
       stopRoundCountdown();
       return;
     }
-    updateRoundCountdownUi(remaining);
+    updateRoundCountdownUi(remaining, currentRoundDurationSeconds);
+    handleTimerSignals(remaining);
   }, 1000);
 }
 
 function setGameSubView(mode) {
   const isHandover = mode === 'handover';
-  handoverActionsEl.classList.toggle('hidden', !isHandover);
+  const isCooking = mode === 'cooking';
+  const isRecipe = mode === 'recipe';
+
+  revealScreenEl.classList.toggle('open', isHandover);
+  handoverActionsEl.classList.toggle('hidden', isHandover || isCooking);
   cookStartRowEl.classList.toggle('hidden', isHandover);
-  ingredientIllustrationEl.classList.toggle('hidden', isHandover);
-  difficultyIndicatorEl.classList.toggle('hidden', isHandover);
-  tipTextEl.classList.toggle('hidden', isHandover);
+  ingredientIllustrationEl.classList.toggle('hidden', isHandover || isCooking);
+  difficultyIndicatorEl.classList.toggle('hidden', isHandover || isCooking);
+  tipTextEl.classList.toggle('hidden', isHandover || isCooking);
+  recipeMetaEl.classList.toggle('hidden', isCooking);
+  startCookingRowEl.classList.toggle('hidden', !isRecipe);
   nextRecipeBtn.classList.add('hidden');
   skipRecipeBtn.classList.toggle('hidden', isHandover);
   finishGameBtn.classList.toggle('hidden', isHandover);
   roundCountdownEl.classList.toggle('hidden', isHandover);
+  gameSection.classList.toggle('cooking-mode', isCooking);
   if (isHandover) {
     scoreSectionEl.open = false;
     roundCountdownEl.classList.remove('start-ready');
@@ -2161,7 +2228,7 @@ function setGameSubView(mode) {
     stopRoundCountdown();
     clearInlineTimers();
   } else {
-    scoreSectionEl.open = true;
+    scoreSectionEl.open = !isCooking;
   }
 }
 
@@ -2180,10 +2247,13 @@ function renderRoundHandover(game, fixedPlayerIndex = null) {
   game.roundStarted = false;
   game.roundTimerEndsAt = null;
   game.roundHasCorrectTip = false;
+  currentRoundDurationSeconds = Math.max(1, parseInt(game.settings.roundMinutes || 8, 10)) * 60;
+  tenSecondWarningFired = false;
   setGameSubView('handover');
   skipRecipeTopBtn.classList.add('hidden');
 
   const currentName = game.players[game.activePlayerTurnIndex];
+  revealPlayerEl.textContent = currentName || 'Nächste Person';
   handoverInfoEl.textContent = `${currentName} ist dran`;
   recipeTitleEl.textContent = `${currentName} ist dran`;
   recipeMetaEl.textContent = `Runde ${game.gameIndex + 1} von ${game.rounds.length}`;
@@ -2193,6 +2263,7 @@ function renderRoundHandover(game, fixedPlayerIndex = null) {
   setRecipeIllustrationPlaceholder();
   recipeTitleEl.style.borderBottomColor = '#cabaa2';
   setGameFrameAccent('#cabaa2');
+  renderScoreStrip(game);
 
   upsertCurrentGame(game);
 }
@@ -2233,16 +2304,20 @@ function revealCurrentRecipe(game) {
   renderStepsWithTimers(recipeGuide.steps);
 
   game.awaitingRecipeReveal = false;
+  const roundMinutes = Math.max(1, parseInt(game.settings.roundMinutes || 8, 10));
+  currentRoundDurationSeconds = roundMinutes * 60;
   finishGameBtn.textContent = 'Runde beenden';
   roundCountdownEl.classList.remove('hidden');
-  roundCountdownEl.classList.toggle('start-ready', !game.roundStarted);
-  roundCountdownEl.classList.toggle('start-pulse', !game.roundStarted);
   const roundIsRunning = !!game.roundStarted;
+  setGameSubView(roundIsRunning ? 'cooking' : 'recipe');
+  roundCountdownEl.classList.toggle('start-ready', !roundIsRunning);
+  roundCountdownEl.classList.toggle('start-pulse', !roundIsRunning);
   finishGameBtn.disabled = !roundIsRunning;
-  if (game.roundStarted) resumeRoundCountdown(game);
-  else {
-    const roundMinutes = Math.max(1, parseInt(game.settings.roundMinutes || 8, 10));
-    updateRoundCountdownUi(roundMinutes * 60);
+  if (game.roundStarted) {
+    resumeRoundCountdown(game);
+  } else {
+    tenSecondWarningFired = false;
+    updateRoundCountdownUi(currentRoundDurationSeconds, currentRoundDurationSeconds);
   }
   renderScoreboard(game);
   upsertCurrentGame(game);
@@ -2265,6 +2340,9 @@ function renderFinal(game) {
   game.finished = true;
   game.phase = 'game';
   setGameSubView('recipe');
+  startCookingRowEl.classList.add('hidden');
+  revealScreenEl.classList.remove('open');
+  gameSection.classList.remove('cooking-mode');
   handoverInfoEl.textContent = 'Spiel beendet.';
   recipeTitleEl.textContent = 'Endstand';
   recipeMetaEl.textContent = `${game.title}`;
@@ -2501,6 +2579,14 @@ const spectatorTimerEl = document.getElementById('spectatorTimer');
 const spectatorScoreListEl = document.getElementById('spectatorScoreList');
 const spectatorRecipeListEl = document.getElementById('spectatorRecipeList');
 
+const scoreStripEl = document.getElementById('scoreStrip');
+const revealScreenEl = document.getElementById('revealScreen');
+const revealPlayerEl = document.getElementById('revealPlayer');
+const revealRecipeBtn = document.getElementById('revealRecipeBtn');
+const skipRecipeRevealBtn = document.getElementById('skipRecipeReveal');
+const startCookingRowEl = document.getElementById('startCookingRow');
+const startCookingBtn = document.getElementById('startCookingBtn');
+
 const qrModalEl = document.getElementById('qrModal');
 const qrImageEl = document.getElementById('qrImage');
 const qrHintEl = document.getElementById('qrHint');
@@ -2524,6 +2610,8 @@ const inlineTimerIntervals = new Set();
 let spectatorPollIntervalId = null;
 let spectatorCountdownIntervalId = null;
 let screenWakeLock = null;
+let currentRoundDurationSeconds = null;
+let tenSecondWarningFired = false;
 
 menuToggleBtn.addEventListener('click', () => {
   menuEl.classList.toggle('open');
@@ -2816,6 +2904,7 @@ confirmPlayersBtn.addEventListener('click', () => {
   game.finished = false;
 
   upsertCurrentGame(game);
+  void tryLockPortrait();
   renderFromCurrentGame();
 });
 
@@ -2860,7 +2949,22 @@ showRecipeTopBtn.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game || game.finished) return;
   if (!game.awaitingRecipeReveal) return;
+  void tryLockPortrait();
   revealCurrentRecipe(game);
+});
+
+revealRecipeBtn.addEventListener('click', () => {
+  const game = getCurrentGame();
+  if (!game || game.finished) return;
+  if (!game.awaitingRecipeReveal) return;
+  void tryLockPortrait();
+  revealCurrentRecipe(game);
+});
+
+skipRecipeRevealBtn.addEventListener('click', () => {
+  const game = getCurrentGame();
+  if (!game || game.finished) return;
+  skipCurrentRecipe(game);
 });
 
 skipRecipeTopBtn.addEventListener('click', () => {
@@ -2880,8 +2984,13 @@ skipRecipeBtn.addEventListener('click', () => {
 roundCountdownEl.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game || game.finished || game.awaitingRecipeReveal) return;
-  if (game.roundStarted) return;
+  // Timer wird nur über den Start-Button gestartet.
+});
 
+startCookingBtn.addEventListener('click', () => {
+  const game = getCurrentGame();
+  if (!game || game.finished || game.awaitingRecipeReveal) return;
+  if (game.roundStarted) return;
   startRoundCountdown(game);
   finishGameBtn.disabled = false;
   renderScoreboard(game);

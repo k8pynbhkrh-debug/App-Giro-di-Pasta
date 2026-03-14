@@ -2583,7 +2583,6 @@ const scoreStripEl = document.getElementById('scoreStrip');
 const revealScreenEl = document.getElementById('revealScreen');
 const revealPlayerEl = document.getElementById('revealPlayer');
 const revealRecipeBtn = document.getElementById('revealRecipeBtn');
-const skipRecipeRevealBtn = document.getElementById('skipRecipeReveal');
 const startCookingRowEl = document.getElementById('startCookingRow');
 const startCookingBtn = document.getElementById('startCookingBtn');
 
@@ -2959,12 +2958,6 @@ revealRecipeBtn.addEventListener('click', () => {
   if (!game.awaitingRecipeReveal) return;
   void tryLockPortrait();
   revealCurrentRecipe(game);
-});
-
-skipRecipeRevealBtn.addEventListener('click', () => {
-  const game = getCurrentGame();
-  if (!game || game.finished) return;
-  skipCurrentRecipe(game);
 });
 
 skipRecipeTopBtn.addEventListener('click', () => {

@@ -1936,6 +1936,14 @@ function updateStartCookingCta(durationSeconds) {
   startCookingDurationEl.textContent = formatCountdown(durationSeconds);
 }
 
+function setRoundCountdownMode(isReadyToStart) {
+  if (roundCountdownLabelEl) {
+    roundCountdownLabelEl.textContent = isReadyToStart ? 'Kochen starten' : 'Timer';
+  }
+  roundCountdownEl.classList.toggle('ready-start', isReadyToStart);
+  roundCountdownEl.classList.toggle('pulse-action', isReadyToStart);
+}
+
 function renderScoreboard(game) {
   scoreListEl.innerHTML = '';
   scoreSummaryEl.textContent = 'Punktestand';
@@ -2256,7 +2264,8 @@ function setGameSubView(mode) {
   nextRecipeBtn.classList.add('hidden');
   skipRecipeBtn.classList.toggle('hidden', isHandover);
   finishGameBtn.classList.toggle('hidden', isHandover || isRecipeReady);
-  roundCountdownEl.classList.toggle('hidden', !isCooking);
+  roundCountdownEl.classList.toggle('hidden', !isActiveRound);
+  setRoundCountdownMode(isRecipeReady);
   gameSection.classList.remove('cooking-mode');
   if (isHandover) {
     scoreSectionEl.open = false;
@@ -2596,6 +2605,7 @@ const skipRecipeTopBtn = document.getElementById('skipRecipeTop');
 const recipeTitleEl = document.getElementById('recipeTitle');
 const recipeMetaEl = document.getElementById('recipeMeta');
 const roundCountdownEl = document.getElementById('roundCountdown');
+const roundCountdownLabelEl = document.getElementById('roundCountdownLabel');
 const roundCountdownValueEl = document.getElementById('roundCountdownValue');
 const difficultyIndicatorEl = document.getElementById('difficultyIndicator');
 const tipTextEl = document.getElementById('tipText');

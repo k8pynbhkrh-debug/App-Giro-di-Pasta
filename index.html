@@ -850,7 +850,7 @@
       width: 100%;
       max-width: 320px;
       min-height: 84px;
-      margin: 0 auto;
+      margin: 22px auto 0;
       border: 1px solid #c9b28f;
       border-radius: 18px;
       background: linear-gradient(180deg, #fffdf7 0%, #f7eddc 100%);
@@ -863,6 +863,11 @@
       cursor: default;
       pointer-events: none;
       padding: 14px 16px;
+    }
+
+    #roundCountdown.ready-start {
+      cursor: pointer;
+      pointer-events: auto;
     }
 
     #roundCountdownValue {
@@ -1057,7 +1062,7 @@
           <p id="tipText" class="tip-text">Tipp: Hitze kontrollieren für perfekte Emulsion.</p>
         </article>
         <button id="roundCountdown" class="countdown-chip hidden">
-          <span class="timer-label">Timer</span>
+          <span id="roundCountdownLabel" class="timer-label">Kochen starten</span>
           <span id="roundCountdownValue">--:--</span>
         </button>
         <details id="scoreSection" class="score-dropdown">

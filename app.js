@@ -1542,13 +1542,20 @@ function makeRowSwipeable(row, container) {
   const content = row.querySelector('.swipe-content');
   if (!content) return;
 
+  const dragThreshold = 14;
   let startX = 0;
+  let startY = 0;
   let dragging = false;
+  let intentLocked = false;
   let wasOpen = false;
 
   const finish = event => {
-    if (!dragging) return;
+    if (!dragging) {
+      intentLocked = false;
+      return;
+    }
     dragging = false;
+    intentLocked = false;
     const deltaX = event.clientX - startX;
     const thresholdOpen = -32;
     const thresholdClose = 16;
@@ -1564,16 +1571,32 @@ function makeRowSwipeable(row, container) {
 
   row.addEventListener('pointerdown', event => {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
-    dragging = true;
     startX = event.clientX;
+    startY = event.clientY;
+    dragging = false;
+    intentLocked = false;
     wasOpen = row.classList.contains('reveal-delete');
     closeOtherSwipeRows(container, row);
-    if (event.pointerId) row.setPointerCapture(event.pointerId);
   });
 
   row.addEventListener('pointermove', event => {
-    if (!dragging) return;
     const deltaX = event.clientX - startX;
+    const deltaY = event.clientY - startY;
+
+    if (!intentLocked) {
+      if (Math.abs(deltaY) > dragThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
+        intentLocked = true;
+        return;
+      }
+
+      if (Math.abs(deltaX) < dragThreshold) return;
+
+      dragging = true;
+      intentLocked = true;
+      if (event.pointerId) row.setPointerCapture(event.pointerId);
+    }
+
+    if (!dragging) return;
     const base = wasOpen ? -82 : 0;
     const clamped = Math.max(Math.min(base + deltaX, 10), -90);
     content.style.transform = `translateX(${clamped}px)`;
@@ -1753,6 +1776,10 @@ function renderGameList() {
     loadBtn.className = 'game-load';
     loadBtn.dataset.gameId = game.id;
     loadBtn.textContent = formatGameLabel(game);
+    loadBtn.addEventListener('click', () => {
+      setCurrentGame(game.id);
+      menuEl.classList.remove('open');
+    });
     if (game.id === currentGameId) {
       loadBtn.style.borderColor = '#b7ac9a';
       loadBtn.style.background = '#fffaf1';
@@ -1795,6 +1822,9 @@ function renderLandingGameList() {
     button.className = 'game-load';
     button.dataset.gameId = game.id;
     button.textContent = formatGameLabel(game);
+    button.addEventListener('click', () => {
+      setCurrentGame(game.id);
+    });
 
     content.appendChild(button);
 
@@ -1899,6 +1929,11 @@ function renderScoreStrip(game) {
   scoreStripEl.textContent = game.players
     .map((name, idx) => `${name} ${game.scores?.[idx] ?? 0}`)
     .join('   ');
+}
+
+function updateStartCookingCta(durationSeconds) {
+  if (!startCookingDurationEl) return;
+  startCookingDurationEl.textContent = formatCountdown(durationSeconds);
 }
 
 function renderScoreboard(game) {
@@ -2120,7 +2155,6 @@ function updateRoundCountdownUi(remainingSeconds, totalSeconds = null) {
 
   roundCountdownEl.classList.remove('timer-green', 'timer-yellow', 'timer-red');
   roundCountdownEl.classList.add(toneClass);
-  roundCountdownEl.classList.remove('hidden');
   roundCountdownValueEl.textContent = formatCountdown(safeRemaining);
 }
 
@@ -2147,9 +2181,8 @@ function startRoundCountdown(game) {
   game.roundTimerEndsAt = Date.now() + durationSeconds * 1000;
   game.roundStarted = true;
   setGameSubView('cooking');
+  startCookingBtn.classList.remove('pulse-action');
   updateRoundCountdownUi(durationSeconds, durationSeconds);
-  roundCountdownEl.classList.remove('start-ready');
-  roundCountdownEl.classList.remove('start-pulse');
   if (navigator.vibrate) navigator.vibrate(180);
   const playerName = game.players[game.activePlayerTurnIndex];
   handoverInfoEl.textContent = `${playerName} kocht jetzt`;
@@ -2184,8 +2217,7 @@ function resumeRoundCountdown(game) {
   }
 
   setGameSubView('cooking');
-  roundCountdownEl.classList.remove('start-ready');
-  roundCountdownEl.classList.remove('start-pulse');
+  startCookingBtn.classList.remove('pulse-action');
   tenSecondWarningFired = initial <= 10;
   if (tenSecondWarningFired && initial > 0 && navigator.vibrate) navigator.vibrate(120);
 
@@ -2209,17 +2241,17 @@ function setGameSubView(mode) {
   const isRecipe = mode === 'recipe';
 
   revealScreenEl.classList.toggle('open', isHandover);
-  handoverActionsEl.classList.toggle('hidden', isHandover || isCooking);
-  cookStartRowEl.classList.toggle('hidden', isHandover);
+  handoverActionsEl.classList.add('hidden');
+  cookStartRowEl.classList.toggle('hidden', !isRecipe);
+  startCookingBtn.classList.toggle('hidden', !isRecipe);
   ingredientIllustrationEl.classList.toggle('hidden', isHandover || isCooking);
   difficultyIndicatorEl.classList.toggle('hidden', isHandover || isCooking);
   tipTextEl.classList.toggle('hidden', isHandover || isCooking);
   recipeMetaEl.classList.toggle('hidden', isCooking);
-  startCookingRowEl.classList.toggle('hidden', !isRecipe);
   nextRecipeBtn.classList.add('hidden');
   skipRecipeBtn.classList.toggle('hidden', isHandover);
   finishGameBtn.classList.toggle('hidden', isHandover);
-  roundCountdownEl.classList.toggle('hidden', isHandover);
+  roundCountdownEl.classList.toggle('hidden', !isCooking);
   gameSection.classList.toggle('cooking-mode', isCooking);
   if (isHandover) {
     scoreSectionEl.open = false;
@@ -2306,12 +2338,11 @@ function revealCurrentRecipe(game) {
   game.awaitingRecipeReveal = false;
   const roundMinutes = Math.max(1, parseInt(game.settings.roundMinutes || 8, 10));
   currentRoundDurationSeconds = roundMinutes * 60;
+  updateStartCookingCta(currentRoundDurationSeconds);
+  startCookingBtn.classList.add('pulse-action');
   finishGameBtn.textContent = 'Runde beenden';
-  roundCountdownEl.classList.remove('hidden');
   const roundIsRunning = !!game.roundStarted;
   setGameSubView(roundIsRunning ? 'cooking' : 'recipe');
-  roundCountdownEl.classList.toggle('start-ready', !roundIsRunning);
-  roundCountdownEl.classList.toggle('start-pulse', !roundIsRunning);
   finishGameBtn.disabled = !roundIsRunning;
   if (game.roundStarted) {
     resumeRoundCountdown(game);
@@ -2340,7 +2371,8 @@ function renderFinal(game) {
   game.finished = true;
   game.phase = 'game';
   setGameSubView('recipe');
-  startCookingRowEl.classList.add('hidden');
+  startCookingBtn.classList.add('hidden');
+  startCookingBtn.classList.remove('pulse-action');
   revealScreenEl.classList.remove('open');
   gameSection.classList.remove('cooking-mode');
   handoverInfoEl.textContent = 'Spiel beendet.';
@@ -2583,8 +2615,8 @@ const scoreStripEl = document.getElementById('scoreStrip');
 const revealScreenEl = document.getElementById('revealScreen');
 const revealPlayerEl = document.getElementById('revealPlayer');
 const revealRecipeBtn = document.getElementById('revealRecipeBtn');
-const startCookingRowEl = document.getElementById('startCookingRow');
 const startCookingBtn = document.getElementById('startCookingBtn');
+const startCookingDurationEl = document.getElementById('startCookingDuration');
 
 const qrModalEl = document.getElementById('qrModal');
 const qrImageEl = document.getElementById('qrImage');
@@ -2620,14 +2652,7 @@ gameListEl.addEventListener('click', event => {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
 
-  const loadId = target.dataset.gameId;
   const deleteId = target.dataset.deleteId;
-
-  if (loadId) {
-    setCurrentGame(loadId);
-    menuEl.classList.remove('open');
-    return;
-  }
 
   if (deleteId) {
     games = games.filter(game => game.id !== deleteId);
@@ -2644,7 +2669,6 @@ gameListEl.addEventListener('click', event => {
 landingGameListEl.addEventListener('click', event => {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
-  const loadId = target.dataset.gameId;
   const deleteId = target.dataset.landingDeleteId;
 
   if (deleteId) {
@@ -2658,9 +2682,6 @@ landingGameListEl.addEventListener('click', event => {
     renderFromCurrentGame();
     return;
   }
-
-  if (!loadId) return;
-  setCurrentGame(loadId);
 });
 
 startNewGameBtn.addEventListener('click', () => {
@@ -2796,8 +2817,8 @@ function exportShoppingPdf() {
   <meta charset="utf-8">
   <title>${title}</title>
   <style>
-    body { font-family: Inter, system-ui, sans-serif; padding: 24px; color: #111; }
-    h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 24px; margin: 0 0 16px; }
+    body { font-family: 'Cormorant Garamond', Georgia, serif; padding: 24px; color: #111; }
+    h1 { font-family: 'Italiana', Georgia, serif; font-size: 24px; margin: 0 0 16px; letter-spacing: 0.04em; }
     ul { padding-left: 18px; }
     li { margin: 6px 0; }
   </style>

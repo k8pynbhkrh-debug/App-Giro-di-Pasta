@@ -2170,7 +2170,6 @@ function renderSpectator(game) {
 
 function renderFromCurrentGame() {
   if (spectatorMode) return;
-  stopSpectatorCountdown();
   const game = getCurrentGame();
   hideAllSections();
 

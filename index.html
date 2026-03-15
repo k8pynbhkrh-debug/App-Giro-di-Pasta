@@ -892,6 +892,30 @@
       background: #fff;
     }
 
+    #summary h3 {
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+
+    #summary h3:first-of-type {
+      margin-top: 0;
+    }
+
+    #summary #recipeList,
+    #summary #shoppingList {
+      margin-top: 12px;
+      margin-bottom: 28px;
+    }
+
+    #summary #extraRecipeSelect,
+    #summary #shoppingExport {
+      margin-top: 12px;
+    }
+
+    #summary .summary-extra-actions {
+      margin-bottom: 30px;
+    }
+
     @media (max-width: 410px) {
       #scoreList {
         grid-template-columns: 1fr;
@@ -974,12 +998,10 @@
 
       <section id="summary" class="hidden">
         <h3>Rundenplan</h3>
-        <p class="subtle">(Reihenfolge kann sich im Kochspiel ändern)</p>
         <ul id="recipeList"></ul>
         <h3>Zusatzrezepte (optional, max. 2)</h3>
-        <p class="subtle">Nur passende Rezepte aus deinen Kriterien. Diese werden ans Ende angehängt.</p>
         <select id="extraRecipeSelect" multiple size="6"></select>
-        <div class="button-row">
+        <div class="button-row summary-extra-actions">
           <button id="addExtraRecipes">Auswahl hinzufügen</button>
         </div>
         <h3>Einkaufsliste</h3>

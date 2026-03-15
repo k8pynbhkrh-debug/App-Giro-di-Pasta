@@ -24,9 +24,6 @@
       --vegan: #3a7d44;
       --neutral-btn: #f9f6ef;
       --neutral-btn-line: #d8cdbd;
-      --timer-green: #0f9d58;
-      --timer-yellow: #d97706;
-      --timer-red: #c0392b;
     }
 
     * {
@@ -376,26 +373,6 @@
       margin-top: 10px;
     }
 
-    .game-headline {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 2px;
-      margin-bottom: 8px;
-    }
-
-    .game-headline h2 {
-      margin: 0;
-    }
-
-    .headline-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
     .cook-start-label {
       font-family: "Italiana", Georgia, serif;
       font-size: 1.35rem;
@@ -453,25 +430,6 @@
     .qr-img-wrap img {
       width: 200px;
       height: 200px;
-    }
-
-    .inline-timer-btn {
-      border: 1px solid #ccbca4;
-      background: #fffaf0;
-      border-radius: 8px;
-      padding: 1px 6px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      margin-left: 2px;
-      margin-right: 2px;
-    }
-
-    .inline-timer-live {
-      display: inline-block;
-      min-width: 42px;
-      text-align: center;
-      font-weight: 700;
-      color: #2f5f37;
     }
 
     .countdown-chip {
@@ -596,75 +554,6 @@
       letter-spacing: 0.04em;
       font-weight: 700;
     }
-
-    .timer-label {
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-weight: 700;
-      color: var(--muted);
-      font-size: .85rem;
-    }
-
-    .game-headline {
-      justify-content: center;
-      margin-top: 10px;
-      margin-bottom: 12px;
-    }
-
-    .headline-right {
-      width: 100%;
-      justify-content: center;
-    }
-
-    .start-cooking-cta {
-      max-width: 320px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      background: linear-gradient(180deg, #fffdf7 0%, #f7eddc 100%);
-      border-color: #c9b28f;
-      box-shadow: 0 14px 28px rgba(116, 83, 33, 0.16);
-    }
-
-    .start-cooking-cta[disabled] {
-      opacity: 1;
-      cursor: default;
-      pointer-events: none;
-    }
-
-    .start-cooking-cta.timer-green .start-cooking-duration {
-      color: var(--timer-green);
-    }
-
-    .start-cooking-cta.timer-yellow .start-cooking-duration {
-      color: var(--timer-yellow);
-    }
-
-    .start-cooking-cta.timer-red .start-cooking-duration {
-      color: var(--timer-red);
-    }
-
-    .start-cooking-label {
-      font-family: "Italiana", Georgia, serif;
-      font-size: 1.2rem;
-      letter-spacing: 0.08em;
-      color: #332617;
-      font-weight: 700;
-    }
-
-    .start-cooking-duration {
-      font-size: 1.8rem;
-      font-weight: 700;
-      line-height: 1;
-      color: #9a4f1d;
-    }
-
-    .timer-green { color: var(--timer-green); }
-    .timer-yellow { color: var(--timer-yellow); }
-    .timer-red { color: var(--timer-red); }
 
     #shoppingList li,
     #scoreList li,
@@ -846,49 +735,6 @@
       min-width: 220px;
     }
 
-    #roundCountdown {
-      width: 100%;
-      max-width: 320px;
-      min-height: 84px;
-      margin: 22px auto 0;
-      border: 1px solid #c9b28f;
-      border-radius: 18px;
-      background: linear-gradient(180deg, #fffdf7 0%, #f7eddc 100%);
-      box-shadow: 0 14px 28px rgba(116, 83, 33, 0.16);
-      color: #2f2a23;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 4px;
-      cursor: default;
-      pointer-events: none;
-      padding: 14px 16px;
-    }
-
-    #roundCountdown.ready-start {
-      cursor: pointer;
-      pointer-events: auto;
-    }
-
-    #roundCountdownValue {
-      font-size: 2rem;
-      font-weight: 700;
-      line-height: 1;
-      color: #9a4f1d;
-    }
-
-    #roundCountdown.timer-green #roundCountdownValue {
-      color: var(--timer-green);
-    }
-
-    #roundCountdown.timer-yellow #roundCountdownValue {
-      color: var(--timer-yellow);
-    }
-
-    #roundCountdown.timer-red #roundCountdownValue {
-      color: var(--timer-red);
-    }
-
     #difficultyIndicator,
     #tipText {
       border: 1px solid #ebebeb;
@@ -912,8 +758,7 @@
       margin-bottom: 28px;
     }
 
-    #summary #extraRecipeSelect,
-    #summary #shoppingExport {
+    #summary #extraRecipeSelect {
       margin-top: 12px;
     }
 
@@ -982,9 +827,6 @@
           <label for="recipesPerPerson">Rezepte pro Person (25 g pro Runde)
             <input type="number" id="recipesPerPerson" min="6" max="10" value="6">
           </label>
-          <label for="roundMinutes">Zeit pro Rezept (Minuten)
-            <input type="number" id="roundMinutes" min="1" max="30" value="8">
-          </label>
           <div>
             <label>Ernährungsregeln</label>
             <div class="rules-box">
@@ -1012,7 +854,6 @@
         <h3>Einkaufsliste</h3>
         <ul id="shoppingList"></ul>
         <h3>Export</h3>
-        <textarea id="shoppingExport" readonly></textarea>
         <div class="button-row">
           <button id="exportShopping">Einkaufsliste exportieren</button>
           <button id="startGame" class="primary">Weiter zu Spielernamen</button>
@@ -1038,20 +879,8 @@
           <button id="revealRecipeBtn" class="primary big-action pulse-action">Rezept anzeigen</button>
         </div>
 
-        <div class="game-headline">
-          <div id="cookStartRow" class="headline-right">
-            <button id="startCookingBtn" class="primary big-action start-cooking-cta hidden">
-              <span class="start-cooking-label">Kochen starten</span>
-              <span id="startCookingDuration" class="start-cooking-duration">08:00</span>
-            </button>
-          </div>
-        </div>
         <div class="handover-line">
           <p id="handoverInfo"></p>
-        </div>
-        <div id="handoverActions" class="button-row">
-          <button id="showRecipeTop" class="secondary">Rezept anzeigen</button>
-          <button id="skipRecipeTop">Rezept skippen</button>
         </div>
         <article id="gameCard" class="grid">
           <div id="ingredientIllustration" class="ingredient-illustration" aria-hidden="true"></div>
@@ -1061,10 +890,6 @@
           <p id="difficultyIndicator" class="difficulty">Schwierigkeit ●●○</p>
           <p id="tipText" class="tip-text">Tipp: Hitze kontrollieren für perfekte Emulsion.</p>
         </article>
-        <button id="roundCountdown" class="countdown-chip hidden">
-          <span id="roundCountdownLabel" class="timer-label">Kochen starten</span>
-          <span id="roundCountdownValue">--:--</span>
-        </button>
         <details id="scoreSection" class="score-dropdown">
           <summary id="scoreSummary">Punktestand</summary>
           <h3 class="score-heading">Punktestand:</h3>
@@ -1082,7 +907,7 @@
         <h2>Zuschauermodus</h2>
         <div class="spectator-status-card">
           <p id="spectatorRoundInfo" class="spectator-turn"></p>
-          <span id="spectatorTimer" class="spectator-timer">08:00</span>
+          <span id="spectatorTimer" class="spectator-timer">Live</span>
         </div>
         <div class="spectator-panel">
           <h3>Punktestand</h3>

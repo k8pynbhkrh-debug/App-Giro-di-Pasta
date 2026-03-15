@@ -1492,33 +1492,6 @@ function getRecipeSteps(recipe) {
   return getRecipeGuide(recipe).steps;
 }
 
-function formatCountdown(totalSeconds) {
-  const safe = Math.max(0, Math.floor(totalSeconds));
-  const minutes = Math.floor(safe / 60);
-  const seconds = safe % 60;
-  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-}
-
-function parseStepDuration(stepText) {
-  const match = stepText.match(
-    /(?:\[(\d+)(?:\s*-\s*(\d+))?\s*(s|sek(?:\.|unden?)?|sec(?:onds?)?|min(?:\.|uten?)?|m)\])|(?:\b(\d+)(?:\s*-\s*(\d+))?\s*(s|sek(?:\.|unden?)?|sec(?:onds?)?|min(?:\.|uten?)?|m)\b)/i
-  );
-  if (!match) return null;
-  const firstRaw = match[1] || match[4];
-  const secondRaw = match[2] || match[5] || null;
-  const unit = (match[3] || match[6] || '').toLowerCase();
-  const first = parseInt(firstRaw, 10);
-  const second = secondRaw ? parseInt(secondRaw, 10) : null;
-  if (!Number.isFinite(first)) return null;
-  const rawValue = second || first;
-  const seconds = unit.startsWith('m') || unit.startsWith('min') ? rawValue * 60 : rawValue;
-  return {
-    fullMatch: match[0],
-    valueText: match[0].replace(/^\[|\]$/g, '').trim(),
-    seconds
-  };
-}
-
 function getPlayerDefaultNames(count) {
   return Array.from({ length: count }, (_, idx) => `Spieler ${idx + 1}`);
 }
@@ -1685,7 +1658,6 @@ function createGame(title) {
     settings: {
       players: 4,
       recipesPerPerson: 6,
-      roundMinutes: 8,
       meatAllowed: true,
       animalAllowed: true,
       fishAllowed: true,
@@ -1896,7 +1868,6 @@ function renderShoppingListFromGame(game) {
     li.textContent = `${entry.label}: ${prettyAmount(entry.amount)} ${entry.unit}`.trim();
     shoppingListEl.appendChild(li);
   });
-  shoppingExportEl.value = game.shoppingExport || '';
 }
 
 function renderPlayerInputs(game) {
@@ -1931,23 +1902,14 @@ function renderScoreStrip(game) {
     .join('   ');
 }
 
-function updateStartCookingCta(durationSeconds) {
-  if (!startCookingDurationEl) return;
-  startCookingDurationEl.textContent = formatCountdown(durationSeconds);
-}
-
-function setRoundCountdownMode(isReadyToStart) {
-  if (roundCountdownLabelEl) {
-    roundCountdownLabelEl.textContent = isReadyToStart ? 'Kochen starten' : 'Timer';
-  }
-  roundCountdownEl.classList.toggle('ready-start', isReadyToStart);
-  roundCountdownEl.classList.toggle('pulse-action', isReadyToStart);
+function getShoppingExportText(game = getCurrentGame()) {
+  return (game?.shoppingExport || '').trim();
 }
 
 function renderScoreboard(game) {
   scoreListEl.innerHTML = '';
   scoreSummaryEl.textContent = 'Punktestand';
-  const scoringLocked = !game.roundStarted;
+  const scoringLocked = !!game.awaitingRecipeReveal || !!game.finished;
 
   game.scores.forEach((score, index) => {
     const li = document.createElement('li');
@@ -1970,11 +1932,6 @@ function renderScoreboard(game) {
   const compact = [topOne, topTwo].filter(Boolean).join(' | ');
   if (compact) scoreSummaryEl.textContent = `Punktestand: ${compact}`;
   renderScoreStrip(game);
-}
-
-function clearInlineTimers() {
-  inlineTimerIntervals.forEach(intervalId => clearInterval(intervalId));
-  inlineTimerIntervals.clear();
 }
 
 async function requestScreenWakeLock() {
@@ -2012,265 +1969,30 @@ async function tryLockPortrait() {
   }
 }
 
-function getTimerAudioContext() {
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContextClass) return null;
-  if (!window.__giroTimerAudioContext) {
-    window.__giroTimerAudioContext = new AudioContextClass();
-  }
-  return window.__giroTimerAudioContext;
-}
-
-function primeInlineTimerSound() {
-  const ctx = getTimerAudioContext();
-  if (!ctx) return;
-  if (ctx.state === 'suspended') {
-    ctx.resume().catch(() => {});
-  }
-}
-
-function playInlineTimerDoneSound() {
-  const ctx = getTimerAudioContext();
-  if (!ctx) {
-    if (navigator.vibrate) navigator.vibrate(120);
-    return;
-  }
-
-  if (ctx.state === 'suspended') {
-    ctx.resume()
-      .then(() => playInlineTimerDoneSound())
-      .catch(() => {
-        if (navigator.vibrate) navigator.vibrate(120);
-      });
-    return;
-  }
-
-  const now = ctx.currentTime;
-  const gain = ctx.createGain();
-  gain.connect(ctx.destination);
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.exponentialRampToValueAtTime(0.12, now + 0.01);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
-
-  const toneA = ctx.createOscillator();
-  toneA.type = 'sine';
-  toneA.frequency.setValueAtTime(880, now);
-  toneA.connect(gain);
-  toneA.start(now);
-  toneA.stop(now + 0.17);
-
-  const toneB = ctx.createOscillator();
-  toneB.type = 'sine';
-  toneB.frequency.setValueAtTime(1175, now + 0.2);
-  toneB.connect(gain);
-  toneB.start(now + 0.2);
-  toneB.stop(now + 0.37);
-}
-
-function speakInlineTimerDone() {
-  if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
-    return false;
-  }
-
-  try {
-    const utterance = new SpeechSynthesisUtterance('Nächster Schritt');
-    utterance.lang = 'de-DE';
-    utterance.rate = 1;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-    window.speechSynthesis.cancel();
-    window.speechSynthesis.speak(utterance);
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
-function renderStepsWithTimers(steps) {
-  clearInlineTimers();
+function renderRecipeSteps(steps) {
   stepListEl.innerHTML = '';
   const preparedSteps = steps.filter(step => !step.toLowerCase().startsWith('tipp:'));
 
   preparedSteps.forEach(step => {
-      const li = document.createElement('li');
-      const parsed = parseStepDuration(step);
-
-      if (!parsed) {
-        li.textContent = step;
-        stepListEl.appendChild(li);
-        return;
-      }
-
-      const before = step.slice(0, step.indexOf(parsed.fullMatch));
-      const after = step.slice(step.indexOf(parsed.fullMatch) + parsed.fullMatch.length);
-      li.append(document.createTextNode(before));
-
-      const timerBtn = document.createElement('button');
-      timerBtn.className = 'inline-timer-btn';
-      timerBtn.type = 'button';
-      timerBtn.dataset.seconds = String(parsed.seconds);
-      timerBtn.textContent = parsed.valueText;
-
-      timerBtn.addEventListener('click', () => {
-        const total = parseInt(timerBtn.dataset.seconds || '0', 10);
-        if (!Number.isFinite(total) || total <= 0) return;
-        primeInlineTimerSound();
-        if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
-
-        const live = document.createElement('span');
-        live.className = 'inline-timer-live';
-        let remaining = total;
-        live.textContent = `${remaining}s`;
-        timerBtn.replaceWith(live);
-
-        const intervalId = setInterval(() => {
-          remaining -= 1;
-          if (remaining <= 0) {
-            live.textContent = '0s';
-            clearInterval(intervalId);
-            inlineTimerIntervals.delete(intervalId);
-            if (!speakInlineTimerDone()) {
-              playInlineTimerDoneSound();
-            }
-            return;
-          }
-          live.textContent = `${remaining}s`;
-        }, 1000);
-
-        inlineTimerIntervals.add(intervalId);
-      });
-
-      li.appendChild(timerBtn);
-      li.append(document.createTextNode(after));
-      stepListEl.appendChild(li);
-    });
-}
-
-function stopRoundCountdown() {
-  if (roundCountdownIntervalId) {
-    clearInterval(roundCountdownIntervalId);
-    roundCountdownIntervalId = null;
-  }
-}
-
-function updateRoundCountdownUi(remainingSeconds, totalSeconds = null) {
-  const safeRemaining = Math.max(0, Math.floor(remainingSeconds));
-  const total = totalSeconds || currentRoundDurationSeconds || safeRemaining || 1;
-  const ratio = total > 0 ? safeRemaining / total : 1;
-  let toneClass = 'timer-green';
-  if (ratio <= 0.2) toneClass = 'timer-red';
-  else if (ratio <= 0.5) toneClass = 'timer-yellow';
-
-  roundCountdownEl.classList.remove('timer-green', 'timer-yellow', 'timer-red');
-  roundCountdownEl.classList.add(toneClass);
-  startCookingBtn.classList.remove('timer-green', 'timer-yellow', 'timer-red');
-  startCookingBtn.classList.add(toneClass);
-  roundCountdownValueEl.textContent = formatCountdown(safeRemaining);
-  updateStartCookingCta(safeRemaining);
-}
-
-function handleTimerSignals(remainingSeconds) {
-  if (remainingSeconds <= 0) {
-    if (navigator.vibrate) navigator.vibrate([220, 90, 320]);
-    return;
-  }
-
-  if (!tenSecondWarningFired && remainingSeconds <= 10) {
-    tenSecondWarningFired = true;
-    if (navigator.vibrate) navigator.vibrate(160);
-  }
-}
-
-function startRoundCountdown(game) {
-  void requestScreenWakeLock();
-  void tryLockPortrait();
-  stopRoundCountdown();
-  const roundMinutes = Math.max(1, parseInt(game.settings.roundMinutes || 8, 10));
-  const durationSeconds = roundMinutes * 60;
-  currentRoundDurationSeconds = durationSeconds;
-  tenSecondWarningFired = false;
-  game.roundTimerEndsAt = Date.now() + durationSeconds * 1000;
-  game.roundStarted = true;
-  setGameSubView('cooking');
-  startCookingBtn.classList.remove('pulse-action');
-  updateRoundCountdownUi(durationSeconds, durationSeconds);
-  if (navigator.vibrate) navigator.vibrate(180);
-  const playerName = game.players[game.activePlayerTurnIndex];
-  handoverInfoEl.textContent = `${playerName} kocht jetzt`;
-  finishGameBtn.disabled = false;
-  upsertCurrentGame(game);
-
-  roundCountdownIntervalId = setInterval(() => {
-    const remaining = Math.ceil((game.roundTimerEndsAt - Date.now()) / 1000);
-    if (remaining <= 0) {
-      updateRoundCountdownUi(0, durationSeconds);
-      handleTimerSignals(0);
-      stopRoundCountdown();
-      return;
-    }
-    updateRoundCountdownUi(remaining, durationSeconds);
-    handleTimerSignals(remaining);
-  }, 1000);
-}
-
-function resumeRoundCountdown(game) {
-  stopRoundCountdown();
-  if (!game.roundStarted || !game.roundTimerEndsAt) {
-    roundCountdownEl.classList.add('hidden');
-    return;
-  }
-
-  currentRoundDurationSeconds = Math.max(1, parseInt(game.settings.roundMinutes || 8, 10)) * 60;
-  const initial = Math.ceil((game.roundTimerEndsAt - Date.now()) / 1000);
-  if (initial <= 0) {
-    updateRoundCountdownUi(0, currentRoundDurationSeconds);
-    return;
-  }
-
-  setGameSubView('cooking');
-  startCookingBtn.classList.remove('pulse-action');
-  tenSecondWarningFired = initial <= 10;
-  if (tenSecondWarningFired && initial > 0 && navigator.vibrate) navigator.vibrate(120);
-
-  updateRoundCountdownUi(initial, currentRoundDurationSeconds);
-  roundCountdownIntervalId = setInterval(() => {
-    const remaining = Math.ceil((game.roundTimerEndsAt - Date.now()) / 1000);
-    if (remaining <= 0) {
-      updateRoundCountdownUi(0, currentRoundDurationSeconds);
-      handleTimerSignals(0);
-      stopRoundCountdown();
-      return;
-    }
-    updateRoundCountdownUi(remaining, currentRoundDurationSeconds);
-    handleTimerSignals(remaining);
-  }, 1000);
+    const li = document.createElement('li');
+    li.textContent = step;
+    stepListEl.appendChild(li);
+  });
 }
 
 function setGameSubView(mode) {
   const isHandover = mode === 'handover';
-  const isCooking = mode === 'cooking';
-  const isActiveRound = mode === 'recipe' || isCooking;
-  const isRecipeReady = mode === 'recipe';
 
   revealScreenEl.classList.toggle('open', isHandover);
-  handoverActionsEl.classList.add('hidden');
-  cookStartRowEl.classList.toggle('hidden', isHandover);
-  startCookingBtn.classList.toggle('hidden', !isActiveRound);
-  startCookingBtn.disabled = isCooking;
   ingredientIllustrationEl.classList.toggle('hidden', isHandover);
   difficultyIndicatorEl.classList.toggle('hidden', isHandover);
   tipTextEl.classList.toggle('hidden', isHandover);
   recipeMetaEl.classList.toggle('hidden', isHandover);
   nextRecipeBtn.classList.add('hidden');
   skipRecipeBtn.classList.toggle('hidden', isHandover);
-  finishGameBtn.classList.toggle('hidden', isHandover || isRecipeReady);
-  roundCountdownEl.classList.toggle('hidden', !isActiveRound);
-  setRoundCountdownMode(isRecipeReady);
-  gameSection.classList.remove('cooking-mode');
+  finishGameBtn.classList.toggle('hidden', isHandover);
   if (isHandover) {
     scoreSectionEl.open = false;
-    stopRoundCountdown();
-    clearInlineTimers();
   } else {
     scoreSectionEl.open = true;
   }
@@ -2291,10 +2013,7 @@ function renderRoundHandover(game, fixedPlayerIndex = null) {
   game.roundStarted = false;
   game.roundTimerEndsAt = null;
   game.roundHasCorrectTip = false;
-  currentRoundDurationSeconds = Math.max(1, parseInt(game.settings.roundMinutes || 8, 10)) * 60;
-  tenSecondWarningFired = false;
   setGameSubView('handover');
-  skipRecipeTopBtn.classList.add('hidden');
 
   const currentName = game.players[game.activePlayerTurnIndex];
   revealPlayerEl.textContent = currentName || 'Nächste Person';
@@ -2332,9 +2051,8 @@ function revealCurrentRecipe(game) {
   const round = game.rounds[game.gameIndex];
   const playerName = game.players[game.activePlayerTurnIndex];
   setGameSubView('recipe');
-  skipRecipeTopBtn.classList.add('hidden');
 
-  handoverInfoEl.textContent = game.roundStarted ? `${playerName} kocht jetzt` : `${playerName} ist dran`;
+  handoverInfoEl.textContent = `${playerName} ist dran`;
   recipeTitleEl.textContent = round.name;
   recipeMetaEl.textContent = `Runde ${game.gameIndex + 1} von ${game.rounds.length}${round.isJoker ? ' - Joker' : ''}`;
   const accent = getAccentForRound(round);
@@ -2345,22 +2063,13 @@ function revealCurrentRecipe(game) {
   setRecipeIllustration(round, accent);
 
   tipTextEl.textContent = `Tipp: ${recipeGuide.tip}`;
-  renderStepsWithTimers(recipeGuide.steps);
+  renderRecipeSteps(recipeGuide.steps);
 
   game.awaitingRecipeReveal = false;
-  const roundMinutes = Math.max(1, parseInt(game.settings.roundMinutes || 8, 10));
-  currentRoundDurationSeconds = roundMinutes * 60;
-  startCookingBtn.classList.add('pulse-action');
+  game.roundStarted = true;
+  game.roundTimerEndsAt = null;
   finishGameBtn.textContent = 'Runde beenden';
-  const roundIsRunning = !!game.roundStarted;
-  setGameSubView(roundIsRunning ? 'cooking' : 'recipe');
-  finishGameBtn.disabled = !roundIsRunning;
-  if (game.roundStarted) {
-    resumeRoundCountdown(game);
-  } else {
-    tenSecondWarningFired = false;
-    updateRoundCountdownUi(currentRoundDurationSeconds, currentRoundDurationSeconds);
-  }
+  finishGameBtn.disabled = false;
   renderScoreboard(game);
   upsertCurrentGame(game);
 }
@@ -2373,7 +2082,6 @@ function finalizeRoundScore(game) {
   game.roundHasCorrectTip = true;
   game.roundStarted = false;
   game.roundTimerEndsAt = null;
-  stopRoundCountdown();
   renderScoreboard(game);
   showStatus(`Kein richtiger Tipp: ${game.players[cookIndex]} bekommt automatisch +3 Punkte.`);
 }
@@ -2382,19 +2090,14 @@ function renderFinal(game) {
   game.finished = true;
   game.phase = 'game';
   setGameSubView('recipe');
-  startCookingBtn.classList.add('hidden');
-  startCookingBtn.classList.remove('pulse-action');
   skipRecipeBtn.classList.add('hidden');
   finishGameBtn.classList.add('hidden');
   revealScreenEl.classList.remove('open');
-  gameSection.classList.remove('cooking-mode');
   handoverInfoEl.textContent = 'Spiel beendet.';
   recipeTitleEl.textContent = 'Endstand';
   recipeMetaEl.textContent = `${game.title}`;
   difficultyIndicatorEl.textContent = 'Schwierigkeit ●●○';
   tipTextEl.textContent = 'Tipp: Neues Spiel starten oder gespeichertes Spiel laden.';
-  stopRoundCountdown();
-  clearInlineTimers();
   setRecipeIllustrationPlaceholder();
   recipeTitleEl.style.borderBottomColor = '#cabaa2';
   setGameFrameAccent('#cabaa2');
@@ -2411,43 +2114,21 @@ function renderFinal(game) {
 
   skipRecipeBtn.disabled = true;
   finishGameBtn.disabled = true;
-  roundCountdownEl.classList.add('hidden');
   startAnotherGameBtn.classList.remove('hidden');
   upsertCurrentGame(game);
-}
-
-function stopSpectatorCountdown() {
-  if (spectatorCountdownIntervalId) {
-    clearInterval(spectatorCountdownIntervalId);
-    spectatorCountdownIntervalId = null;
-  }
-}
-
-function startSpectatorCountdown(roundTimerEndsAt) {
-  stopSpectatorCountdown();
-
-  const update = () => {
-    const remaining = Math.max(0, Math.ceil((roundTimerEndsAt - Date.now()) / 1000));
-    spectatorTimerEl.textContent = formatCountdown(remaining);
-    if (remaining <= 0) stopSpectatorCountdown();
-  };
-
-  update();
-  spectatorCountdownIntervalId = setInterval(update, 1000);
 }
 
 function renderSpectator(game) {
   hideAllSections();
   spectatorSection.classList.remove('hidden');
   spectatorRoundInfoEl.textContent = '';
-  spectatorTimerEl.textContent = '08:00';
+  spectatorTimerEl.textContent = 'Live';
   spectatorScoreListEl.innerHTML = '';
   spectatorRecipeListEl.innerHTML = '';
 
   if (!game) {
-    stopSpectatorCountdown();
     spectatorRoundInfoEl.textContent = 'Kein aktives Spiel gefunden.';
-    spectatorTimerEl.textContent = '--:--';
+    spectatorTimerEl.textContent = 'Offline';
     const li = document.createElement('li');
     li.textContent = 'Kein Spiel gefunden.';
     spectatorScoreListEl.appendChild(li);
@@ -2460,17 +2141,10 @@ function renderSpectator(game) {
 
   if (game.finished || game.gameIndex >= rounds.length) {
     spectatorRoundInfoEl.textContent = 'Spiel beendet.';
-    stopSpectatorCountdown();
-    spectatorTimerEl.textContent = '00:00';
+    spectatorTimerEl.textContent = 'Ende';
   } else {
     spectatorRoundInfoEl.textContent = `${currentPlayerName} ist dran.`;
-    if (game.roundStarted && game.roundTimerEndsAt) {
-      startSpectatorCountdown(game.roundTimerEndsAt);
-    } else {
-      stopSpectatorCountdown();
-      const roundMinutes = Math.max(1, parseInt(game.settings?.roundMinutes || 8, 10));
-      spectatorTimerEl.textContent = formatCountdown(roundMinutes * 60);
-    }
+    spectatorTimerEl.textContent = 'Live';
   }
 
   (game.players || []).forEach((name, idx) => {
@@ -2513,7 +2187,6 @@ function renderFromCurrentGame() {
     game.settings.players = Math.max(1, Math.min(6, parseInt(game.settings.players, 10) || 1));
     playersInputEl.value = game.settings.players;
     recipesPerPersonEl.value = game.settings.recipesPerPerson || 6;
-    roundMinutesEl.value = game.settings.roundMinutes || 8;
     meatAllowedEl.checked = game.settings.meatAllowed;
     animalAllowedEl.checked = game.settings.animalAllowed;
     fishAllowedEl.checked = game.settings.fishAllowed;
@@ -2576,7 +2249,6 @@ const currentGameLabelEl = document.getElementById('currentGameLabel');
 
 const playersInputEl = document.getElementById('players');
 const recipesPerPersonEl = document.getElementById('recipesPerPerson');
-const roundMinutesEl = document.getElementById('roundMinutes');
 const meatAllowedEl = document.getElementById('meatAllowed');
 const animalAllowedEl = document.getElementById('animalAllowed');
 const fishAllowedEl = document.getElementById('fishAllowed');
@@ -2586,7 +2258,6 @@ const generateBtn = document.getElementById('generate');
 const statusEl = document.getElementById('status');
 const recipeListEl = document.getElementById('recipeList');
 const shoppingListEl = document.getElementById('shoppingList');
-const shoppingExportEl = document.getElementById('shoppingExport');
 const exportShoppingBtn = document.getElementById('exportShopping');
 const startGameBtn = document.getElementById('startGame');
 const newRoundBtn = document.getElementById('newRound');
@@ -2598,15 +2269,8 @@ const confirmPlayersBtn = document.getElementById('confirmPlayers');
 const backToSummaryBtn = document.getElementById('backToSummary');
 
 const handoverInfoEl = document.getElementById('handoverInfo');
-const handoverActionsEl = document.getElementById('handoverActions');
-const cookStartRowEl = document.getElementById('cookStartRow');
-const showRecipeTopBtn = document.getElementById('showRecipeTop');
-const skipRecipeTopBtn = document.getElementById('skipRecipeTop');
 const recipeTitleEl = document.getElementById('recipeTitle');
 const recipeMetaEl = document.getElementById('recipeMeta');
-const roundCountdownEl = document.getElementById('roundCountdown');
-const roundCountdownLabelEl = document.getElementById('roundCountdownLabel');
-const roundCountdownValueEl = document.getElementById('roundCountdownValue');
 const difficultyIndicatorEl = document.getElementById('difficultyIndicator');
 const tipTextEl = document.getElementById('tipText');
 const ingredientIllustrationEl = document.getElementById('ingredientIllustration');
@@ -2629,8 +2293,6 @@ const scoreStripEl = document.getElementById('scoreStrip');
 const revealScreenEl = document.getElementById('revealScreen');
 const revealPlayerEl = document.getElementById('revealPlayer');
 const revealRecipeBtn = document.getElementById('revealRecipeBtn');
-const startCookingBtn = document.getElementById('startCookingBtn');
-const startCookingDurationEl = document.getElementById('startCookingDuration');
 
 const qrModalEl = document.getElementById('qrModal');
 const qrImageEl = document.getElementById('qrImage');
@@ -2650,13 +2312,8 @@ let currentGameId = games.length > 0 ? games[games.length - 1].id : null;
 const searchParams = new URLSearchParams(window.location.search);
 const spectatorGameId = searchParams.get('watch');
 const spectatorMode = !!spectatorGameId;
-let roundCountdownIntervalId = null;
-const inlineTimerIntervals = new Set();
 let spectatorPollIntervalId = null;
-let spectatorCountdownIntervalId = null;
 let screenWakeLock = null;
-let currentRoundDurationSeconds = null;
-let tenSecondWarningFired = false;
 
 menuToggleBtn.addEventListener('click', () => {
   menuEl.classList.toggle('open');
@@ -2743,11 +2400,9 @@ generateBtn.addEventListener('click', () => {
 
   const players = Math.max(1, Math.min(6, parseInt(playersInputEl.value, 10) || 1));
   const recipesPerPerson = Math.max(6, Math.min(10, parseInt(recipesPerPersonEl.value, 10) || 6));
-  const roundMinutes = Math.max(1, Math.min(30, parseInt(roundMinutesEl.value, 10) || 8));
   game.settings = {
     players,
     recipesPerPerson,
-    roundMinutes,
     meatAllowed: meatAllowedEl.checked,
     animalAllowed: animalAllowedEl.checked,
     fishAllowed: fishAllowedEl.checked,
@@ -2789,16 +2444,23 @@ generateBtn.addEventListener('click', () => {
 });
 
 async function copyShoppingToClipboard() {
-  const exportText = shoppingExportEl.value.trim();
+  const exportText = getShoppingExportText();
   if (!exportText) return false;
 
   try {
     await navigator.clipboard.writeText(exportText);
     return true;
   } catch (error) {
-    shoppingExportEl.select();
-    document.execCommand('copy');
-    return true;
+    const temp = document.createElement('textarea');
+    temp.value = exportText;
+    temp.setAttribute('readonly', '');
+    temp.style.position = 'absolute';
+    temp.style.left = '-9999px';
+    document.body.appendChild(temp);
+    temp.select();
+    const copied = document.execCommand('copy');
+    document.body.removeChild(temp);
+    return copied;
   }
 }
 
@@ -2811,7 +2473,7 @@ function closeExportModal() {
 }
 
 function openWhatsappExport() {
-  const text = shoppingExportEl.value.trim();
+  const text = getShoppingExportText();
   if (!text) return;
   const encoded = encodeURIComponent(`Giro di Pasta Einkaufsliste\n${text}`);
   window.location.href = `whatsapp://send?text=${encoded}`;
@@ -2820,7 +2482,7 @@ function openWhatsappExport() {
 function exportShoppingPdf() {
   const game = getCurrentGame();
   const title = game ? game.title : 'Einkaufsliste';
-  const lines = (shoppingExportEl.value || '').split('\n').filter(Boolean);
+  const lines = getShoppingExportText(game).split('\n').filter(Boolean);
   if (lines.length === 0) return;
   const printable = window.open('', '_blank', 'width=640,height=800');
   if (!printable) return;
@@ -2957,7 +2619,7 @@ scoreListEl.addEventListener('click', event => {
 
   const game = getCurrentGame();
   if (!game) return;
-  if (!game.roundStarted) return;
+  if (game.awaitingRecipeReveal || game.finished) return;
 
   const index = parseInt(target.dataset.score || '', 10);
   const delta = parseInt(target.dataset.delta || '', 10);
@@ -2979,27 +2641,12 @@ nextRecipeBtn.addEventListener('click', () => {
   // Legacy button kept hidden; no interaction required.
 });
 
-showRecipeTopBtn.addEventListener('click', () => {
-  const game = getCurrentGame();
-  if (!game || game.finished) return;
-  if (!game.awaitingRecipeReveal) return;
-  void tryLockPortrait();
-  revealCurrentRecipe(game);
-});
-
 revealRecipeBtn.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game || game.finished) return;
   if (!game.awaitingRecipeReveal) return;
   void tryLockPortrait();
   revealCurrentRecipe(game);
-});
-
-skipRecipeTopBtn.addEventListener('click', () => {
-  const game = getCurrentGame();
-  if (!game || game.finished) return;
-  if (game.awaitingRecipeReveal) return;
-  skipCurrentRecipe(game);
 });
 
 skipRecipeBtn.addEventListener('click', () => {
@@ -3009,33 +2656,12 @@ skipRecipeBtn.addEventListener('click', () => {
   skipCurrentRecipe(game);
 });
 
-roundCountdownEl.addEventListener('click', () => {
-  const game = getCurrentGame();
-  if (!game || game.finished || game.awaitingRecipeReveal) return;
-  // Timer wird nur über den Start-Button gestartet.
-});
-
-startCookingBtn.addEventListener('click', () => {
-  const game = getCurrentGame();
-  if (!game || game.finished || game.awaitingRecipeReveal) return;
-  if (game.roundStarted) return;
-  startRoundCountdown(game);
-  finishGameBtn.disabled = false;
-  renderScoreboard(game);
-  showStatus(`Timer gestartet: ${game.settings.roundMinutes || 8} Minuten.`);
-});
-
 finishGameBtn.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game || game.finished) return;
 
   if (game.awaitingRecipeReveal) {
     revealCurrentRecipe(game);
-    return;
-  }
-
-  if (!game.roundStarted) {
-    showStatus('Starte zuerst das Kochen, dann kannst du die Runde beenden.');
     return;
   }
 

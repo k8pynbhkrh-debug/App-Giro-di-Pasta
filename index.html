@@ -25,7 +25,7 @@
       --neutral-btn: #f9f6ef;
       --neutral-btn-line: #d8cdbd;
       --timer-green: #0f9d58;
-      --timer-yellow: #d58b00;
+      --timer-yellow: #d97706;
       --timer-red: #c0392b;
     }
 
@@ -870,6 +870,18 @@
       font-weight: 700;
       line-height: 1;
       color: #9a4f1d;
+    }
+
+    #roundCountdown.timer-green #roundCountdownValue {
+      color: var(--timer-green);
+    }
+
+    #roundCountdown.timer-yellow #roundCountdownValue {
+      color: var(--timer-yellow);
+    }
+
+    #roundCountdown.timer-red #roundCountdownValue {
+      color: var(--timer-red);
     }
 
     #difficultyIndicator,

@@ -42,10 +42,12 @@
         var(--bg);
       color: var(--text);
       font-family: "Cormorant Garamond", Georgia, serif;
+      font-weight: 700;
       padding: 14px;
       display: grid;
       place-items: center;
       font-size: 1.08rem;
+      font-synthesis: weight;
     }
 
     .phone {
@@ -87,7 +89,7 @@
       margin: 0;
       font-family: "Italiana", Georgia, serif;
       font-size: 1.25rem;
-      font-weight: 400;
+      font-weight: 700;
       letter-spacing: 0.06em;
       text-align: center;
       flex: 1;
@@ -190,7 +192,7 @@
     .page {
       padding: 14px;
       display: grid;
-      gap: 12px;
+      gap: 14px;
       padding-bottom: 26px;
     }
 
@@ -198,7 +200,7 @@
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      padding: 16px;
+      padding: 18px;
       box-shadow: var(--shadow);
     }
 
@@ -212,9 +214,9 @@
 
     h2,
     h3 {
-      margin: 0 0 8px;
+      margin: 0 0 10px;
       font-family: "Italiana", Georgia, serif;
-      font-weight: 400;
+      font-weight: 700;
       letter-spacing: 0.04em;
       color: var(--text);
     }
@@ -230,7 +232,8 @@
     p {
       margin: 0;
       color: var(--muted);
-      line-height: 1.45;
+      line-height: 1.58;
+      font-weight: 700;
     }
 
     .subtle {
@@ -240,12 +243,12 @@
 
     .grid {
       display: grid;
-      gap: 10px;
+      gap: 12px;
     }
 
     label {
       display: grid;
-      gap: 6px;
+      gap: 8px;
       font-weight: 600;
       color: var(--text);
       font-size: 1rem;
@@ -264,7 +267,7 @@
       width: 100%;
       border: 1px solid #dddddd;
       border-radius: 12px;
-      padding: 10px 11px;
+      padding: 12px 13px;
       background: #fff;
       color: var(--text);
     }
@@ -311,10 +314,20 @@
     }
 
     .button-row {
-      margin-top: 10px;
+      margin-top: 14px;
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
+    }
+
+    section > p + .grid,
+    section > p + .landing-list,
+    section > p + .button-row,
+    section > p + .rules-box,
+    section > p + ul,
+    section > p + select,
+    section > p + textarea {
+      margin-top: 10px;
     }
 
     button {
@@ -323,7 +336,7 @@
       background: var(--neutral-btn);
       color: var(--text);
       padding: 9px 12px;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.03em;
       cursor: pointer;
       transition: background .2s ease, border-color .2s ease;
@@ -496,12 +509,12 @@
     }
 
     .landing-list {
-      margin-top: 8px;
+      margin-top: 12px;
       border: 1px solid #e7dfd1;
       border-radius: 12px;
-      padding: 8px;
+      padding: 10px;
       display: grid;
-      gap: 6px;
+      gap: 8px;
       background: #fffdf8;
     }
 
@@ -570,7 +583,7 @@
       letter-spacing: 0.05em;
       font-family: "Italiana", Georgia, serif;
       font-size: 1.45rem;
-      font-weight: 400;
+      font-weight: 700;
       color: #5c5142;
       margin: 0;
     }
@@ -581,6 +594,7 @@
       margin: 0;
       color: #1f1a12;
       letter-spacing: 0.04em;
+      font-weight: 700;
     }
 
     .timer-label {
@@ -615,11 +629,30 @@
       box-shadow: 0 14px 28px rgba(116, 83, 33, 0.16);
     }
 
+    .start-cooking-cta[disabled] {
+      opacity: 1;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .start-cooking-cta.timer-green .start-cooking-duration {
+      color: var(--timer-green);
+    }
+
+    .start-cooking-cta.timer-yellow .start-cooking-duration {
+      color: var(--timer-yellow);
+    }
+
+    .start-cooking-cta.timer-red .start-cooking-duration {
+      color: var(--timer-red);
+    }
+
     .start-cooking-label {
       font-family: "Italiana", Georgia, serif;
       font-size: 1.2rem;
       letter-spacing: 0.08em;
       color: #332617;
+      font-weight: 700;
     }
 
     .start-cooking-duration {
@@ -632,95 +665,6 @@
     .timer-green { color: var(--timer-green); }
     .timer-yellow { color: var(--timer-yellow); }
     .timer-red { color: var(--timer-red); }
-
-    #game.cooking-mode {
-      overflow: hidden;
-    }
-
-    #game.cooking-mode .game-headline,
-    #game.cooking-mode .handover-line,
-    #game.cooking-mode #handoverActions,
-    #game.cooking-mode #ingredientIllustration,
-    #game.cooking-mode #tipText,
-    #game.cooking-mode #difficultyIndicator,
-    #game.cooking-mode #recipeMeta,
-    #game.cooking-mode .menu,
-    #game.cooking-mode .qr-img-wrap {
-      display: none !important;
-    }
-
-    #game.cooking-mode #scoreSection {
-      display: none;
-    }
-
-    #game.cooking-mode #gameCard {
-      padding: 8px 14px 180px;
-      display: grid;
-      gap: 10px;
-    }
-
-    #game.cooking-mode #recipeTitle {
-      text-align: center;
-      border-bottom: none;
-      font-size: 1.7rem;
-      margin-top: 6px;
-    }
-
-    #game.cooking-mode #stepList {
-      list-style: decimal;
-      padding-left: 18px;
-      font-size: 1.05rem;
-      line-height: 1.35;
-      margin: 0;
-      max-height: 48vh;
-      overflow: hidden;
-    }
-
-    #game.cooking-mode #stepList button {
-      pointer-events: none;
-      opacity: 0.7;
-    }
-
-    #game.cooking-mode #roundCountdown {
-      position: absolute;
-      left: 14px;
-      right: 14px;
-      bottom: 18px;
-      border: none;
-      background: transparent;
-      box-shadow: none;
-      pointer-events: none;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      min-height: auto;
-    }
-
-    #game.cooking-mode #roundCountdownValue {
-      font-size: clamp(120px, 22vw, 160px);
-      line-height: .9;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-    }
-
-    #game.cooking-mode .button-row {
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    #game.cooking-mode #nextRecipe,
-    #game.cooking-mode #skipRecipe,
-    #game.cooking-mode #startAnotherGame {
-      display: none;
-    }
-
-    #game.cooking-mode #finishGame {
-      min-height: 64px;
-      padding: 12px 16px;
-      font-size: 1rem;
-    }
 
     #shoppingList li,
     #scoreList li,
@@ -811,6 +755,7 @@
       border-bottom: 3px solid #cabaa2;
       padding-bottom: 4px;
       letter-spacing: 0.04em;
+      font-weight: 700;
     }
 
     .difficulty {
@@ -831,7 +776,7 @@
       border-radius: 12px;
       background: #fffdf8;
       padding: 6px 8px;
-      margin-top: 14px;
+      margin-top: 18px;
     }
 
     .score-dropdown summary {
@@ -853,28 +798,31 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 6px;
-      padding: 6px 8px;
+      gap: 10px;
+      padding: 8px 10px;
     }
 
     .score-item strong {
-      font-size: .82rem;
-      font-weight: 600;
+      font-size: 1rem;
+      font-weight: 700;
       line-height: 1.2;
+      min-width: 110px;
     }
 
     .score-controls {
       display: flex;
-      gap: 4px;
-      flex-shrink: 0;
+      gap: 8px;
+      flex: 1;
     }
 
     .score-controls button {
+      flex: 1 1 0;
       min-width: 0;
-      padding: 4px 7px;
-      font-size: .68rem;
+      min-height: 56px;
+      padding: 10px 12px;
+      font-size: 1rem;
       line-height: 1;
-      border-radius: 8px;
+      border-radius: 12px;
       white-space: nowrap;
     }
 
@@ -884,9 +832,44 @@
       font-size: 1rem;
     }
 
+    .game-actions {
+      justify-content: center;
+      margin-top: 14px;
+    }
+
+    .game-actions button {
+      min-height: 60px;
+      padding: 10px 16px;
+    }
+
+    #finishGame {
+      min-width: 220px;
+    }
+
     #roundCountdown {
-      border: none;
+      width: 100%;
+      max-width: 320px;
+      min-height: 84px;
+      margin: 0 auto;
+      border: 1px solid #c9b28f;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #fffdf7 0%, #f7eddc 100%);
+      box-shadow: 0 14px 28px rgba(116, 83, 33, 0.16);
       color: #2f2a23;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+      cursor: default;
+      pointer-events: none;
+      padding: 14px 16px;
+    }
+
+    #roundCountdownValue {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+      color: #9a4f1d;
     }
 
     #difficultyIndicator,
@@ -900,6 +883,15 @@
     @media (max-width: 410px) {
       #scoreList {
         grid-template-columns: 1fr;
+      }
+
+      .score-item {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .score-item strong {
+        min-width: 0;
       }
     }
   </style>
@@ -1039,7 +1031,7 @@
           <h3 class="score-heading">Punktestand:</h3>
           <ul id="scoreList"></ul>
         </details>
-        <div class="button-row">
+        <div class="button-row game-actions">
           <button id="nextRecipe" class="secondary hidden">Rezept anzeigen</button>
           <button id="skipRecipe">Rezept skippen</button>
           <button id="finishGame">Runde beenden</button>

@@ -2155,7 +2155,10 @@ function updateRoundCountdownUi(remainingSeconds, totalSeconds = null) {
 
   roundCountdownEl.classList.remove('timer-green', 'timer-yellow', 'timer-red');
   roundCountdownEl.classList.add(toneClass);
+  startCookingBtn.classList.remove('timer-green', 'timer-yellow', 'timer-red');
+  startCookingBtn.classList.add(toneClass);
   roundCountdownValueEl.textContent = formatCountdown(safeRemaining);
+  updateStartCookingCta(safeRemaining);
 }
 
 function handleTimerSignals(remainingSeconds) {
@@ -2238,29 +2241,29 @@ function resumeRoundCountdown(game) {
 function setGameSubView(mode) {
   const isHandover = mode === 'handover';
   const isCooking = mode === 'cooking';
-  const isRecipe = mode === 'recipe';
+  const isActiveRound = mode === 'recipe' || isCooking;
+  const isRecipeReady = mode === 'recipe';
 
   revealScreenEl.classList.toggle('open', isHandover);
   handoverActionsEl.classList.add('hidden');
-  cookStartRowEl.classList.toggle('hidden', !isRecipe);
-  startCookingBtn.classList.toggle('hidden', !isRecipe);
-  ingredientIllustrationEl.classList.toggle('hidden', isHandover || isCooking);
-  difficultyIndicatorEl.classList.toggle('hidden', isHandover || isCooking);
-  tipTextEl.classList.toggle('hidden', isHandover || isCooking);
-  recipeMetaEl.classList.toggle('hidden', isCooking);
+  cookStartRowEl.classList.toggle('hidden', isHandover);
+  startCookingBtn.classList.toggle('hidden', !isActiveRound);
+  startCookingBtn.disabled = isCooking;
+  ingredientIllustrationEl.classList.toggle('hidden', isHandover);
+  difficultyIndicatorEl.classList.toggle('hidden', isHandover);
+  tipTextEl.classList.toggle('hidden', isHandover);
+  recipeMetaEl.classList.toggle('hidden', isHandover);
   nextRecipeBtn.classList.add('hidden');
   skipRecipeBtn.classList.toggle('hidden', isHandover);
-  finishGameBtn.classList.toggle('hidden', isHandover);
+  finishGameBtn.classList.toggle('hidden', isHandover || isRecipeReady);
   roundCountdownEl.classList.toggle('hidden', !isCooking);
-  gameSection.classList.toggle('cooking-mode', isCooking);
+  gameSection.classList.remove('cooking-mode');
   if (isHandover) {
     scoreSectionEl.open = false;
-    roundCountdownEl.classList.remove('start-ready');
-    roundCountdownEl.classList.remove('start-pulse');
     stopRoundCountdown();
     clearInlineTimers();
   } else {
-    scoreSectionEl.open = !isCooking;
+    scoreSectionEl.open = true;
   }
 }
 
@@ -2338,7 +2341,6 @@ function revealCurrentRecipe(game) {
   game.awaitingRecipeReveal = false;
   const roundMinutes = Math.max(1, parseInt(game.settings.roundMinutes || 8, 10));
   currentRoundDurationSeconds = roundMinutes * 60;
-  updateStartCookingCta(currentRoundDurationSeconds);
   startCookingBtn.classList.add('pulse-action');
   finishGameBtn.textContent = 'Runde beenden';
   const roundIsRunning = !!game.roundStarted;
@@ -2373,6 +2375,8 @@ function renderFinal(game) {
   setGameSubView('recipe');
   startCookingBtn.classList.add('hidden');
   startCookingBtn.classList.remove('pulse-action');
+  skipRecipeBtn.classList.add('hidden');
+  finishGameBtn.classList.add('hidden');
   revealScreenEl.classList.remove('open');
   gameSection.classList.remove('cooking-mode');
   handoverInfoEl.textContent = 'Spiel beendet.';

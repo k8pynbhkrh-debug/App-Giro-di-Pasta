@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Giro di Pasta icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff7ef"/>
+      <stop offset="100%" stop-color="#f0dcc3"/>
+    </linearGradient>
+    <linearGradient id="sauce" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f47a20"/>
+      <stop offset="100%" stop-color="#c93f00"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="120" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="164" fill="#fffdf9" stroke="#d6b99a" stroke-width="18"/>
+  <circle cx="256" cy="256" r="118" fill="none" stroke="#f2d19b" stroke-width="22"/>
+
+  <path
+    d="M192 276c0-48 38-82 84-82 38 0 68 17 93 47"
+    fill="none"
+    stroke="url(#sauce)"
+    stroke-linecap="round"
+    stroke-width="28"
+  />
+  <path
+    d="M351 258c0 52-37 88-95 88-45 0-80-24-80-63 0-28 22-48 50-48 22 0 38 12 38 31 0 15-12 27-28 27"
+    fill="none"
+    stroke="url(#sauce)"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="28"
+  />
+
+  <path
+    d="M133 135l40 40M339 339l40 40"
+    fill="none"
+    stroke="#2d241d"
+    stroke-linecap="round"
+    stroke-width="18"
+  />
+  <circle cx="133" cy="135" r="14" fill="#2d241d"/>
+  <circle cx="379" cy="379" r="14" fill="#2d241d"/>
+</svg>

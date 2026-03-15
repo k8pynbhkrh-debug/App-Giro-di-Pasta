@@ -1,10 +1,11 @@
-const CACHE_VERSION = "v6";
+const CACHE_VERSION = "v7";
 const CACHE_NAME = `giro-di-pasta-${CACHE_VERSION}`;
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./app.js",
-  "./manifest.json"
+  "./manifest.json",
+  "./assets/app-icon.svg"
 ];
 
 self.addEventListener("install", event => {

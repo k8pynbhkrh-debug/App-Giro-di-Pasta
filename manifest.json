@@ -1,9 +1,19 @@
 {
+  "id": "/",
   "name": "Giro di Pasta",
   "short_name": "GiroPasta",
-  "start_url": "./index.html",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#fff7ef",
+  "orientation": "portrait",
+  "background_color": "#f2ebdf",
   "theme_color": "#d94f04",
-  "icons": []
+  "icons": [
+    {
+      "src": "/assets/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
 }

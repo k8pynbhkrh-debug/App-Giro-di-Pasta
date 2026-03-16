@@ -2014,7 +2014,7 @@ function renderRoundHandover(game, fixedPlayerIndex = null) {
 
   const currentName = game.players[game.activePlayerTurnIndex];
   revealPlayerEl.textContent = currentName || 'Nächste Person';
-  handoverInfoEl.textContent = '';
+  handoverInfoEl.textContent = `${currentName} ist dran`;
   recipeTitleEl.textContent = '';
   recipeMetaEl.textContent = '';
   difficultyIndicatorEl.textContent = 'Schwierigkeit ●●○';
@@ -2045,7 +2045,7 @@ function revealCurrentRecipe(game) {
   const playerName = game.players[game.activePlayerTurnIndex];
   setGameSubView('recipe');
 
-  handoverInfoEl.textContent = '';
+  handoverInfoEl.textContent = `${playerName} ist dran`;
   recipeTitleEl.textContent = round.name;
   recipeMetaEl.textContent = `Runde ${game.gameIndex + 1} von ${game.rounds.length}${round.isJoker ? ' - Joker' : ''}`;
   const accent = getAccentForRound(round);
@@ -2080,7 +2080,7 @@ function renderFinal(game) {
   game.phase = 'game';
   setGameSubView('final');
   revealScreenEl.classList.remove('open');
-  handoverInfoEl.textContent = '';
+  handoverInfoEl.textContent = 'Spiel beendet.';
   recipeTitleEl.textContent = 'Endstand';
   recipeMetaEl.textContent = `${game.title}`;
   difficultyIndicatorEl.textContent = 'Schwierigkeit ●●○';

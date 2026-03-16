@@ -646,11 +646,13 @@
       border: 1px solid #e7dfd1;
       border-radius: 12px;
       background: #fffdf8;
-      padding: 6px 8px;
+      padding: 10px;
       margin-top: 18px;
     }
 
     .score-dropdown summary {
+      display: grid;
+      gap: 10px;
       cursor: pointer;
       font-weight: 700;
       list-style: none;
@@ -660,9 +662,28 @@
       display: none;
     }
 
+    .score-summary-title {
+      font-family: "Italiana", Georgia, serif;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+
+    .score-summary-leader {
+      display: block;
+      border: 1px solid #ebebeb;
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff;
+      color: #2f2a23;
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
     #scoreList {
       grid-template-columns: 1fr;
-      gap: 6px;
+      gap: 8px;
+      margin-top: 12px;
     }
 
     .score-item {
@@ -670,14 +691,14 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      padding: 8px 10px;
+      padding: 10px 12px;
     }
 
     .score-item strong {
       font-size: 1rem;
       font-weight: 700;
       line-height: 1.2;
-      min-width: 110px;
+      min-width: 130px;
     }
 
     .score-controls {
@@ -695,12 +716,6 @@
       line-height: 1;
       border-radius: 12px;
       white-space: nowrap;
-    }
-
-    .score-heading {
-      margin-top: 8px;
-      margin-bottom: 6px;
-      font-size: 1rem;
     }
 
     .game-actions {
@@ -876,8 +891,10 @@
           </div>
         </article>
         <details id="scoreSection" class="score-dropdown">
-          <summary id="scoreSummary">Punktestand</summary>
-          <h3 class="score-heading">Punktestand:</h3>
+          <summary class="score-summary-toggle">
+            <span id="scoreSummary" class="score-summary-title">Punktestand</span>
+            <span id="scoreSummaryLeader" class="score-summary-leader">1. Spieler 1: 0 Pkt</span>
+          </summary>
           <ul id="scoreList"></ul>
         </details>
         <div class="button-row game-actions">

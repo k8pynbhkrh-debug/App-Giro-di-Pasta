@@ -1912,30 +1912,30 @@ function renderScoreboard(game) {
   scoreListEl.innerHTML = '';
   scoreSummaryEl.textContent = 'Punktestand';
   const scoringLocked = isRoundScoringLocked(game);
+  const ranking = game.players
+    .map((name, idx) => ({ name, score: game.scores[idx] ?? 0, index: idx }))
+    .sort((a, b) => (b.score - a.score) || (a.index - b.index));
 
-  game.scores.forEach((score, index) => {
-    const isCook = !scoringLocked && index === game.activePlayerTurnIndex;
+  ranking.forEach((entry, rankIndex) => {
+    const isCook = !scoringLocked && entry.index === game.activePlayerTurnIndex;
     const wrongDisabled = scoringLocked || isCook;
     const correctDisabled = scoringLocked || isCook || !!game.roundHasCorrectTip;
     const li = document.createElement('li');
     li.className = 'score-item';
     li.innerHTML = `
-      <strong>${game.players[index]}: ${score} Pkt</strong>
+      <strong>${rankIndex + 1}. ${entry.name}: ${entry.score} Pkt</strong>
       <div class="score-controls">
-        <button data-score="${index}" data-delta="-1" data-kind="wrong" title="Falscher Tipp (-1)" ${wrongDisabled ? 'disabled' : ''}>Falsch</button>
-        <button data-score="${index}" data-delta="2" data-kind="correct" title="Richtiger Tipp (+2)" ${correctDisabled ? 'disabled' : ''}>Richtig</button>
+        <button data-score="${entry.index}" data-delta="-1" data-kind="wrong" title="Falscher Tipp (-1)" ${wrongDisabled ? 'disabled' : ''}>Falsch</button>
+        <button data-score="${entry.index}" data-delta="2" data-kind="correct" title="Richtiger Tipp (+2)" ${correctDisabled ? 'disabled' : ''}>Richtig</button>
       </div>
     `;
     scoreListEl.appendChild(li);
   });
 
-  const ranking = game.players
-    .map((name, idx) => ({ name, score: game.scores[idx] ?? 0 }))
-    .sort((a, b) => b.score - a.score);
-  const topOne = ranking[0] ? `1. ${ranking[0].name} (${ranking[0].score})` : '';
-  const topTwo = ranking[1] ? `2. ${ranking[1].name} (${ranking[1].score})` : '';
-  const compact = [topOne, topTwo].filter(Boolean).join(' | ');
-  if (compact) scoreSummaryEl.textContent = `Punktestand: ${compact}`;
+  const leader = ranking[0];
+  scoreSummaryLeaderEl.textContent = leader
+    ? `1. ${leader.name}: ${leader.score} Pkt`
+    : 'Noch keine Punkte';
   renderScoreStrip(game);
 }
 
@@ -2275,6 +2275,7 @@ const ingredientIllustrationEl = document.getElementById('ingredientIllustration
 const stepListEl = document.getElementById('stepList');
 const scoreSectionEl = document.getElementById('scoreSection');
 const scoreSummaryEl = document.getElementById('scoreSummary');
+const scoreSummaryLeaderEl = document.getElementById('scoreSummaryLeader');
 const scoreListEl = document.getElementById('scoreList');
 const nextRecipeBtn = document.getElementById('nextRecipe');
 const skipRecipeBtn = document.getElementById('skipRecipe');

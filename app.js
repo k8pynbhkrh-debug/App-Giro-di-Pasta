@@ -2141,15 +2141,26 @@ function renderSpectator(game) {
     spectatorScoreListEl.appendChild(li);
   });
 
-  const recipeRounds = rounds.filter(round => !round.isJoker);
-  if (recipeRounds.length === 0) {
+  const spectatorSettings = {
+    meatAllowed: true,
+    animalAllowed: true,
+    fishAllowed: true,
+    spicyAllowed: true,
+    ...(game.settings || {})
+  };
+  const allVisibleRecipes = filterRecipes(getAllRecipes(), spectatorSettings)
+    .map(recipe => recipe.name)
+    .filter((name, index, list) => list.indexOf(name) === index)
+    .sort((a, b) => a.localeCompare(b, 'de-DE'));
+
+  if (allVisibleRecipes.length === 0) {
     const li = document.createElement('li');
     li.textContent = 'Keine Rezepte vorhanden.';
     spectatorRecipeListEl.appendChild(li);
   } else {
-    recipeRounds.forEach((round, idx) => {
+    allVisibleRecipes.forEach((recipeName, idx) => {
       const li = document.createElement('li');
-      li.textContent = `${idx + 1}. ${round.name}`;
+      li.textContent = `${idx + 1}. ${recipeName}`;
       spectatorRecipeListEl.appendChild(li);
     });
   }

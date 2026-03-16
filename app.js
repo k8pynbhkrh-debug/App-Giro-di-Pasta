@@ -1673,8 +1673,6 @@ function createGame(title) {
     gameIndex: 0,
     activePlayerTurnIndex: 0,
     awaitingRecipeReveal: true,
-    roundStarted: false,
-    roundTimerEndsAt: null,
     roundHasCorrectTip: false,
     finished: false,
     updatedAt: Date.now()
@@ -1906,10 +1904,14 @@ function getShoppingExportText(game = getCurrentGame()) {
   return (game?.shoppingExport || '').trim();
 }
 
+function isRoundScoringLocked(game) {
+  return !game || !!game.awaitingRecipeReveal || !!game.finished || !!game.roundHasCorrectTip;
+}
+
 function renderScoreboard(game) {
   scoreListEl.innerHTML = '';
   scoreSummaryEl.textContent = 'Punktestand';
-  const scoringLocked = !!game.awaitingRecipeReveal || !!game.finished;
+  const scoringLocked = isRoundScoringLocked(game);
 
   game.scores.forEach((score, index) => {
     const li = document.createElement('li');
@@ -1984,18 +1986,10 @@ function setGameSubView(mode) {
   const isHandover = mode === 'handover';
 
   revealScreenEl.classList.toggle('open', isHandover);
-  ingredientIllustrationEl.classList.toggle('hidden', isHandover);
-  difficultyIndicatorEl.classList.toggle('hidden', isHandover);
-  tipTextEl.classList.toggle('hidden', isHandover);
-  recipeMetaEl.classList.toggle('hidden', isHandover);
   nextRecipeBtn.classList.add('hidden');
   skipRecipeBtn.classList.toggle('hidden', isHandover);
   finishGameBtn.classList.toggle('hidden', isHandover);
-  if (isHandover) {
-    scoreSectionEl.open = false;
-  } else {
-    scoreSectionEl.open = true;
-  }
+  scoreSectionEl.open = false;
 }
 
 function renderRoundHandover(game, fixedPlayerIndex = null) {
@@ -2010,8 +2004,6 @@ function renderRoundHandover(game, fixedPlayerIndex = null) {
     game.activePlayerTurnIndex = fixedPlayerIndex;
   }
   game.awaitingRecipeReveal = true;
-  game.roundStarted = false;
-  game.roundTimerEndsAt = null;
   game.roundHasCorrectTip = false;
   setGameSubView('handover');
 
@@ -2038,10 +2030,6 @@ function skipCurrentRecipe(game) {
   if (!skippedRound) return;
 
   game.rounds.push(skippedRound);
-  game.awaitingRecipeReveal = true;
-  game.roundStarted = false;
-  game.roundTimerEndsAt = null;
-  game.roundHasCorrectTip = true;
   renderRecipeList(game.rounds);
   renderRoundHandover(game, game.activePlayerTurnIndex);
 }
@@ -2066,8 +2054,6 @@ function revealCurrentRecipe(game) {
   renderRecipeSteps(recipeGuide.steps);
 
   game.awaitingRecipeReveal = false;
-  game.roundStarted = true;
-  game.roundTimerEndsAt = null;
   finishGameBtn.textContent = 'Runde beenden';
   finishGameBtn.disabled = false;
   renderScoreboard(game);
@@ -2080,8 +2066,6 @@ function finalizeRoundScore(game) {
   const cookIndex = game.activePlayerTurnIndex;
   game.scores[cookIndex] += 3;
   game.roundHasCorrectTip = true;
-  game.roundStarted = false;
-  game.roundTimerEndsAt = null;
   renderScoreboard(game);
   showStatus(`Kein richtiger Tipp: ${game.players[cookIndex]} bekommt automatisch +3 Punkte.`);
 }
@@ -2122,13 +2106,13 @@ function renderSpectator(game) {
   hideAllSections();
   spectatorSection.classList.remove('hidden');
   spectatorRoundInfoEl.textContent = '';
-  spectatorTimerEl.textContent = 'Live';
+  spectatorStatusEl.textContent = 'Aktiv';
   spectatorScoreListEl.innerHTML = '';
   spectatorRecipeListEl.innerHTML = '';
 
   if (!game) {
     spectatorRoundInfoEl.textContent = 'Kein aktives Spiel gefunden.';
-    spectatorTimerEl.textContent = 'Offline';
+    spectatorStatusEl.textContent = 'Offline';
     const li = document.createElement('li');
     li.textContent = 'Kein Spiel gefunden.';
     spectatorScoreListEl.appendChild(li);
@@ -2141,10 +2125,10 @@ function renderSpectator(game) {
 
   if (game.finished || game.gameIndex >= rounds.length) {
     spectatorRoundInfoEl.textContent = 'Spiel beendet.';
-    spectatorTimerEl.textContent = 'Ende';
+    spectatorStatusEl.textContent = 'Beendet';
   } else {
     spectatorRoundInfoEl.textContent = `${currentPlayerName} ist dran.`;
-    spectatorTimerEl.textContent = 'Live';
+    spectatorStatusEl.textContent = 'Aktiv';
   }
 
   (game.players || []).forEach((name, idx) => {
@@ -2284,7 +2268,7 @@ const startAnotherGameBtn = document.getElementById('startAnotherGame');
 
 const spectatorSection = document.getElementById('spectator');
 const spectatorRoundInfoEl = document.getElementById('spectatorRoundInfo');
-const spectatorTimerEl = document.getElementById('spectatorTimer');
+const spectatorStatusEl = document.getElementById('spectatorStatus');
 const spectatorScoreListEl = document.getElementById('spectatorScoreList');
 const spectatorRecipeListEl = document.getElementById('spectatorRecipeList');
 
@@ -2383,8 +2367,6 @@ restartGameBtn.addEventListener('click', () => {
   game.gameIndex = 0;
   game.activePlayerTurnIndex = 0;
   game.awaitingRecipeReveal = true;
-  game.roundStarted = false;
-  game.roundTimerEndsAt = null;
   game.roundHasCorrectTip = false;
   game.finished = false;
 
@@ -2563,8 +2545,6 @@ newRoundBtn.addEventListener('click', () => {
   game.scores = [];
   game.gameIndex = 0;
   game.awaitingRecipeReveal = true;
-  game.roundStarted = false;
-  game.roundTimerEndsAt = null;
   game.roundHasCorrectTip = false;
   game.finished = false;
 
@@ -2592,8 +2572,6 @@ confirmPlayersBtn.addEventListener('click', () => {
   game.phase = 'game';
   game.gameIndex = 0;
   game.awaitingRecipeReveal = true;
-  game.roundStarted = false;
-  game.roundTimerEndsAt = null;
   game.roundHasCorrectTip = false;
   game.activePlayerTurnIndex = 0;
   game.finished = false;
@@ -2617,14 +2595,14 @@ scoreListEl.addEventListener('click', event => {
   if (!(target instanceof HTMLElement)) return;
 
   const game = getCurrentGame();
-  if (!game) return;
-  if (game.awaitingRecipeReveal || game.finished) return;
+  if (isRoundScoringLocked(game)) return;
 
   const index = parseInt(target.dataset.score || '', 10);
   const delta = parseInt(target.dataset.delta || '', 10);
   const kind = target.dataset.kind || '';
 
   if (Number.isNaN(index) || Number.isNaN(delta)) return;
+  if (kind === 'correct' && game.roundHasCorrectTip) return;
 
   game.scores[index] += delta;
   if (kind === 'correct') game.roundHasCorrectTip = true;

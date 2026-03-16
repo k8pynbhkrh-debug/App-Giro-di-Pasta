@@ -626,16 +626,20 @@
     }
 
     .difficulty {
-      font-weight: 600;
-      color: #333;
-      font-size: .94rem;
+      font-weight: 700;
+      color: #4c4031;
+      font-size: .92rem;
     }
 
     .tip-text {
-      font-size: .92rem;
-      color: var(--muted);
-      border-top: none;
-      padding-top: 0;
+      font-size: .88rem;
+      color: #6a5c49;
+    }
+
+    .recipe-secondary {
+      display: grid;
+      gap: 8px;
+      margin-top: 2px;
     }
 
     .score-dropdown {
@@ -715,10 +719,11 @@
 
     #difficultyIndicator,
     #tipText {
+      margin: 0;
       border: 1px solid #ebebeb;
       border-radius: 12px;
       padding: 9px;
-      background: #fff;
+      background: #fffdf8;
     }
 
     #summary h3 {
@@ -865,8 +870,10 @@
           <h3 id="recipeTitle" class="recipe-title"></h3>
           <p id="recipeMeta" class="subtle hidden"></p>
           <ul id="stepList"></ul>
-          <p id="difficultyIndicator" class="difficulty hidden">Schwierigkeit ●●○</p>
-          <p id="tipText" class="tip-text hidden">Tipp: Hitze kontrollieren für perfekte Emulsion.</p>
+          <div id="recipeSecondaryInfo" class="recipe-secondary hidden">
+            <p id="difficultyIndicator" class="difficulty">Schwierigkeit ●●○</p>
+            <p id="tipText" class="tip-text">Tipp: Hitze kontrollieren für perfekte Emulsion.</p>
+          </div>
         </article>
         <details id="scoreSection" class="score-dropdown">
           <summary id="scoreSummary">Punktestand</summary>

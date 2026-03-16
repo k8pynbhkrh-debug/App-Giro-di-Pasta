@@ -1905,7 +1905,7 @@ function getShoppingExportText(game = getCurrentGame()) {
 }
 
 function isRoundScoringLocked(game) {
-  return !game || !!game.awaitingRecipeReveal || !!game.finished || !!game.roundHasCorrectTip;
+  return !game || !!game.awaitingRecipeReveal || !!game.finished;
 }
 
 function renderScoreboard(game) {
@@ -1914,13 +1914,16 @@ function renderScoreboard(game) {
   const scoringLocked = isRoundScoringLocked(game);
 
   game.scores.forEach((score, index) => {
+    const isCook = !scoringLocked && index === game.activePlayerTurnIndex;
+    const wrongDisabled = scoringLocked || isCook;
+    const correctDisabled = scoringLocked || isCook || !!game.roundHasCorrectTip;
     const li = document.createElement('li');
     li.className = 'score-item';
     li.innerHTML = `
       <strong>${game.players[index]}: ${score} Pkt</strong>
       <div class="score-controls">
-        <button data-score="${index}" data-delta="-1" data-kind="wrong" title="Falscher Tipp (-1)" ${scoringLocked ? 'disabled' : ''}>Falsch</button>
-        <button data-score="${index}" data-delta="2" data-kind="correct" title="Richtiger Tipp (+2)" ${scoringLocked ? 'disabled' : ''}>Richtig</button>
+        <button data-score="${index}" data-delta="-1" data-kind="wrong" title="Falscher Tipp (-1)" ${wrongDisabled ? 'disabled' : ''}>Falsch</button>
+        <button data-score="${index}" data-delta="2" data-kind="correct" title="Richtiger Tipp (+2)" ${correctDisabled ? 'disabled' : ''}>Richtig</button>
       </div>
     `;
     scoreListEl.appendChild(li);
@@ -1984,11 +1987,13 @@ function renderRecipeSteps(steps) {
 
 function setGameSubView(mode) {
   const isHandover = mode === 'handover';
+  const isRecipe = mode === 'recipe';
 
   revealScreenEl.classList.toggle('open', isHandover);
   nextRecipeBtn.classList.add('hidden');
-  skipRecipeBtn.classList.toggle('hidden', isHandover);
-  finishGameBtn.classList.toggle('hidden', isHandover);
+  skipRecipeBtn.classList.toggle('hidden', isHandover || mode === 'final');
+  finishGameBtn.classList.toggle('hidden', isHandover || mode === 'final');
+  recipeSecondaryInfoEl.classList.toggle('hidden', !isRecipe);
   scoreSectionEl.open = false;
 }
 
@@ -2073,9 +2078,7 @@ function finalizeRoundScore(game) {
 function renderFinal(game) {
   game.finished = true;
   game.phase = 'game';
-  setGameSubView('recipe');
-  skipRecipeBtn.classList.add('hidden');
-  finishGameBtn.classList.add('hidden');
+  setGameSubView('final');
   revealScreenEl.classList.remove('open');
   handoverInfoEl.textContent = 'Spiel beendet.';
   recipeTitleEl.textContent = 'Endstand';
@@ -2254,6 +2257,7 @@ const backToSummaryBtn = document.getElementById('backToSummary');
 const handoverInfoEl = document.getElementById('handoverInfo');
 const recipeTitleEl = document.getElementById('recipeTitle');
 const recipeMetaEl = document.getElementById('recipeMeta');
+const recipeSecondaryInfoEl = document.getElementById('recipeSecondaryInfo');
 const difficultyIndicatorEl = document.getElementById('difficultyIndicator');
 const tipTextEl = document.getElementById('tipText');
 const ingredientIllustrationEl = document.getElementById('ingredientIllustration');
@@ -2602,6 +2606,7 @@ scoreListEl.addEventListener('click', event => {
   const kind = target.dataset.kind || '';
 
   if (Number.isNaN(index) || Number.isNaN(delta)) return;
+  if (index === game.activePlayerTurnIndex) return;
   if (kind === 'correct' && game.roundHasCorrectTip) return;
 
   game.scores[index] += delta;

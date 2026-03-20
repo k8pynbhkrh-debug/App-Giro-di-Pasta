@@ -47,7 +47,7 @@
       padding: 14px;
       display: grid;
       place-items: center;
-      font-size: 1.08rem;
+      font-size: 1.14rem;
       font-synthesis: weight;
     }
 
@@ -115,7 +115,7 @@
     }
 
     .menu-title {
-      font-size: .78rem;
+      font-size: .96rem;
       letter-spacing: .08em;
       color: var(--muted);
       text-transform: uppercase;
@@ -130,11 +130,13 @@
 
     .game-row {
       position: relative;
-      overflow: hidden;
       border: 1px solid #e7dfd1;
       border-radius: 12px;
       background: #fff;
-      touch-action: pan-y;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px;
     }
 
     .game-row + .game-row {
@@ -171,12 +173,13 @@
     }
 
     .game-row .game-load {
-      width: 100%;
+      flex: 1;
+      width: auto;
       text-align: left;
-      border-radius: 0;
-      border: none;
+      border-radius: 12px;
+      border: 1px solid transparent;
       background: transparent;
-      padding: 11px 12px;
+      padding: 12px 14px;
     }
 
     .game-row .game-load:hover {
@@ -239,7 +242,7 @@
 
     .subtle {
       color: var(--muted);
-      font-size: .92rem;
+      font-size: 1rem;
     }
 
     .grid {
@@ -252,11 +255,11 @@
       gap: 8px;
       font-weight: 600;
       color: var(--text);
-      font-size: 1rem;
+      font-size: 1.08rem;
     }
 
     .field-hint {
-      font-size: .88rem;
+      font-size: 1rem;
       line-height: 1.35;
       color: var(--muted);
       font-weight: 600;
@@ -636,6 +639,16 @@
       flex-shrink: 0;
     }
 
+    .game-delete {
+      min-width: 52px;
+      min-height: 52px;
+      padding: 0;
+      border-radius: 12px;
+      font-size: 1.15rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
     .spectator-status-card {
       border: 1px solid #ebebeb;
       border-radius: 12px;
@@ -719,11 +732,11 @@
     .difficulty {
       font-weight: 700;
       color: #4c4031;
-      font-size: .92rem;
+      font-size: 1rem;
     }
 
     .tip-text {
-      font-size: .88rem;
+      font-size: 1rem;
       color: #6a5c49;
     }
 
@@ -1054,6 +1067,17 @@
         <button id="cancelExtraRecipes" class="icon-action secondary" aria-label="Auswahl schließen" title="Auswahl schließen">✕</button>
       </div>
       <div id="extraRecipePickerList" class="picker-list"></div>
+    </div>
+  </div>
+
+  <div id="deleteGameModal" class="modal">
+    <div class="modal-card">
+      <h3>Spiel löschen</h3>
+      <p>Sind Sie sicher, dass Sie das Spiel löschen wollen?</p>
+      <div class="button-row">
+        <button id="confirmDeleteGame" class="danger">Spiel löschen</button>
+        <button id="cancelDeleteGame" class="secondary">Abbrechen</button>
+      </div>
     </div>
   </div>
 

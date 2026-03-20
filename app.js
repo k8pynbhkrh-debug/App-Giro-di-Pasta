@@ -1722,6 +1722,31 @@ function showStatus(message, isError = false) {
   statusEl.style.color = isError ? '#8a1f25' : '#2c3e2f';
 }
 
+function openDeleteGameModal(gameId) {
+  pendingDeleteGameId = gameId;
+  deleteGameModalEl.classList.add('open');
+}
+
+function closeDeleteGameModal() {
+  pendingDeleteGameId = null;
+  deleteGameModalEl.classList.remove('open');
+}
+
+function confirmDeleteGame() {
+  if (!pendingDeleteGameId) return;
+
+  games = games.filter(game => game.id !== pendingDeleteGameId);
+  if (currentGameId === pendingDeleteGameId) {
+    currentGameId = games.length > 0 ? games[games.length - 1].id : null;
+  }
+
+  saveGames();
+  renderGameList();
+  renderLandingGameList();
+  renderFromCurrentGame();
+  closeDeleteGameModal();
+}
+
 function hideAllSections() {
   landingSection.classList.add('hidden');
   configSection.classList.add('hidden');
@@ -1752,10 +1777,7 @@ function renderGameList() {
 
   games.forEach(game => {
     const row = document.createElement('div');
-    row.className = 'game-row swipe-row';
-
-    const content = document.createElement('div');
-    content.className = 'swipe-content';
+    row.className = 'game-row';
 
     const loadBtn = document.createElement('button');
     loadBtn.className = 'game-load';
@@ -1770,19 +1792,15 @@ function renderGameList() {
       loadBtn.style.background = '#fffaf1';
     }
 
-    content.appendChild(loadBtn);
-
     const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'swipe-action';
+    deleteBtn.className = 'game-delete';
     deleteBtn.dataset.deleteId = game.id;
-    deleteBtn.textContent = 'Löschen';
+    deleteBtn.textContent = '✕';
     deleteBtn.title = 'Spiel löschen';
 
-    row.appendChild(content);
+    row.appendChild(loadBtn);
     row.appendChild(deleteBtn);
     gameListEl.appendChild(row);
-
-    makeRowSwipeable(row, gameListEl);
   });
 }
 
@@ -1798,10 +1816,7 @@ function renderLandingGameList() {
 
   games.slice().reverse().forEach(game => {
     const row = document.createElement('div');
-    row.className = 'game-row swipe-row';
-
-    const content = document.createElement('div');
-    content.className = 'swipe-content';
+    row.className = 'game-row';
 
     const button = document.createElement('button');
     button.className = 'game-load';
@@ -1811,19 +1826,15 @@ function renderLandingGameList() {
       setCurrentGame(game.id);
     });
 
-    content.appendChild(button);
-
     const deleteBtn = document.createElement('button');
-    deleteBtn.className = 'swipe-action';
+    deleteBtn.className = 'game-delete';
     deleteBtn.dataset.landingDeleteId = game.id;
-    deleteBtn.textContent = 'Löschen';
+    deleteBtn.textContent = '✕';
     deleteBtn.title = 'Spiel löschen';
 
-    row.appendChild(content);
+    row.appendChild(button);
     row.appendChild(deleteBtn);
     landingGameListEl.appendChild(row);
-
-    makeRowSwipeable(row, landingGameListEl);
   });
 }
 
@@ -2418,6 +2429,10 @@ const extraRecipePickerListEl = document.getElementById('extraRecipePickerList')
 const confirmExtraRecipesBtn = document.getElementById('confirmExtraRecipes');
 const cancelExtraRecipesBtn = document.getElementById('cancelExtraRecipes');
 
+const deleteGameModalEl = document.getElementById('deleteGameModal');
+const confirmDeleteGameBtn = document.getElementById('confirmDeleteGame');
+const cancelDeleteGameBtn = document.getElementById('cancelDeleteGame');
+
 let games = loadGames();
 let currentGameId = games.length > 0 ? games[games.length - 1].id : null;
 const searchParams = new URLSearchParams(window.location.search);
@@ -2425,6 +2440,7 @@ const spectatorGameId = searchParams.get('watch');
 const spectatorMode = !!spectatorGameId;
 let spectatorPollIntervalId = null;
 let screenWakeLock = null;
+let pendingDeleteGameId = null;
 
 menuToggleBtn.addEventListener('click', () => {
   menuEl.classList.toggle('open');
@@ -2437,14 +2453,7 @@ gameListEl.addEventListener('click', event => {
   const deleteId = target.dataset.deleteId;
 
   if (deleteId) {
-    games = games.filter(game => game.id !== deleteId);
-    if (currentGameId === deleteId) {
-      currentGameId = games.length > 0 ? games[games.length - 1].id : null;
-    }
-    saveGames();
-    renderGameList();
-    renderLandingGameList();
-    renderFromCurrentGame();
+    openDeleteGameModal(deleteId);
   }
 });
 
@@ -2454,14 +2463,7 @@ landingGameListEl.addEventListener('click', event => {
   const deleteId = target.dataset.landingDeleteId;
 
   if (deleteId) {
-    games = games.filter(game => game.id !== deleteId);
-    if (currentGameId === deleteId) {
-      currentGameId = games.length > 0 ? games[games.length - 1].id : null;
-    }
-    saveGames();
-    renderGameList();
-    renderLandingGameList();
-    renderFromCurrentGame();
+    openDeleteGameModal(deleteId);
     return;
   }
 });
@@ -2682,6 +2684,14 @@ cancelExtraRecipesBtn.addEventListener('click', () => {
   closeExtraRecipeModal();
 });
 
+confirmDeleteGameBtn.addEventListener('click', () => {
+  confirmDeleteGame();
+});
+
+cancelDeleteGameBtn.addEventListener('click', () => {
+  closeDeleteGameModal();
+});
+
 startGameBtn.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game || game.rounds.length === 0) return;
@@ -2897,6 +2907,9 @@ document.addEventListener('click', event => {
   }
   if (extraRecipeModalEl.classList.contains('open') && target === extraRecipeModalEl) {
     closeExtraRecipeModal();
+  }
+  if (deleteGameModalEl.classList.contains('open') && target === deleteGameModalEl) {
+    closeDeleteGameModal();
   }
   if (exportModalEl.classList.contains('open') && target === exportModalEl) {
     closeExportModal();

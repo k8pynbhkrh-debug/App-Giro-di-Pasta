@@ -302,6 +302,49 @@
       overflow: hidden;
     }
 
+    .mode-box {
+      overflow: hidden;
+    }
+
+    .mode-option {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: start;
+      gap: 12px;
+      padding: 12px;
+      color: var(--text);
+    }
+
+    .mode-option + .mode-option {
+      border-top: 1px solid #ededed;
+    }
+
+    .mode-option input[type="radio"] {
+      width: 20px;
+      height: 20px;
+      margin: 2px 0 0;
+      accent-color: #3a7d44;
+    }
+
+    .mode-option-text {
+      display: grid;
+      gap: 4px;
+    }
+
+    .mode-option-title {
+      color: var(--text);
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .mode-option-hint {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.4;
+      font-weight: 600;
+    }
+
     .rule-row {
       display: grid;
       grid-template-columns: 1fr auto;
@@ -696,6 +739,13 @@
       font-size: 1rem;
     }
 
+    .spectator-recipe-current {
+      border-color: #cabaa2;
+      background: #fff7e8;
+      color: var(--text);
+      font-weight: 800;
+    }
+
     #gameCard {
       gap: 10px;
     }
@@ -932,6 +982,25 @@
             <input type="number" id="recipesPerPerson" min="6" max="10" value="6">
           </label>
           <div>
+            <label>Spielmodus</label>
+            <div class="rules-box mode-box">
+              <label class="mode-option" for="gameModeGuessing">
+                <input type="radio" id="gameModeGuessing" name="gameMode" value="guessing" checked>
+                <span class="mode-option-text">
+                  <span class="mode-option-title">Mit Raten (empfohlen)</span>
+                  <span class="mode-option-hint">Verdeckte Rezeptauswahl, Reveal pro Runde, Wertung aktiv.</span>
+                </span>
+              </label>
+              <label class="mode-option" for="gameModeOpen">
+                <input type="radio" id="gameModeOpen" name="gameMode" value="open">
+                <span class="mode-option-text">
+                  <span class="mode-option-title">Ohne Raten</span>
+                  <span class="mode-option-hint">Offene Planung mit sichtbaren Rezepten, ohne Punkte.</span>
+                </span>
+              </label>
+            </div>
+          </div>
+          <div>
             <label>Ernährungsregeln</label>
             <div class="rules-box">
               <label class="rule-row"><span>Fleisch erlaubt</span><input type="checkbox" id="meatAllowed" checked></label>
@@ -948,12 +1017,15 @@
       </section>
 
       <section id="summary" class="hidden">
-        <h3>Rundenplan</h3>
+        <h3 id="summaryRecipeHeading">Rundenplan</h3>
+        <p id="summaryModeNote" class="subtle hidden"></p>
         <ul id="recipeList"></ul>
-        <h3>Zusatzrezepte (optional, max. 2)</h3>
-        <select id="extraRecipeSelect" multiple size="6" class="hidden"></select>
-        <div class="button-row summary-extra-actions">
-          <button id="addExtraRecipes" class="primary">Zusatzrezepte auswählen</button>
+        <div id="summaryExtraRecipesSection">
+          <h3>Zusatzrezepte (optional, max. 2)</h3>
+          <select id="extraRecipeSelect" multiple size="6" class="hidden"></select>
+          <div class="button-row summary-extra-actions">
+            <button id="addExtraRecipes" class="primary">Zusatzrezepte auswählen</button>
+          </div>
         </div>
         <h3>Einkaufsliste</h3>
         <ul id="shoppingList"></ul>
@@ -987,8 +1059,8 @@
           <p id="handoverInfo"></p>
         </div>
         <article id="gameCard" class="grid">
-          <div id="ingredientIllustration" class="ingredient-illustration hidden" aria-hidden="true"></div>
           <h3 id="recipeTitle" class="recipe-title"></h3>
+          <div id="ingredientIllustration" class="ingredient-illustration hidden" aria-hidden="true"></div>
           <p id="recipeMeta" class="subtle hidden"></p>
           <ul id="stepList"></ul>
           <div id="recipeSecondaryInfo" class="recipe-secondary hidden">
@@ -1017,11 +1089,11 @@
           <p id="spectatorRoundInfo" class="spectator-turn"></p>
           <span id="spectatorStatus" class="spectator-status-pill">Aktiv</span>
         </div>
-        <div class="spectator-panel">
+        <div id="spectatorScorePanel" class="spectator-panel">
           <h3>Punktestand</h3>
           <ul id="spectatorScoreList"></ul>
         </div>
-        <div class="spectator-panel">
+        <div id="spectatorRecipePanel" class="spectator-panel">
           <h3>Rezepte</h3>
           <ul id="spectatorRecipeList"></ul>
         </div>

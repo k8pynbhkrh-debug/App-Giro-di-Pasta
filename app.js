@@ -169,43 +169,12 @@ const recipesData = [
     }
   },
   {
-    "name": "Pistazie e limone",
-    "ingredients": {
-      "Olivenöl (ml)": 2.5,
-      "Parmigiano (g)": 2.5,
-      "Pistazien/Pistaziencreme (g)": 7.5,
-      "Zitrone (Saft) (ml)": 3.75
-    }
-  },
-  {
     "name": "Pasta all’Assassina",
     "ingredients": {
       "Chili/Peperoncino (g)": 0.25,
       "Knoblauch (Zehen)": 0.125,
       "Olivenöl (ml)": 2.5,
       "Tomaten (g)": 37.5
-    }
-  },
-  {
-    "name": "Ragù alla Bolognese",
-    "ingredients": {
-      "Olivenöl (ml)": 1.25,
-      "Rinderhack (g)": 20.0,
-      "Tomaten (g)": 20.0,
-      "Tomatenmark (g)": 2.5,
-      "Weißwein (ml)": 5.0,
-      "Zwiebeln (g)": 5.0
-    }
-  },
-  {
-    "name": "Ragù bianco",
-    "ingredients": {
-      "Milch (ml)": 7.5,
-      "Olivenöl (ml)": 1.25,
-      "Parmigiano (g)": 2.5,
-      "Rinderhack (g)": 20.0,
-      "Weißwein (ml)": 5.0,
-      "Zwiebeln (g)": 5.0
     }
   },
   {
@@ -396,69 +365,6 @@ const recipesData = [
       "Olivenöl (ml)": 1.25,
       "Stracchino (g)": 10.0,
       "Walnüsse (g)": 5.0
-    }
-  },
-  {
-    "name": "Quattro formaggi",
-    "ingredients": {
-      "Gorgonzola (g)": 5.0,
-      "Parmigiano (g)": 3.75,
-      "Pecorino (g)": 3.75,
-      "Ricotta (g)": 10.0,
-      "Sahne (ml)": 7.5,
-      "Schwarzer Pfeffer (g)": 0.125
-    }
-  },
-  {
-    "name": "Pesto genovese",
-    "ingredients": {
-      "Basilikum (g)": 3.75,
-      "Knoblauch (Zehen)": 0.0625,
-      "Olivenöl (ml)": 5.0,
-      "Parmigiano (g)": 5.0,
-      "Walnüsse (g)": 3.75
-    }
-  },
-  {
-    "name": "Pesto rosso",
-    "ingredients": {
-      "Getrocknete Tomaten (g)": 7.5,
-      "Knoblauch (Zehen)": 0.0625,
-      "Mandeln (g)": 3.75,
-      "Olivenöl (ml)": 5.0,
-      "Parmigiano (g)": 3.75
-    }
-  },
-  {
-    "name": "Pasta al latte",
-    "ingredients": {
-      "Butter (g)": 2.5,
-      "Milch (ml)": 37.5,
-      "Zucker (g)": 1.25
-    }
-  },
-  {
-    "name": "Pasta con burro e zucchero",
-    "ingredients": {
-      "Butter (g)": 5.0,
-      "Zucker (g)": 3.75
-    }
-  },
-  {
-    "name": "Pasta dolce con noci",
-    "ingredients": {
-      "Butter (g)": 3.75,
-      "Walnüsse (g)": 5.0,
-      "Zucker (g)": 3.75
-    }
-  },
-  {
-    "name": "Pasta dolce con ricotta",
-    "ingredients": {
-      "Butter (g)": 2.5,
-      "Milch (ml)": 5.0,
-      "Ricotta (g)": 20.0,
-      "Zucker (g)": 3.75
     }
   }
 ];
@@ -653,10 +559,7 @@ function normalizeForId(text) {
     .replace(/^_|_$/g, '');
 }
 
-const INACTIVE_RECIPE_IDS = new Set([
-  'pesto_genovese',
-  'pesto_rosso'
-]);
+const INACTIVE_RECIPE_IDS = new Set();
 
 function isRecipeActive(recipe) {
   const key = normalizeForId(recipe?.id || recipe?.name || '');
@@ -687,71 +590,31 @@ const JOKER_RECIPE_GUIDE = {
   tip: 'Joker-Runden sind flexibel, aber sollten zur Einkaufsplanung passen.'
 };
 
-const supplementalRecipes = [
-  {
-    name: 'Limone e pecorino',
-    ingredients: {
-      'Pecorino (g)': 7.5,
-      'Zitrone (Saft) (ml)': 3.75,
-      'Olivenöl (ml)': 2.5,
-      'Schwarzer Pfeffer (g)': 0.25
-    }
-  },
-  {
-    name: 'Pomodoro e olive nere',
-    ingredients: {
-      'Tomaten (g)': 30.0,
-      'Oliven (g)': 5.0,
-      'Knoblauch (Zehen)': 0.125,
-      'Olivenöl (ml)': 1.25,
-      'Oregano (g)': 0.125
-    }
-  },
-  {
-    name: 'Funghi e prezzemolo',
-    ingredients: {
-      'Champignons (g)': 20.0,
-      'Petersilie (g)': 0.5,
-      'Knoblauch (Zehen)': 0.125,
-      'Butter (g)': 5.0
-    }
-  },
-  {
-    name: 'Ricotta, spinaci e limone',
-    ingredients: {
-      'Ricotta (g)': 12.5,
-      'Spinat (g)': 25.0,
-      'Zitrone (Saft) (ml)': 2.5,
-      'Olivenöl (ml)': 1.25,
-      'Parmigiano (g)': 2.5
-    }
-  }
-];
+const supplementalRecipes = [];
 
 const pdfRecipeNames = [
   'Aglio e olio e peperoncino',
-  'Cacio e pepe',
-  'Carbonara',
-  'Gricia',
-  'Amatriciana',
-  'Puttanesca',
   'Aglio, olio e acciughe',
-  'Sardellen e pangrattato',
   'Sardellen e limone',
+  'Sardellen e pangrattato',
   'Pomodoro e basilico',
   'Arrabbiata',
   'Marinara',
   'Ricotta e pomodoro al peperoncino',
+  'Cacio e pepe',
+  'Carbonara',
+  'Gricia',
+  'Amatriciana',
   'Burro e salvia',
+  'Parmigiano e burro',
   'Funghi e burro',
   'Ricotta al limone',
   'Ricotta e gorgonzola',
   'Gorgonzola e noci',
-  'Parmigiano e burro',
-  'Pistazie e limone',
+  'Taleggio e pepe',
+  'Stracchino e noci',
   'Pasta all’Assassina',
-  'Ragù alla Bolognese',
-  'Ragù bianco',
+  'Puttanesca',
   'Salsiccia e finocchio',
   'Speck e cipolla',
   'Pollo e panna',
@@ -770,94 +633,85 @@ const pdfRecipeNames = [
   'Zucchine e menta',
   'Spinaci e ricotta',
   'Crema di zucca',
-  'Taleggio e pepe',
-  'Stracchino e noci',
-  'Quattro formaggi',
-  'Pesto genovese',
-  'Pesto rosso',
-  'Pasta al latte',
-  'Pasta con burro e zucchero',
-  'Pasta dolce con noci',
-  'Pasta dolce con ricotta'
 ];
 
 const recipeGuidesById = {
   "aglio_e_olio_e_peperoncino": {
     "difficulty": "leicht",
     "steps": [
-      "[NIEDRIG] Knoblauch in kaltem Öl ansetzen",
-      "Chili kurz mitziehen [30-60 s]",
+      "[NIEDRIG] Knoblauch in Öl ansetzen",
+      "Chili kurz mitziehen lassen",
       "Pasta und Nudelwasser zugeben",
-      "[MITTEL] 30-60 s schwenken bis glänzend",
-      "Petersilie unterheben"
+      "[MITTEL] Kurz emulgierend schwenken",
+      "Petersilie zugeben"
     ],
-    "tip": "Knoblauch nicht bräunen lassen, sonst wird er bitter."
+    "tip": "Knoblauch nicht bräunen lassen"
   },
   "cacio_e_pepe": {
     "difficulty": "mittel",
     "steps": [
-      "[MITTEL] Pfeffer trocken rösten [30-60 s]",
+      "[MITTEL] Pfeffer trocken rösten",
       "Nudelwasser zugeben und Basis rühren",
       "Pasta kurz in der Pfanne schwenken",
       "[AUS] Pecorino kräftig einarbeiten",
       "Mit wenig Wasser cremig ziehen"
     ],
-    "tip": "Käse nur off heat einarbeiten, sonst klumpt er."
+    "tip": "Käse immer off heat einarbeiten"
   },
   "carbonara": {
     "difficulty": "mittel",
     "steps": [
-      "[MITTEL] Pancetta knusprig auslassen [2-3 Min]",
+      "[MITTEL] Pancetta knusprig auslassen",
       "[AUS] Ei, Käse und Pfeffer glattrühren",
       "Pasta mit wenig Nudelwasser zugeben",
-      "[AUS] Eimasse sofort zügig unterheben",
-      "Cremig ziehen und direkt servieren"
+      "[AUS] Eimasse zügig unterheben",
+      "Cremig ziehen und servieren"
     ],
-    "tip": "Ziel ist Emulsion, nicht Rührei."
+    "tip": "Ziel ist Emulsion, nicht Rührei"
   },
   "gricia": {
     "difficulty": "mittel",
     "steps": [
-      "[MITTEL] Guanciale knusprig auslassen [2-3 Min]",
-      "Pfeffer kurz im Fett rösten [30 s]",
+      "[MITTEL] Guanciale knusprig auslassen",
+      "Pfeffer kurz im Fett rösten",
       "Pasta und Nudelwasser zugeben",
       "[AUS] Pecorino cremig einrühren",
       "Mit Guanciale-Crunch servieren"
     ],
-    "tip": "Käse immer off heat einarbeiten."
+    "tip": "Käse nicht auf voller Hitze einrühren"
   },
   "amatriciana": {
     "difficulty": "mittel",
     "steps": [
-      "[MITTEL] Guanciale auslassen [2-3 Min]",
+      "[MITTEL] Guanciale auslassen",
       "Optional mit Weißwein kurz ablöschen",
-      "[HOCH] Tomaten sanft köcheln [3-4 Min]",
-      "Pasta 30 s in der Sauce schwenken",
+      "[HOCH] Tomaten sanft köcheln",
+      "Pasta in der Sauce schwenken",
       "Pecorino beim Servieren zugeben"
     ],
-    "tip": "Für den Tisch ist vorgewärmte Tomatenbasis am stabilsten."
+    "tip": "Tomate nicht zu dick einkochen"
   },
   "puttanesca": {
     "difficulty": "leicht",
     "steps": [
-      "[MITTEL] Knoblauch anrösten [30-60 s]",
+      "[MITTEL] Knoblauch anrösten",
       "Sardellen im Öl auflösen",
       "Kapern und Oliven zugeben",
-      "[HOCH] Tomaten 3-4 Min köcheln",
+      "[HOCH] Tomaten köcheln lassen",
       "Pasta kurz emulgierend schwenken"
     ],
-    "tip": "Erst probieren, dann salzen."
+    "tip": "Erst probieren, dann salzen"
   },
   "aglio_olio_e_acciughe": {
     "difficulty": "leicht",
     "steps": [
-      "[NIEDRIG] Knoblauch sanft im Öl erwärmen",
+      "[NIEDRIG] Knoblauch sanft in Öl erwärmen",
       "Sardellen einrühren bis sie zerfallen",
       "Pasta und Nudelwasser zugeben",
       "[MITTEL] Kurz emulgierend schwenken",
-      "Petersilie unterheben"
+      "Petersilie zugeben"
     ],
-    "tip": "Nicht überhitzen, sonst wird es streng."
+    "tip": "Nicht zu heiß, sonst wird es streng"
   },
   "sardellen_e_pangrattato": {
     "difficulty": "leicht",
@@ -868,51 +722,51 @@ const recipeGuidesById = {
       "Kurz emulgierend schwenken",
       "Mit Bröseln toppen"
     ],
-    "tip": "Brösel separat halten, damit sie knusprig bleiben."
+    "tip": "Brösel separat knusprig halten"
   },
   "sardellen_e_limone": {
     "difficulty": "leicht",
     "steps": [
-      "[NIEDRIG] Knoblauch sanft im Öl erwärmen",
+      "[NIEDRIG] Knoblauch sanft in Öl erwärmen",
       "Sardellen einrühren bis sie zerfallen",
       "Pasta und Nudelwasser zugeben",
       "Kurz emulgierend schwenken",
       "Zitronenabrieb und wenig Saft zugeben"
     ],
-    "tip": "Abrieb bringt Aroma, Saft nur sparsam dosieren."
+    "tip": "Saft sparsam dosieren"
   },
   "pomodoro_e_basilico": {
     "difficulty": "leicht",
     "steps": [
       "[MITTEL] Knoblauch oder Zwiebel anschwitzen",
       "[HOCH] Tomaten zugeben und salzen",
-      "3-4 Min leise köcheln lassen",
+      "3–4 Min köcheln lassen",
       "Pasta mit Nudelwasser binden",
-      "[AUS] Basilikum am Ende unterheben"
+      "[AUS] Basilikum unterheben"
     ],
-    "tip": "Basilikum nie mitkochen."
+    "tip": "Basilikum nie mitkochen"
   },
   "arrabbiata": {
     "difficulty": "leicht",
     "steps": [
-      "[MITTEL] Knoblauch anrösten [30-60 s]",
+      "[MITTEL] Knoblauch anrösten",
       "Chili kurz im Öl ziehen lassen",
-      "[HOCH] Tomaten 3-4 Min köcheln",
+      "[HOCH] Tomaten 3–4 Min köcheln",
       "Pasta mit Nudelwasser binden",
-      "Petersilie und optional Pecorino zugeben"
+      "Petersilie oder Pecorino zugeben"
     ],
-    "tip": "Lieber nachschärfen als zu früh übertreiben."
+    "tip": "Schärfe lieber am Ende anpassen"
   },
   "marinara": {
     "difficulty": "leicht",
     "steps": [
-      "[MITTEL] Knoblauch sanft anrösten [30-60 s]",
-      "[HOCH] Tomaten zugeben und 3-4 Min köcheln",
+      "[MITTEL] Knoblauch sanft anrösten",
+      "[HOCH] Tomaten zugeben und köcheln",
       "Oregano einrühren",
       "Pasta in der Sauce schwenken",
       "Kräuter-Finish zugeben"
     ],
-    "tip": "Hier ist die Tomaten-Oregano-Sugo-Variante gemeint."
+    "tip": "Tomate und Oregano klar halten"
   },
   "ricotta_e_pomodoro_al_peperoncino": {
     "difficulty": "leicht",
@@ -923,40 +777,40 @@ const recipeGuidesById = {
       "[AUS] Ricotta-Creme unterziehen",
       "Kurz abschmecken und servieren"
     ],
-    "tip": "Ricotta nicht sprudelnd kochen."
+    "tip": "Ricotta nicht kochen"
   },
   "burro_e_salvia": {
     "difficulty": "leicht",
     "steps": [
-      "[NIEDRIG] Butter schmelzen [1-2 Min]",
-      "Salbei kurz knusprig ziehen [30-60 s]",
+      "[NIEDRIG] Butter schmelzen",
+      "Salbei kurz knusprig ziehen lassen",
       "Pasta und Nudelwasser zugeben",
       "[MITTEL] Emulgierend schwenken",
-      "Optional mit Käse abrunden"
+      "Optional Käse zugeben"
     ],
-    "tip": "Butter nur haselnussfarben, nicht dunkel."
+    "tip": "Butter nur leicht bräunen"
   },
   "funghi_e_burro": {
     "difficulty": "mittel",
     "steps": [
-      "[HOCH] Pilze heiß anbraten bis trocken",
-      "[NIEDRIG] Butter zugeben und aromatisieren",
+      "[HOCH] Pilze heiß anbraten",
+      "[NIEDRIG] Butter zugeben",
       "Pasta und Nudelwasser zugeben",
       "[MITTEL] Emulgierend schwenken",
       "Petersilie zugeben"
     ],
-    "tip": "Für den Tisch Pilze besser vorbraten."
+    "tip": "Pilze erst bräunen, dann salzen"
   },
   "ricotta_al_limone": {
     "difficulty": "leicht",
     "steps": [
       "[AUS] Ricotta mit Abrieb und Öl glattrühren",
-      "Nudelwasser 1-2 EL einarbeiten",
+      "Nudelwasser einarbeiten",
       "Pasta zugeben",
       "Cremig emulgieren",
       "Mit wenig Zitronensaft abschmecken"
     ],
-    "tip": "Abrieb ist wichtiger als Saft."
+    "tip": "Abrieb ist wichtiger als Saft"
   },
   "ricotta_e_gorgonzola": {
     "difficulty": "leicht",
@@ -967,40 +821,29 @@ const recipeGuidesById = {
       "[AUS] Cremig emulgieren",
       "Mit Pfeffer servieren"
     ],
-    "tip": "Niedrige Hitze hält die Sauce stabil."
+    "tip": "Niedrige Hitze hält die Sauce stabil"
   },
   "gorgonzola_e_noci": {
     "difficulty": "leicht",
     "steps": [
-      "[MITTEL] Walnüsse trocken rösten [1-2 Min]",
+      "[MITTEL] Walnüsse trocken rösten",
       "[NIEDRIG] Gorgonzola in Milch schmelzen",
       "Pasta und Nudelwasser zugeben",
       "[AUS] Cremig emulgieren",
       "Nüsse als Finish zugeben"
     ],
-    "tip": "Nüsse zuletzt für Crunch."
+    "tip": "Nüsse zuletzt für Crunch"
   },
   "parmigiano_e_burro": {
     "difficulty": "leicht",
     "steps": [
-      "[NIEDRIG] Butter schmelzen [1-2 Min]",
+      "[NIEDRIG] Butter schmelzen",
       "Pasta und Nudelwasser zugeben",
       "[AUS] Parmigiano einrühren",
-      "Cremig ziehen, Wasser nach Bedarf",
-      "Optional mit Pfeffer servieren"
+      "Cremig ziehen",
+      "Optional Pfeffer zugeben"
     ],
-    "tip": "Die Emulsion entsteht über Restwärme."
-  },
-  "pistazie_e_limone": {
-    "difficulty": "leicht",
-    "steps": [
-      "[AUS] Pistazien mit Öl zu Pesto mixen",
-      "Zitronenabrieb einrühren",
-      "Pasta und Nudelwasser zugeben",
-      "Cremig schwenken",
-      "Optional mit Käse abrunden"
-    ],
-    "tip": "Pesto nicht erhitzen, Abrieb erst am Ende."
+    "tip": "Emulsion über Restwärme aufbauen"
   },
   "pasta_all_assassina": {
     "difficulty": "mittel",
@@ -1008,43 +851,21 @@ const recipeGuidesById = {
       "Passata und Wasser zu Brühe mischen",
       "[HOCH] Knoblauch und Chili anrösten",
       "Trockene Pasta in der Pfanne rösten",
-      "Brühe etappenweise zugeben und reduzieren",
+      "Brühe etappenweise zugeben",
       "Röstaroma kontrollieren und servieren"
     ],
-    "tip": "Fast anbrennen ist gewollt, schwarz ist zu weit."
-  },
-  "ragu_alla_bolognese": {
-    "difficulty": "schwer",
-    "steps": [
-      "[MITTEL] Soffritto und Fleisch anschwitzen",
-      "Mit Wein ablöschen und reduzieren",
-      "Tomate und Milch zugeben",
-      "Vorgekochte Ragù-Basis nur erhitzen",
-      "Pasta portioniert untermischen"
-    ],
-    "tip": "Im Spiel nur mit vorgekochter Ragù-Basis sinnvoll."
-  },
-  "ragu_bianco": {
-    "difficulty": "schwer",
-    "steps": [
-      "[MITTEL] Soffritto und Fleisch anschwitzen",
-      "Mit Weißwein ablöschen",
-      "Brühe zugeben und Basis aufbauen",
-      "Vorgekochte Ragù-Basis nur erwärmen",
-      "Pasta untermischen und servieren"
-    ],
-    "tip": "Zeit ist Kernzutat, daher nur mit Prep-Flag spielen."
+    "tip": "Fast anbrennen ist gewollt"
   },
   "salsiccia_e_finocchio": {
     "difficulty": "mittel",
     "steps": [
       "[MITTEL] Salsiccia krümelig braten",
       "Zwiebel weich werden lassen",
-      "Optional Tomate oder Wein kurz einkochen",
+      "Optional Tomate oder Wein zugeben",
       "Pasta mit Nudelwasser binden",
       "Kurz servierfertig schwenken"
     ],
-    "tip": "Für den Tisch Salsiccia besser vorbraten."
+    "tip": "Salsiccia gut zerkrümeln"
   },
   "speck_e_cipolla": {
     "difficulty": "leicht",
@@ -1055,18 +876,18 @@ const recipeGuidesById = {
       "Pasta in der Pfanne schwenken",
       "Mit Pfeffer servieren"
     ],
-    "tip": "Speck ist salzig, also vorsichtig würzen."
+    "tip": "Speck bringt schon viel Salz mit"
   },
   "pollo_e_panna": {
     "difficulty": "mittel",
     "steps": [
       "[MITTEL] Hähnchen kräftig anbraten",
-      "Zwiebel oder Knoblauch kurz anschwitzen",
-      "Sahne zugeben und kurz einkochen",
+      "Zwiebel oder Knoblauch anschwitzen",
+      "Sahne zugeben und einkochen",
       "Pasta und Parmesan binden",
       "Cremig servieren"
     ],
-    "tip": "Am Tisch besser mit vorgegartem Hähnchen arbeiten."
+    "tip": "Hähnchen lieber klein schneiden"
   },
   "pollo_e_funghi": {
     "difficulty": "mittel",
@@ -1077,18 +898,18 @@ const recipeGuidesById = {
       "Pasta in der Pfanne schwenken",
       "Kräuter-Finish zugeben"
     ],
-    "tip": "Für den Schnellmodus Pilze vorbraten."
+    "tip": "Pilze erst Farbe nehmen lassen"
   },
   "tonno_e_pomodoro": {
     "difficulty": "leicht",
     "steps": [
       "[MITTEL] Zwiebel oder Knoblauch anschwitzen",
       "[HOCH] Tomate kurz simmern",
-      "Thunfisch nur kurz einrühren",
+      "Thunfisch kurz einrühren",
       "Pasta in der Sauce schwenken",
       "Petersilie zugeben"
     ],
-    "tip": "Thunfisch nicht lange kochen."
+    "tip": "Thunfisch nicht lange kochen"
   },
   "tonno_e_capperi": {
     "difficulty": "leicht",
@@ -1099,40 +920,40 @@ const recipeGuidesById = {
       "Pasta in der Sauce schwenken",
       "Kurz abschmecken und servieren"
     ],
-    "tip": "Kapern vorher abspülen."
+    "tip": "Kapern vorher abspülen"
   },
   "salmone_e_panna": {
     "difficulty": "mittel",
     "steps": [
       "[MITTEL] Lachs kurz anrösten",
-      "Sahne 2-3 Min köcheln lassen",
+      "Sahne 2–3 Min köcheln lassen",
       "Pasta und Nudelwasser zugeben",
       "Cremig emulgieren",
       "Kräuter-Finish zugeben"
     ],
-    "tip": "Frischer Lachs nur kurz garen."
+    "tip": "Lachs nur kurz garen"
   },
   "salmone_e_limone": {
     "difficulty": "mittel",
     "steps": [
-      "[MITTEL] Lachs kurz garen oder erwärmen",
+      "[MITTEL] Lachs kurz garen",
       "Pasta und Nudelwasser zugeben",
       "Zitronenabrieb einrühren",
       "[AUS] Mit wenig Saft abschmecken",
       "Kräuter zugeben und servieren"
     ],
-    "tip": "Säure immer erst am Ende zugeben."
+    "tip": "Säure immer erst am Ende"
   },
   "gamberi_e_aglio": {
     "difficulty": "mittel",
     "steps": [
       "[MITTEL] Knoblauch anschwitzen",
-      "Garnelen 1-3 Min braten",
+      "Garnelen kurz braten",
       "Pasta und Nudelwasser zugeben",
       "Kurz emulgierend schwenken",
       "Petersilie zugeben"
     ],
-    "tip": "Garnelen nicht übergaren."
+    "tip": "Garnelen nicht übergaren"
   },
   "gamberi_e_zucchine": {
     "difficulty": "mittel",
@@ -1143,40 +964,40 @@ const recipeGuidesById = {
       "Emulgierend schwenken",
       "Petersilie zugeben"
     ],
-    "tip": "Zucchini erst am Ende salzen."
+    "tip": "Zucchini erst am Ende salzen"
   },
   "vongole_in_bianco": {
     "difficulty": "schwer",
     "steps": [
       "Vorbereitete Vongole bereithalten",
       "[MITTEL] Vongole öffnen und Saft auffangen",
-      "Flüssigkeit filtern und zur Pfanne geben",
+      "Flüssigkeit filtern und zugeben",
       "Pasta emulgierend schwenken",
-      "Petersilie zugeben und servieren"
+      "Petersilie zugeben"
     ],
-    "tip": "Ohne Spurgare und Prep nicht party-tauglich."
+    "tip": "Ohne Vorbereitung zu riskant"
   },
   "vongole_e_pomodoro": {
     "difficulty": "schwer",
     "steps": [
       "Vorbereitete Vongole bereithalten",
       "[MITTEL] Tomate kurz köcheln",
-      "Vongole öffnen und Saft einarbeiten",
+      "Vongole und Saft einarbeiten",
       "Pasta in der Sauce schwenken",
       "Petersilie zugeben"
     ],
-    "tip": "Tomate nur leicht halten, damit das Meeresaroma bleibt."
+    "tip": "Tomate nur leicht halten"
   },
   "frutti_di_mare": {
     "difficulty": "schwer",
     "steps": [
       "Vorgegarte Meeresfrüchte bereithalten",
       "Garzeiten kurz staffeln und erwärmen",
-      "Tomate und Muschelwasser kurz simmern",
+      "Tomate oder Sud kurz simmern",
       "Pasta in der Sauce schwenken",
       "Petersilie zugeben"
     ],
-    "tip": "Ohne Prep ist das kein 5-Minuten-Rezept."
+    "tip": "Ohne Prep nicht spielgeeignet"
   },
   "bottarga_e_limone": {
     "difficulty": "leicht",
@@ -1184,21 +1005,21 @@ const recipeGuidesById = {
       "[NIEDRIG] Öl sanft aromatisieren",
       "Pasta und Nudelwasser zugeben",
       "[AUS] Bottarga einrühren",
-      "Zitronenabrieb als Finish zugeben",
+      "Zitronenabrieb zugeben",
       "Direkt servieren"
     ],
-    "tip": "Bottarga nicht kochen."
+    "tip": "Bottarga nicht mitkochen"
   },
   "melanzane_e_pomodoro": {
-    "difficulty": "schwer",
+    "difficulty": "mittel",
     "steps": [
       "Vorgegarte Melanzane bereithalten",
-      "[MITTEL] Tomatensauce kurz erwärmen",
+      "[MITTEL] Tomatensauce erwärmen",
       "Pasta in der Sauce schwenken",
       "Melanzane unterheben",
-      "Basilikum und Ricotta salata zugeben"
+      "Basilikum oder Ricotta salata zugeben"
     ],
-    "tip": "Ohne vorbereitete Auberginen zu langsam."
+    "tip": "Auberginen besser vorbereitet nutzen"
   },
   "zucchine_e_menta": {
     "difficulty": "leicht",
@@ -1209,7 +1030,7 @@ const recipeGuidesById = {
       "[AUS] Käse cremig binden",
       "Kurz servieren"
     ],
-    "tip": "Minze immer erst ganz am Ende."
+    "tip": "Minze immer erst ganz am Ende"
   },
   "spinaci_e_ricotta": {
     "difficulty": "leicht",
@@ -1220,7 +1041,7 @@ const recipeGuidesById = {
       "Cremig emulgieren und würzen",
       "Parmesan-Finish zugeben"
     ],
-    "tip": "Ricotta nicht kochen."
+    "tip": "Ricotta nicht kochen"
   },
   "crema_di_zucca": {
     "difficulty": "mittel",
@@ -1231,7 +1052,7 @@ const recipeGuidesById = {
       "Käse oder Muskat einarbeiten",
       "Direkt servieren"
     ],
-    "tip": "Als vorbereitete Basis-Sauce sehr gut spielbar."
+    "tip": "Als vorbereitete Basis sehr gut spielbar"
   },
   "taleggio_e_pepe": {
     "difficulty": "leicht",
@@ -1242,7 +1063,7 @@ const recipeGuidesById = {
       "[AUS] Cremig emulgieren",
       "Extra Pfeffer zugeben"
     ],
-    "tip": "Nicht kochen, sonst trennt der Käse."
+    "tip": "Nicht kochen, sonst trennt es"
   },
   "stracchino_e_noci": {
     "difficulty": "leicht",
@@ -1253,84 +1074,7 @@ const recipeGuidesById = {
       "[AUS] Cremig emulgieren",
       "Nüsse als Finish zugeben"
     ],
-    "tip": "Niedrige Hitze und Nüsse zuletzt."
-  },
-  "quattro_formaggi": {
-    "difficulty": "mittel",
-    "steps": [
-      "Käse klein schneiden oder reiben",
-      "[NIEDRIG] Mit Milch sanft schmelzen",
-      "Pasta und Nudelwasser zugeben",
-      "[AUS] Cremig emulgieren und pfeffern",
-      "Direkt servieren"
-    ],
-    "tip": "Nicht sprudelnd kochen."
-  },
-  "pesto_genovese": {
-    "difficulty": "mittel",
-    "steps": [
-      "[AUS] Knoblauch, Salz und Pinienkerne mörsern",
-      "Basilikum kurz einarbeiten",
-      "Käse einrühren",
-      "Öl in dünnem Strahl zugeben",
-      "Pasta mit wenig Nudelwasser mischen"
-    ],
-    "tip": "Pesto nie kochen und Basilikum kühl halten."
-  },
-  "pesto_rosso": {
-    "difficulty": "leicht",
-    "steps": [
-      "[AUS] Getrocknete Tomaten vorbereiten",
-      "Mit Mandeln und Öl mixen",
-      "Käse und Basilikum zugeben",
-      "Pasta mit wenig Nudelwasser mischen",
-      "Direkt servieren"
-    ],
-    "tip": "Salz kontrollieren, das ist ein No-Cook-Rezept."
-  },
-  "pasta_al_latte": {
-    "difficulty": "mittel",
-    "steps": [
-      "[NIEDRIG] Milch mit Zucker erhitzen",
-      "Pasta in der Milch garziehen lassen",
-      "Ständig rühren und leicht eindicken",
-      "In Schalen füllen",
-      "Mit Zimt oder Zucker toppen"
-    ],
-    "tip": "Brennt leicht an, daher ständig rühren."
-  },
-  "pasta_con_burro_e_zucchero": {
-    "difficulty": "leicht",
-    "steps": [
-      "[NIEDRIG] Butter schmelzen",
-      "Pasta zugeben und schwenken",
-      "Zucker einrieseln und glasieren",
-      "Sofort anrichten",
-      "Optional Zimt oder Abrieb zugeben"
-    ],
-    "tip": "Als Spiel-Dessert klar kennzeichnen."
-  },
-  "pasta_dolce_con_noci": {
-    "difficulty": "mittel",
-    "steps": [
-      "[MITTEL] Nüsse rösten und hacken",
-      "Zucker kurz lösen oder glasieren",
-      "Pasta zugeben und süß schwenken",
-      "Nüsse darübergeben",
-      "Mit Abrieb oder Kakao finishen"
-    ],
-    "tip": "Für Mini-Portionen lieber aromatischer als süßer."
-  },
-  "pasta_dolce_con_ricotta": {
-    "difficulty": "leicht",
-    "steps": [
-      "[AUS] Ricotta mit Zucker cremig rühren",
-      "Pasta kochen oder warm bereithalten",
-      "Pasta in die Ricotta-Creme mischen",
-      "Nur warm halten, nicht kochen",
-      "Mit Zimt oder Abrieb toppen"
-    ],
-    "tip": "Ricotta-Creme nur warm, nicht heiß."
+    "tip": "Niedrige Hitze und Nüsse zuletzt"
   }
 };
 
@@ -1356,10 +1100,7 @@ const RECIPE_IMAGE_IDS_IN_ORDER = [
   'ricotta_gorgonzola',
   'gorgonzola_noci',
   'parmigiano_burro',
-  'pistazie_limone',
   'pasta_assassina',
-  'ragu_bolognese',
-  'ragu_bianco',
   'salsiccia_finocchio',
   'speck_cipolla',
   'pollo_panna',
@@ -1380,13 +1121,6 @@ const RECIPE_IMAGE_IDS_IN_ORDER = [
   'crema_zucca',
   'taleggio_pepe',
   'stracchino_noci',
-  'quattro_formaggi',
-  'pesto_genovese',
-  'pesto_rosso',
-  'pasta_latte',
-  'pasta_burro_zucchero',
-  'pasta_dolce_noci',
-  'pasta_dolce_ricotta'
 ];
 
 const recipeImageIdByName = (() => {
@@ -1398,10 +1132,6 @@ const recipeImageIdByName = (() => {
   }
 
   // Zusätzliche Alias-Schreibweisen für Legacy-Namen.
-  map.pasta_al_latte = 'pasta_latte';
-  map.pasta_con_burro_e_zucchero = 'pasta_burro_zucchero';
-  map.pasta_dolce_con_noci = 'pasta_dolce_noci';
-  map.pasta_dolce_con_ricotta = 'pasta_dolce_ricotta';
   map.ricotta_e_pomodoro_al_peperoncino = 'ricotta_pomodoro_peperoncino';
   map.pasta_all_assassina = 'pasta_assassina';
 
@@ -1642,12 +1372,45 @@ async function fetchSyncedGame(gameId) {
   }
 }
 
+const GAME_MODE_GUESSING = 'guessing';
+const GAME_MODE_OPEN = 'open';
+
+function normalizeGameMode(value) {
+  return value === GAME_MODE_OPEN ? GAME_MODE_OPEN : GAME_MODE_GUESSING;
+}
+
+function isGuessingMode(game) {
+  return normalizeGameMode(game?.gameMode) === GAME_MODE_GUESSING;
+}
+
+function isOpenMode(game) {
+  return normalizeGameMode(game?.gameMode) === GAME_MODE_OPEN;
+}
+
+function normalizeStoredGame(game) {
+  if (!game || typeof game !== 'object') return game;
+
+  game.gameMode = normalizeGameMode(game.gameMode);
+  if (!Array.isArray(game.rounds)) game.rounds = [];
+  if (!Array.isArray(game.players)) game.players = [];
+  if (!Array.isArray(game.scores)) game.scores = [];
+  if (!Array.isArray(game.shoppingList)) game.shoppingList = [];
+  if (!Array.isArray(game.eligibleExtraRecipes)) game.eligibleExtraRecipes = [];
+
+  if (isOpenMode(game)) {
+    game.scores = [];
+    game.roundHasCorrectTip = false;
+  }
+
+  return game;
+}
+
 function loadGames() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? parsed.map(normalizeStoredGame) : [];
   } catch (error) {
     return [];
   }
@@ -1665,11 +1428,12 @@ function formatGameLabel(game) {
 function createGame(title) {
   const date = new Date();
   const fallback = `Spiel ${date.toLocaleDateString('de-DE')}`;
-  return {
+  return normalizeStoredGame({
     id: `game_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
     title: title && title.trim() ? title.trim() : fallback,
     createdAt: date.toISOString(),
     phase: 'config',
+    gameMode: GAME_MODE_GUESSING,
     settings: {
       players: 4,
       recipesPerPerson: 6,
@@ -1691,7 +1455,7 @@ function createGame(title) {
     roundHasCorrectTip: false,
     finished: false,
     updatedAt: Date.now()
-  };
+  });
 }
 
 function getCurrentGame() {
@@ -1699,6 +1463,7 @@ function getCurrentGame() {
 }
 
 function upsertCurrentGame(updatedGame) {
+  normalizeStoredGame(updatedGame);
   updatedGame.updatedAt = Date.now();
   const idx = games.findIndex(game => game.id === updatedGame.id);
   if (idx === -1) games.push(updatedGame);
@@ -1838,8 +1603,21 @@ function renderLandingGameList() {
   });
 }
 
-function renderRecipeList(rounds) {
+function renderRecipeList(game) {
   recipeListEl.innerHTML = '';
+
+  const rounds = game?.rounds || [];
+  if (isGuessingMode(game)) {
+    const totalRecipes = rounds.length;
+    const jokerCount = rounds.filter(round => round.isJoker).length;
+    const li = document.createElement('li');
+    li.textContent = jokerCount > 0
+      ? `${totalRecipes} Rezepte wurden ausgewählt, inklusive ${jokerCount} Joker-Runde(n).`
+      : `${totalRecipes} Rezepte wurden ausgewählt.`;
+    recipeListEl.appendChild(li);
+    return;
+  }
+
   rounds.forEach((round, index) => {
     const li = document.createElement('li');
     li.innerHTML = `
@@ -1855,6 +1633,14 @@ function renderRecipeList(rounds) {
 }
 
 function renderExtraRecipeOptions(game) {
+  if (isGuessingMode(game)) {
+    extraRecipeSelectEl.innerHTML = '';
+    extraRecipeSelectEl.disabled = true;
+    addExtraRecipesBtn.disabled = true;
+    addExtraRecipesBtn.textContent = 'Zusatzrezepte auswählen';
+    return;
+  }
+
   const selectedNames = new Set(
     Array.from(extraRecipeSelectEl.options)
       .filter(option => option.selected)
@@ -1929,7 +1715,7 @@ function renderExtraRecipePicker() {
 
 function openExtraRecipeModal() {
   const game = getCurrentGame();
-  if (!game || game.phase !== 'summary' || addExtraRecipesBtn.disabled) return;
+  if (!game || game.phase !== 'summary' || isGuessingMode(game) || addExtraRecipesBtn.disabled) return;
   renderExtraRecipePicker();
   extraRecipeModalEl.classList.add('open');
 }
@@ -1939,7 +1725,7 @@ function closeExtraRecipeModal() {
 }
 
 function addSelectedExtraRecipes(game, selectedNames) {
-  if (!game || game.phase !== 'summary') return 0;
+  if (!game || game.phase !== 'summary' || isGuessingMode(game)) return 0;
   if (!Array.isArray(selectedNames) || selectedNames.length === 0) return 0;
 
   const remaining = Math.max(0, 2 - (game.addedExtraRecipes || 0));
@@ -2000,7 +1786,8 @@ function renderPlayerInputs(game) {
 
 function renderScoreStrip(game) {
   if (!scoreStripEl) return;
-  if (!game || !Array.isArray(game.players) || game.players.length === 0) {
+  scoreStripEl.classList.add('hidden');
+  if (!game || !isGuessingMode(game) || !Array.isArray(game.players) || game.players.length === 0) {
     scoreStripEl.textContent = '';
     return;
   }
@@ -2023,10 +1810,20 @@ function triggerHaptic(duration = 150) {
 }
 
 function isRoundScoringLocked(game) {
-  return !game || !!game.awaitingRecipeReveal || !!game.finished;
+  return !game || !isGuessingMode(game) || !!game.awaitingRecipeReveal || !!game.finished;
 }
 
 function renderScoreboard(game) {
+  if (!game || !isGuessingMode(game)) {
+    scoreSectionEl.classList.add('hidden');
+    scoreListEl.innerHTML = '';
+    scoreSummaryEl.textContent = 'Punktestand';
+    scoreSummaryLeaderEl.textContent = '';
+    renderScoreStrip(null);
+    return;
+  }
+
+  scoreSectionEl.classList.remove('hidden');
   scoreListEl.innerHTML = '';
   scoreSummaryEl.textContent = 'Punktestand';
   const scoringLocked = isRoundScoringLocked(game);
@@ -2055,6 +1852,41 @@ function renderScoreboard(game) {
     ? `1. ${leader.name}: ${leader.score} Pkt`
     : 'Noch keine Punkte';
   renderScoreStrip(game);
+}
+
+function getSelectedGameModeFromForm() {
+  return gameModeOpenEl.checked ? GAME_MODE_OPEN : GAME_MODE_GUESSING;
+}
+
+function renderSummaryForMode(game) {
+  const guessing = isGuessingMode(game);
+
+  summaryRecipeHeadingEl.textContent = guessing ? 'Verdeckte Auswahl' : 'Rundenplan';
+  summaryModeNoteEl.classList.remove('hidden');
+  summaryModeNoteEl.textContent = guessing
+    ? 'Die Rezepte wurden intern ausgewählt. Sichtbar bleiben nur Einkaufsliste und Mengen.'
+    : 'Die vorgeschlagenen Rezepte sind sichtbar und können vor Spielstart angepasst werden.';
+  summaryExtraRecipesSectionEl.classList.toggle('hidden', guessing);
+
+  renderRecipeList(game);
+  renderShoppingListFromGame(game);
+  renderExtraRecipeOptions(game);
+}
+
+function getSpectatorRecipeNames(game) {
+  if (!game) return [];
+
+  if (isOpenMode(game)) {
+    return (game.rounds || []).map((round, index) => ({
+      name: round.isJoker ? `${round.name} - Freie Wahl` : round.name,
+      isCurrent: !game.finished && game.phase === 'game' && index === game.gameIndex
+    }));
+  }
+
+  return getAllRecipes()
+    .map(recipe => recipe.name)
+    .filter((name, index, list) => list.indexOf(name) === index)
+    .sort((a, b) => a.localeCompare(b, 'de-DE'));
 }
 
 async function requestScreenWakeLock() {
@@ -2103,19 +1935,28 @@ function renderRecipeSteps(steps) {
   });
 }
 
-function setGameSubView(mode) {
+function setGameSubView(mode, game = getCurrentGame()) {
   const isHandover = mode === 'handover';
   const isRecipe = mode === 'recipe';
+  const guessing = isGuessingMode(game);
 
-  revealScreenEl.classList.toggle('open', isHandover);
+  revealScreenEl.classList.toggle('open', guessing && isHandover);
   nextRecipeBtn.classList.add('hidden');
-  skipRecipeBtn.classList.toggle('hidden', isHandover || mode === 'final');
-  finishGameBtn.classList.toggle('hidden', isHandover || mode === 'final');
+  skipRecipeBtn.classList.toggle('hidden', (guessing && isHandover) || mode === 'final');
+  finishGameBtn.classList.toggle('hidden', (guessing && isHandover) || mode === 'final');
   recipeSecondaryInfoEl.classList.toggle('hidden', !isRecipe);
+  scoreSectionEl.classList.toggle('hidden', !guessing || !isRecipe);
+  ingredientIllustrationEl.classList.toggle('hidden', !isRecipe);
   scoreSectionEl.open = false;
 }
 
 function renderRoundHandover(game, fixedPlayerIndex = null) {
+  if (isOpenMode(game)) {
+    game.awaitingRecipeReveal = false;
+    revealCurrentRecipe(game);
+    return;
+  }
+
   if (game.gameIndex >= game.rounds.length) {
     renderFinal(game);
     return;
@@ -2128,7 +1969,7 @@ function renderRoundHandover(game, fixedPlayerIndex = null) {
   }
   game.awaitingRecipeReveal = true;
   game.roundHasCorrectTip = false;
-  setGameSubView('handover');
+  setGameSubView('handover', game);
 
   const currentName = game.players[game.activePlayerTurnIndex];
   revealPlayerEl.textContent = currentName || 'Nächste Person';
@@ -2153,15 +1994,22 @@ function skipCurrentRecipe(game) {
   if (!skippedRound) return;
 
   game.rounds.push(skippedRound);
-  renderRecipeList(game.rounds);
-  renderRoundHandover(game, game.activePlayerTurnIndex);
+  renderRecipeList(game);
+
+  if (isGuessingMode(game)) {
+    renderRoundHandover(game, game.activePlayerTurnIndex);
+    return;
+  }
+
+  game.awaitingRecipeReveal = false;
+  revealCurrentRecipe(game);
 }
 
 function revealCurrentRecipe(game) {
   void requestScreenWakeLock();
   const round = game.rounds[game.gameIndex];
   const playerName = game.players[game.activePlayerTurnIndex];
-  setGameSubView('recipe');
+  setGameSubView('recipe', game);
 
   handoverInfoEl.textContent = `${playerName} ist dran`;
   recipeTitleEl.textContent = round.name;
@@ -2184,6 +2032,7 @@ function revealCurrentRecipe(game) {
 }
 
 function finalizeRoundScore(game) {
+  if (!isGuessingMode(game)) return;
   if (game.roundHasCorrectTip) return;
 
   const cookIndex = game.activePlayerTurnIndex;
@@ -2196,26 +2045,40 @@ function finalizeRoundScore(game) {
 function renderFinal(game) {
   game.finished = true;
   game.phase = 'game';
-  setGameSubView('final');
+  setGameSubView('final', game);
   revealScreenEl.classList.remove('open');
   handoverInfoEl.textContent = 'Spiel beendet.';
-  recipeTitleEl.textContent = 'Endstand';
+  recipeTitleEl.textContent = isGuessingMode(game) ? 'Endstand' : 'Spiel abgeschlossen';
   recipeMetaEl.textContent = `${game.title}`;
   difficultyIndicatorEl.textContent = 'Schwierigkeit ●●○';
-  tipTextEl.textContent = 'Tipp: Neues Spiel starten oder gespeichertes Spiel laden.';
+  tipTextEl.textContent = isGuessingMode(game)
+    ? 'Tipp: Neues Spiel starten oder gespeichertes Spiel laden.'
+    : 'Tipp: Neues Spiel starten oder gespeichertes Spiel laden.';
   setRecipeIllustrationPlaceholder();
   recipeTitleEl.style.borderBottomColor = '#cabaa2';
   setGameFrameAccent('#cabaa2');
-  const ranking = game.players
-    .map((name, idx) => ({ name, score: game.scores[idx] }))
-    .sort((a, b) => b.score - a.score);
 
   stepListEl.innerHTML = '';
-  ranking.forEach((entry, idx) => {
-    const li = document.createElement('li');
-    li.textContent = `${idx + 1}. ${entry.name}: ${entry.score} Punkte`;
-    stepListEl.appendChild(li);
-  });
+
+  if (isGuessingMode(game)) {
+    const ranking = game.players
+      .map((name, idx) => ({ name, score: game.scores[idx] }))
+      .sort((a, b) => b.score - a.score);
+
+    ranking.forEach((entry, idx) => {
+      const li = document.createElement('li');
+      li.textContent = `${idx + 1}. ${entry.name}: ${entry.score} Punkte`;
+      stepListEl.appendChild(li);
+    });
+  } else {
+    (game.rounds || []).forEach((round, idx) => {
+      const li = document.createElement('li');
+      li.textContent = round.isJoker
+        ? `${idx + 1}. ${round.name} - Freie Wahl`
+        : `${idx + 1}. ${round.name}`;
+      stepListEl.appendChild(li);
+    });
+  }
 
   skipRecipeBtn.disabled = true;
   finishGameBtn.disabled = true;
@@ -2227,16 +2090,17 @@ function renderSpectator(game) {
   hideAllSections();
   spectatorSection.classList.remove('hidden');
   spectatorRoundInfoEl.textContent = '';
-  spectatorStatusEl.textContent = 'Aktiv';
+  spectatorStatusEl.textContent = isOpenMode(game) ? 'Ohne Raten' : 'Aktiv';
   spectatorScoreListEl.innerHTML = '';
   spectatorRecipeListEl.innerHTML = '';
+  spectatorScorePanelEl.classList.toggle('hidden', !game || isOpenMode(game));
 
   if (!game) {
     spectatorRoundInfoEl.textContent = 'Kein aktives Spiel gefunden.';
     spectatorStatusEl.textContent = 'Offline';
     const li = document.createElement('li');
     li.textContent = 'Kein Spiel gefunden.';
-    spectatorScoreListEl.appendChild(li);
+    spectatorRecipeListEl.appendChild(li);
     return;
   }
 
@@ -2244,41 +2108,45 @@ function renderSpectator(game) {
   const rounds = game.rounds || [];
   const currentPlayerName = players[game.activePlayerTurnIndex] || 'Unbekannt';
 
-  if (game.finished || game.gameIndex >= rounds.length) {
+  if (game.phase !== 'game' && !game.finished) {
+    spectatorRoundInfoEl.textContent = isOpenMode(game)
+      ? 'Planung aktiv.'
+      : 'Spiel vorbereitet.';
+    spectatorStatusEl.textContent = isOpenMode(game) ? 'Ohne Raten' : 'Bereit';
+  } else if (game.finished || game.gameIndex >= rounds.length) {
     spectatorRoundInfoEl.textContent = 'Spiel beendet.';
     spectatorStatusEl.textContent = 'Beendet';
   } else {
     spectatorRoundInfoEl.textContent = `${currentPlayerName} ist dran.`;
-    spectatorStatusEl.textContent = 'Aktiv';
+    spectatorStatusEl.textContent = isOpenMode(game) ? 'Ohne Raten' : 'Aktiv';
   }
 
-  (game.players || []).forEach((name, idx) => {
-    const li = document.createElement('li');
-    const points = game.scores?.[idx] ?? 0;
-    li.textContent = `${name}: ${points} Pkt`;
-    spectatorScoreListEl.appendChild(li);
-  });
+  if (isGuessingMode(game)) {
+    (game.players || []).forEach((name, idx) => {
+      const li = document.createElement('li');
+      const points = game.scores?.[idx] ?? 0;
+      li.textContent = `${name}: ${points} Pkt`;
+      spectatorScoreListEl.appendChild(li);
+    });
+  }
 
-  const spectatorSettings = {
-    meatAllowed: true,
-    animalAllowed: true,
-    fishAllowed: true,
-    spicyAllowed: true,
-    ...(game.settings || {})
-  };
-  const allVisibleRecipes = filterRecipes(getAllRecipes(), spectatorSettings)
-    .map(recipe => recipe.name)
-    .filter((name, index, list) => list.indexOf(name) === index)
-    .sort((a, b) => a.localeCompare(b, 'de-DE'));
+  const allVisibleRecipes = getSpectatorRecipeNames(game);
 
   if (allVisibleRecipes.length === 0) {
     const li = document.createElement('li');
     li.textContent = 'Keine Rezepte vorhanden.';
     spectatorRecipeListEl.appendChild(li);
   } else {
-    allVisibleRecipes.forEach((recipeName, idx) => {
+    allVisibleRecipes.forEach((entry, idx) => {
       const li = document.createElement('li');
-      li.textContent = `${idx + 1}. ${recipeName}`;
+      if (typeof entry === 'string') {
+        li.textContent = `${idx + 1}. ${entry}`;
+      } else {
+        li.textContent = entry.isCurrent
+          ? `${idx + 1}. ${entry.name} - Aktuell`
+          : `${idx + 1}. ${entry.name}`;
+        li.classList.toggle('spectator-recipe-current', !!entry.isCurrent);
+      }
       spectatorRecipeListEl.appendChild(li);
     });
   }
@@ -2302,6 +2170,8 @@ function renderFromCurrentGame() {
     game.settings.players = Math.max(1, Math.min(6, parseInt(game.settings.players, 10) || 1));
     playersInputEl.value = game.settings.players;
     recipesPerPersonEl.value = game.settings.recipesPerPerson || 6;
+    gameModeGuessingEl.checked = isGuessingMode(game);
+    gameModeOpenEl.checked = isOpenMode(game);
     meatAllowedEl.checked = game.settings.meatAllowed;
     animalAllowedEl.checked = game.settings.animalAllowed;
     fishAllowedEl.checked = game.settings.fishAllowed;
@@ -2315,9 +2185,7 @@ function renderFromCurrentGame() {
       upsertCurrentGame(game);
     }
     summarySection.classList.remove('hidden');
-    renderRecipeList(game.rounds);
-    renderShoppingListFromGame(game);
-    renderExtraRecipeOptions(game);
+    renderSummaryForMode(game);
     return;
   }
 
@@ -2339,8 +2207,17 @@ function renderFromCurrentGame() {
     return;
   }
 
-  if (game.awaitingRecipeReveal) renderRoundHandover(game);
-  else revealCurrentRecipe(game);
+  if (isGuessingMode(game)) {
+    if (game.awaitingRecipeReveal) renderRoundHandover(game);
+    else revealCurrentRecipe(game);
+    return;
+  }
+
+  if (game.awaitingRecipeReveal) {
+    game.awaitingRecipeReveal = false;
+    upsertCurrentGame(game);
+  }
+  revealCurrentRecipe(game);
 }
 
 // Elemente aus dem DOM holen
@@ -2364,6 +2241,8 @@ const currentGameLabelEl = document.getElementById('currentGameLabel');
 
 const playersInputEl = document.getElementById('players');
 const recipesPerPersonEl = document.getElementById('recipesPerPerson');
+const gameModeGuessingEl = document.getElementById('gameModeGuessing');
+const gameModeOpenEl = document.getElementById('gameModeOpen');
 const meatAllowedEl = document.getElementById('meatAllowed');
 const animalAllowedEl = document.getElementById('animalAllowed');
 const fishAllowedEl = document.getElementById('fishAllowed');
@@ -2371,6 +2250,9 @@ const spicyAllowedEl = document.getElementById('spicyAllowed');
 
 const generateBtn = document.getElementById('generate');
 const statusEl = document.getElementById('status');
+const summaryRecipeHeadingEl = document.getElementById('summaryRecipeHeading');
+const summaryModeNoteEl = document.getElementById('summaryModeNote');
+const summaryExtraRecipesSectionEl = document.getElementById('summaryExtraRecipesSection');
 const recipeListEl = document.getElementById('recipeList');
 const shoppingListEl = document.getElementById('shoppingList');
 const exportShoppingBtn = document.getElementById('exportShopping');
@@ -2403,6 +2285,7 @@ const startAnotherGameBtn = document.getElementById('startAnotherGame');
 const spectatorSection = document.getElementById('spectator');
 const spectatorRoundInfoEl = document.getElementById('spectatorRoundInfo');
 const spectatorStatusEl = document.getElementById('spectatorStatus');
+const spectatorScorePanelEl = document.getElementById('spectatorScorePanel');
 const spectatorScoreListEl = document.getElementById('spectatorScoreList');
 const spectatorRecipeListEl = document.getElementById('spectatorRecipeList');
 
@@ -2513,6 +2396,7 @@ generateBtn.addEventListener('click', () => {
 
   const players = Math.max(1, Math.min(6, parseInt(playersInputEl.value, 10) || 1));
   const recipesPerPerson = Math.max(6, Math.min(10, parseInt(recipesPerPersonEl.value, 10) || 6));
+  const gameMode = getSelectedGameModeFromForm();
   game.settings = {
     players,
     recipesPerPerson,
@@ -2521,15 +2405,14 @@ generateBtn.addEventListener('click', () => {
     fishAllowed: fishAllowedEl.checked,
     spicyAllowed: spicyAllowedEl.checked
   };
+  game.gameMode = gameMode;
 
   const recipeCatalog = getAllRecipes();
-  const catalogCheck = getCatalogCheck();
   const eligibleRecipes = filterRecipes(recipeCatalog, game.settings);
   const totalRoundsTarget = recipesPerPerson;
   const jokerRecipes = Math.max(1, Math.round(totalRoundsTarget * 0.2));
   const realRecipeTarget = Math.max(1, totalRoundsTarget - jokerRecipes);
   const realRecipeCount = Math.min(realRecipeTarget, eligibleRecipes.length);
-  const totalRounds = realRecipeCount + jokerRecipes;
 
   if (eligibleRecipes.length === 0) {
     showStatus('Keine Rezepte passen zu den gewaehlten Regeln. Passe die Filter an.', true);
@@ -2543,14 +2426,16 @@ generateBtn.addEventListener('click', () => {
     recipe => !selectedRealRecipes.some(selected => selected.name === recipe.name)
   );
   game.addedExtraRecipes = 0;
+  game.players = [];
+  game.scores = [];
+  game.gameIndex = 0;
+  game.activePlayerTurnIndex = 0;
+  game.awaitingRecipeReveal = isGuessingMode(game);
+  game.roundHasCorrectTip = false;
   game.phase = 'summary';
   game.finished = false;
 
-  if (eligibleRecipes.length < realRecipeTarget) {
-    statusEl.classList.add('hidden');
-  } else {
-    statusEl.classList.add('hidden');
-  }
+  statusEl.classList.add('hidden');
 
   upsertCurrentGame(game);
   renderFromCurrentGame();
@@ -2638,7 +2523,7 @@ recipeListEl.addEventListener('click', event => {
   if (!(removeBtn instanceof HTMLElement)) return;
 
   const game = getCurrentGame();
-  if (!game || game.phase !== 'summary') return;
+  if (!game || game.phase !== 'summary' || isGuessingMode(game)) return;
 
   const removeIndex = parseInt(removeBtn.dataset.removeRoundIndex || '', 10);
   if (Number.isNaN(removeIndex)) return;
@@ -2659,7 +2544,7 @@ recipeListEl.addEventListener('click', event => {
 
 confirmExtraRecipesBtn.addEventListener('click', () => {
   const game = getCurrentGame();
-  if (!game || game.phase !== 'summary') return;
+  if (!game || game.phase !== 'summary' || isGuessingMode(game)) return;
 
   const selectedNames = Array.from(
     extraRecipePickerListEl.querySelectorAll('input[type="checkbox"]:checked')
@@ -2719,6 +2604,7 @@ newRoundBtn.addEventListener('click', () => {
   game.players = [];
   game.scores = [];
   game.gameIndex = 0;
+  game.activePlayerTurnIndex = 0;
   game.awaitingRecipeReveal = true;
   game.roundHasCorrectTip = false;
   game.finished = false;
@@ -2740,13 +2626,15 @@ confirmPlayersBtn.addEventListener('click', () => {
   }
 
   game.players = names;
-  if (game.scores.length !== names.length) {
+  if (isGuessingMode(game) && game.scores.length !== names.length) {
     game.scores = names.map(() => 0);
+  } else if (isOpenMode(game)) {
+    game.scores = [];
   }
   game.rounds = shuffle(game.rounds);
   game.phase = 'game';
   game.gameIndex = 0;
-  game.awaitingRecipeReveal = true;
+  game.awaitingRecipeReveal = isGuessingMode(game);
   game.roundHasCorrectTip = false;
   game.activePlayerTurnIndex = 0;
   game.finished = false;
@@ -2770,6 +2658,7 @@ scoreListEl.addEventListener('click', event => {
   if (!(target instanceof HTMLElement)) return;
 
   const game = getCurrentGame();
+  if (!isGuessingMode(game)) return;
   if (isRoundScoringLocked(game)) return;
 
   const index = parseInt(target.dataset.score || '', 10);
@@ -2815,19 +2704,24 @@ finishGameBtn.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game || game.finished) return;
 
-  if (game.awaitingRecipeReveal) {
+  if (isGuessingMode(game) && game.awaitingRecipeReveal) {
     revealCurrentRecipe(game);
     return;
   }
 
-  finalizeRoundScore(game);
+  if (isGuessingMode(game)) finalizeRoundScore(game);
   game.gameIndex += 1;
-  game.awaitingRecipeReveal = true;
+  game.activePlayerTurnIndex = game.players.length > 0
+    ? game.gameIndex % game.players.length
+    : 0;
+  game.awaitingRecipeReveal = isGuessingMode(game);
+  game.roundHasCorrectTip = false;
 
   if (game.gameIndex >= game.rounds.length) {
     renderFinal(game);
   } else {
-    renderRoundHandover(game);
+    if (isGuessingMode(game)) renderRoundHandover(game);
+    else revealCurrentRecipe(game);
   }
 });
 
@@ -2926,7 +2820,7 @@ const channel = 'BroadcastChannel' in window ? new BroadcastChannel('giro-di-pas
 if (channel) {
   channel.addEventListener('message', event => {
     if (spectatorMode && event.data?.type === 'game-update' && event.data?.game?.id === spectatorGameId) {
-      renderSpectator(event.data.game);
+      renderSpectator(normalizeStoredGame(event.data.game));
     }
   });
 }
@@ -2995,7 +2889,7 @@ async function refreshSpectator() {
   if (getSyncEndpointBase()) {
     syncedGame = await fetchSyncedGame(spectatorGameId);
   }
-  renderSpectator(syncedGame || localGame);
+  renderSpectator(normalizeStoredGame(syncedGame || localGame));
 }
 
 if (spectatorMode) {

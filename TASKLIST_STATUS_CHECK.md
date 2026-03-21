@@ -107,9 +107,9 @@
   Reason: Rezeptinhalte werden derzeit nur geprüft und dokumentiert, aber noch nicht geändert.
   Files: `RECIPE_REVIEW_NOTES.md`
 
-- [postponed] Pistazie Limone anpassen
-  Reason: Die Abweichungen sind dokumentiert, inhaltliche Anpassungen wurden aber bewusst noch nicht vorgenommen.
-  Files: `RECIPE_REVIEW_NOTES.md`, `app.js`, `recipes.json`
+- [done] Entferntes Rezept bereinigen
+  Reason: Das Rezept wurde mit dem V2-Katalog aus dem aktiven Projektbestand entfernt; eine inhaltliche Anpassung ist dadurch nicht mehr offen.
+  Files: `app.js`, `recipes.json`
 
 - [postponed] Marinara ergänzen
   Reason: Marinara wurde fachlich notiert, aber die tatsächliche Rezept-Ergänzung ist bewusst verschoben.
@@ -131,10 +131,10 @@
 
 | Status | Count |
 |---|---|
-| done | 11 |
+| done | 12 |
 | partial | 7 |
 | not done | 3 |
-| postponed | 8 |
+| postponed | 7 |
 | external | 4 |
 
 ## Recommended Next Priorities

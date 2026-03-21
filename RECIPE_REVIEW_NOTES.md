@@ -41,14 +41,6 @@ Reviewed sources:
 - The guide starts with "Passata und Wasser zu Bruehe mischen", but the runtime ingredient model only tracks tomatoes generically. If the team later wants stricter culinary accuracy, the tomato base should be defined more clearly.
 - `recipes.json` omits olive oil compared with the runtime ingredient model.
 
-## Pistazie e limone
-
-- Status: review needed
-- Relevant files: `/Users/eric/GitHub/App Giro di Pasta/app.js`, `/Users/eric/GitHub/App Giro di Pasta/recipes.json`
-- The runtime ingredient model includes pistachio, lemon, olive oil, and parmigiano, but the guide frames cheese as optional. That is a small mismatch between modeled ingredients and instruction text.
-- `recipes.json` only lists `pistachio` and `lemon`, so olive oil and cheese are omitted there.
-- The name itself is a German/Italian hybrid, which may be intentional for the audience but is not linguistically consistent with the rest of the list.
-
 ## Marinara
 
 - Status: review needed

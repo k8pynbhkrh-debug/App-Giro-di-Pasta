@@ -167,7 +167,7 @@
 ## Canonical content for classic recipes
 - current status: manual decision
 - relevant file(s): `app.js`, `recipes.json`
-- The targeted recipes are plausible today, but they are not canonical across all data sources. `Amatriciana`, `Puttanesca`, `Pomodoro e basilico`, `Pasta all’Assassina`, `Pistazie e limone`, and `Marinara` should be reviewed once by product/cooking owners to confirm garlic, oregano, cheese, wine, and sauce assumptions before the project treats them as final.
+- The targeted recipes are plausible today, but they are not canonical across all data sources. `Amatriciana`, `Puttanesca`, `Pomodoro e basilico`, `Pasta all’Assassina`, and `Marinara` should be reviewed once by product/cooking owners to confirm garlic, oregano, cheese, wine, and sauce assumptions before the project treats them as final.
 - recommended action: improve
 
 ## Recipe skip in final ruleset

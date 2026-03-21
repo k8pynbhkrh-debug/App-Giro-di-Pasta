@@ -2,10 +2,7 @@ ricotta_limone
 ricotta_gorgonzola
 gorgonzola_noci
 parmigiano_burro
-pistazie_limone
 pasta_assassina
-ragu_bolognese
-ragu_bianco
 salsiccia_finocchio
 speck_cipolla
 pollo_panna
@@ -26,11 +23,4 @@ spinaci_ricotta
 crema_zucca
 taleggio_pepe
 stracchino_noci
-quattro_formaggi
-pesto_genovese
-pesto_rosso
-pasta_latte
-pasta_burro_zucchero
-pasta_dolce_noci
-pasta_dolce_ricotta
 joker

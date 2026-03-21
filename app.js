@@ -1145,7 +1145,9 @@ function setRecipeIllustrationPlaceholder() {
 let illustrationRequestToken = 0;
 
 function setRecipeIllustration(round, accent) {
-  const imagePath = round?.isJoker ? '' : getCardImageForRecipe(round?.name || '');
+  const imagePath = round?.isJoker
+    ? 'assets/recipes/joker.png'
+    : getCardImageForRecipe(round?.name || '');
   const token = ++illustrationRequestToken;
 
   if (!imagePath) {
@@ -1317,9 +1319,75 @@ function getSyncEndpointBase() {
   return raw.replace(/\/+$/, '');
 }
 
-function getSpectatorUrl(gameId) {
+function createSpectatorSnapshot(game) {
+  if (!game) return null;
+  return {
+    id: game.id,
+    title: game.title,
+    gameMode: normalizeGameMode(game.gameMode),
+    phase: game.phase,
+    finished: !!game.finished,
+    players: Array.isArray(game.players) ? [...game.players] : [],
+    scores: Array.isArray(game.scores) ? [...game.scores] : [],
+    gameIndex: Number.isFinite(game.gameIndex) ? game.gameIndex : 0,
+    activePlayerTurnIndex: Number.isFinite(game.activePlayerTurnIndex) ? game.activePlayerTurnIndex : 0,
+    awaitingRecipeReveal: !!game.awaitingRecipeReveal,
+    roundHasCorrectTip: !!game.roundHasCorrectTip,
+    rounds: (game.rounds || []).map(round => ({
+      name: round.name,
+      isJoker: !!round.isJoker
+    }))
+  };
+}
+
+function encodeSpectatorSnapshot(game) {
+  const snapshot = createSpectatorSnapshot(game);
+  if (!snapshot) return '';
+  try {
+    const bytes = new TextEncoder().encode(JSON.stringify(snapshot));
+    let binary = '';
+    bytes.forEach(byte => {
+      binary += String.fromCharCode(byte);
+    });
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+  } catch (error) {
+    return '';
+  }
+}
+
+function normalizeSpectatorSnapshotGame(game) {
+  if (!game || typeof game !== 'object') return null;
+  game.gameMode = normalizeGameMode(game.gameMode);
+  if (!Array.isArray(game.players)) game.players = [];
+  if (!Array.isArray(game.scores)) game.scores = [];
+  if (!Array.isArray(game.rounds)) game.rounds = [];
+  if (isOpenMode(game) && game.scores.length > 0) game.scores = [];
+  return game;
+}
+
+function decodeSpectatorSnapshot(value) {
+  if (!value) return null;
+  try {
+    const base64 = value.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
+    const binary = atob(padded);
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+    const parsed = JSON.parse(new TextDecoder().decode(bytes));
+    return normalizeSpectatorSnapshotGame(parsed);
+  } catch (error) {
+    return null;
+  }
+}
+
+function getSpectatorUrl(gameOrId) {
+  const gameId = typeof gameOrId === 'string' ? gameOrId : gameOrId?.id;
+  if (!gameId) return window.location.href;
   const url = new URL(window.location.href);
   url.searchParams.set('watch', gameId);
+  if (typeof gameOrId === 'object' && gameOrId) {
+    const snapshot = encodeSpectatorSnapshot(gameOrId);
+    if (snapshot) url.searchParams.set('snapshot', snapshot);
+  }
   return url.toString();
 }
 
@@ -1364,6 +1432,10 @@ function isOpenMode(game) {
   return normalizeGameMode(game?.gameMode) === GAME_MODE_OPEN;
 }
 
+function normalizeSummaryReturnTarget(value) {
+  return value === 'game' || value === 'players' ? value : '';
+}
+
 function isStoredRecipeStillAvailable(recipe, activeRecipeNames) {
   if (!recipe || typeof recipe !== 'object') return false;
   if (recipe.isJoker) return true;
@@ -1374,6 +1446,7 @@ function normalizeStoredGame(game) {
   if (!game || typeof game !== 'object') return game;
 
   game.gameMode = normalizeGameMode(game.gameMode);
+  game.summaryReturnTarget = normalizeSummaryReturnTarget(game.summaryReturnTarget);
   if (!Array.isArray(game.rounds)) game.rounds = [];
   if (!Array.isArray(game.players)) game.players = [];
   if (!Array.isArray(game.scores)) game.scores = [];
@@ -1435,6 +1508,7 @@ function createGame(title) {
       fishAllowed: true,
       spicyAllowed: true
     },
+    summaryReturnTarget: '',
     rounds: [],
     shoppingList: [],
     shoppingExport: '',
@@ -1522,6 +1596,35 @@ function openNewGameLanding() {
   setTimeout(() => gameTitleInputEl.focus(), 0);
 }
 
+function canOpenPlanningEditor(game) {
+  return !!game && Array.isArray(game.rounds) && game.rounds.length > 0;
+}
+
+function openPlanningEditor(gameId) {
+  const game = games.find(entry => entry.id === gameId);
+  if (!game) return;
+
+  currentGameId = gameId;
+  menuEl.classList.remove('open');
+
+  if (!canOpenPlanningEditor(game)) {
+    renderGameList();
+    renderLandingGameList();
+    renderFromCurrentGame();
+    return;
+  }
+
+  game.summaryReturnTarget = game.phase === 'game' || game.finished
+    ? 'game'
+    : game.phase === 'players'
+      ? 'players'
+      : '';
+  game.phase = 'summary';
+
+  upsertCurrentGame(game);
+  renderFromCurrentGame();
+}
+
 function renderGameList() {
   gameListEl.innerHTML = '';
 
@@ -1550,6 +1653,15 @@ function renderGameList() {
       loadBtn.style.background = '#fffaf1';
     }
 
+    const editBtn = document.createElement('button');
+    editBtn.className = 'game-edit';
+    editBtn.textContent = '✎';
+    editBtn.title = canOpenPlanningEditor(game) ? 'Planung öffnen' : 'Spiel öffnen';
+    editBtn.disabled = !canOpenPlanningEditor(game);
+    editBtn.addEventListener('click', () => {
+      openPlanningEditor(game.id);
+    });
+
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'game-delete';
     deleteBtn.dataset.deleteId = game.id;
@@ -1557,6 +1669,7 @@ function renderGameList() {
     deleteBtn.title = 'Spiel löschen';
 
     row.appendChild(loadBtn);
+    row.appendChild(editBtn);
     row.appendChild(deleteBtn);
     gameListEl.appendChild(row);
   });
@@ -1584,6 +1697,15 @@ function renderLandingGameList() {
       setCurrentGame(game.id);
     });
 
+    const editBtn = document.createElement('button');
+    editBtn.className = 'game-edit';
+    editBtn.textContent = '✎';
+    editBtn.title = canOpenPlanningEditor(game) ? 'Planung öffnen' : 'Spiel öffnen';
+    editBtn.disabled = !canOpenPlanningEditor(game);
+    editBtn.addEventListener('click', () => {
+      openPlanningEditor(game.id);
+    });
+
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'game-delete';
     deleteBtn.dataset.landingDeleteId = game.id;
@@ -1591,6 +1713,7 @@ function renderLandingGameList() {
     deleteBtn.title = 'Spiel löschen';
 
     row.appendChild(button);
+    row.appendChild(editBtn);
     row.appendChild(deleteBtn);
     landingGameListEl.appendChild(row);
   });
@@ -1613,15 +1736,68 @@ function renderRecipeList(game) {
 
   rounds.forEach((round, index) => {
     const li = document.createElement('li');
+    const hasLockedProgress = game.summaryReturnTarget === 'game' && !game.finished;
+    const canRemove = !hasLockedProgress || index > game.gameIndex;
     li.innerHTML = `
       <div class="recipe-plan-item">
         <span class="recipe-plan-label">${round.isJoker
           ? `${index + 1}. ${round.name} - Freie Wahl`
           : `${index + 1}. ${round.name}`}</span>
-        <button type="button" class="recipe-remove" data-remove-round-index="${index}" aria-label="${round.name} entfernen" title="Entfernen">✕</button>
+        ${canRemove
+          ? `<button type="button" class="recipe-remove" data-remove-round-index="${index}" aria-label="${round.name} entfernen" title="Entfernen">✕</button>`
+          : ''}
       </div>
     `;
     recipeListEl.appendChild(li);
+  });
+}
+
+function dedupeRecipesByName(recipes) {
+  return recipes.filter((recipe, index, list) =>
+    list.findIndex(entry => normalizeForId(entry.name) === normalizeForId(recipe.name)) === index
+  );
+}
+
+function recipeMatchesGameFilters(recipe, game) {
+  if (!game?.settings) return false;
+  return filterRecipes([recipe], game.settings).length > 0;
+}
+
+function getAvailableExtraRecipeGroups(game) {
+  if (!game || isGuessingMode(game)) {
+    return { filtered: [], override: [] };
+  }
+
+  const remainingSlots = Math.max(0, 2 - (game.addedExtraRecipes || 0));
+  if (remainingSlots === 0) {
+    return { filtered: [], override: [] };
+  }
+
+  const activeRoundNames = new Set((game.rounds || []).map(entry => normalizeForId(entry.name)));
+  const filtered = dedupeRecipesByName(
+    (game.eligibleExtraRecipes || [])
+      .filter(isRecipeActive)
+      .filter(recipe => !activeRoundNames.has(normalizeForId(recipe.name)))
+  ).sort((a, b) => a.name.localeCompare(b.name, 'de-DE'));
+  const filteredNames = new Set(filtered.map(recipe => normalizeForId(recipe.name)));
+  const override = dedupeRecipesByName(
+    getAllRecipes()
+      .filter(isRecipeActive)
+      .filter(recipe => !activeRoundNames.has(normalizeForId(recipe.name)))
+      .filter(recipe => !filteredNames.has(normalizeForId(recipe.name)))
+  ).sort((a, b) => a.name.localeCompare(b.name, 'de-DE'));
+
+  return { filtered, override };
+}
+
+function appendExtraRecipeOptions(selectEl, recipes, groupName, selectedNames) {
+  recipes.forEach(recipe => {
+    const option = document.createElement('option');
+    option.value = recipe.name;
+    option.textContent = recipe.name;
+    option.selected = selectedNames.has(recipe.name);
+    option.dataset.group = groupName;
+    selectEl.appendChild(option);
   });
 }
 
@@ -1640,33 +1816,17 @@ function renderExtraRecipeOptions(game) {
       .map(option => option.value)
   );
   extraRecipeSelectEl.innerHTML = '';
-  const remainingSlots = Math.max(0, 2 - (game.addedExtraRecipes || 0));
+  const groups = getAvailableExtraRecipeGroups(game);
 
-  if (remainingSlots === 0) {
+  if (groups.filtered.length === 0 && groups.override.length === 0) {
     extraRecipeSelectEl.disabled = true;
     addExtraRecipesBtn.disabled = true;
     addExtraRecipesBtn.textContent = 'Zusatzrezepte auswählen';
     return;
   }
 
-  const pool = (game.eligibleExtraRecipes || [])
-    .filter(isRecipeActive)
-    .filter((recipe, index, list) => list.findIndex(entry => normalizeForId(entry.name) === normalizeForId(recipe.name)) === index)
-    .sort((a, b) => a.name.localeCompare(b.name, 'de-DE'));
-  if (pool.length === 0) {
-    extraRecipeSelectEl.disabled = true;
-    addExtraRecipesBtn.disabled = true;
-    addExtraRecipesBtn.textContent = 'Zusatzrezepte auswählen';
-    return;
-  }
-
-  pool.forEach(recipe => {
-    const option = document.createElement('option');
-    option.value = recipe.name;
-    option.textContent = recipe.name;
-    option.selected = selectedNames.has(recipe.name);
-    extraRecipeSelectEl.appendChild(option);
-  });
+  appendExtraRecipeOptions(extraRecipeSelectEl, groups.filtered, 'filtered', selectedNames);
+  appendExtraRecipeOptions(extraRecipeSelectEl, groups.override, 'override', selectedNames);
 
   extraRecipeSelectEl.disabled = false;
   addExtraRecipesBtn.disabled = false;
@@ -1680,29 +1840,62 @@ function renderExtraRecipePicker() {
   if (options.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'picker-empty';
-    empty.textContent = 'Keine weiteren passenden Rezepte verfügbar.';
+    empty.textContent = 'Keine weiteren Rezepte verfügbar.';
     extraRecipePickerListEl.appendChild(empty);
     confirmExtraRecipesBtn.disabled = true;
     return;
   }
 
   confirmExtraRecipesBtn.disabled = false;
+  const groups = [
+    {
+      key: 'filtered',
+      title: 'Passend zu deinen Filtern',
+      note: 'Diese Rezepte erfüllen die aktuell gesetzten Regeln und können direkt ergänzt werden.'
+    },
+    {
+      key: 'override',
+      title: 'Weitere Rezepte außerhalb der Filter',
+      note: 'Nur im Modus Ohne Raten: Diese Rezepte ignorieren bewusst die zuvor gesetzten Filter.'
+    }
+  ];
 
-  options.forEach(option => {
-    const label = document.createElement('label');
-    label.className = 'picker-option';
+  groups.forEach(group => {
+    const groupOptions = options.filter(option => option.dataset.group === group.key);
+    if (groupOptions.length === 0) return;
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.value = option.value;
-    checkbox.checked = option.selected;
+    const section = document.createElement('section');
+    section.className = 'picker-section';
 
-    const text = document.createElement('span');
-    text.textContent = option.textContent;
+    const title = document.createElement('h4');
+    title.className = 'picker-section-title';
+    title.textContent = group.title;
 
-    label.appendChild(checkbox);
-    label.appendChild(text);
-    extraRecipePickerListEl.appendChild(label);
+    const note = document.createElement('p');
+    note.className = 'picker-section-note';
+    note.textContent = group.note;
+
+    section.appendChild(title);
+    section.appendChild(note);
+
+    groupOptions.forEach(option => {
+      const label = document.createElement('label');
+      label.className = 'picker-option';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = option.value;
+      checkbox.checked = option.selected;
+
+      const text = document.createElement('span');
+      text.textContent = option.textContent;
+
+      label.appendChild(checkbox);
+      label.appendChild(text);
+      section.appendChild(label);
+    });
+
+    extraRecipePickerListEl.appendChild(section);
   });
 }
 
@@ -1723,13 +1916,21 @@ function addSelectedExtraRecipes(game, selectedNames) {
 
   const remaining = Math.max(0, 2 - (game.addedExtraRecipes || 0));
   const toAddNames = selectedNames.slice(0, remaining);
-  const toAdd = (game.eligibleExtraRecipes || []).filter(recipe => toAddNames.includes(recipe.name));
+  const groups = getAvailableExtraRecipeGroups(game);
+  const availableByName = new Map(
+    dedupeRecipesByName(groups.filtered.concat(groups.override))
+      .map(recipe => [normalizeForId(recipe.name), recipe])
+  );
+  const toAdd = toAddNames
+    .map(name => availableByName.get(normalizeForId(name)))
+    .filter(Boolean);
   if (toAdd.length === 0) return 0;
 
   const newRounds = toAdd.map(recipe => ({ ...recipe, isJoker: false, isExtraSelection: true }));
   game.rounds = game.rounds.concat(newRounds);
   game.addedExtraRecipes = (game.addedExtraRecipes || 0) + newRounds.length;
-  game.eligibleExtraRecipes = (game.eligibleExtraRecipes || []).filter(recipe => !toAddNames.includes(recipe.name));
+  const addedKeys = new Set(toAdd.map(recipe => normalizeForId(recipe.name)));
+  game.eligibleExtraRecipes = (game.eligibleExtraRecipes || []).filter(recipe => !addedKeys.has(normalizeForId(recipe.name)));
   recomputeShoppingArtifacts(game);
   return newRounds.length;
 }
@@ -1743,6 +1944,7 @@ function restoreRemovedRecipeToPool(game, round) {
   const eligibleNames = new Set((game.eligibleExtraRecipes || []).map(entry => normalizeForId(entry.name)));
   const restoredKey = normalizeForId(restoredRecipe.name);
   if (activeRoundNames.has(restoredKey) || eligibleNames.has(restoredKey)) return;
+  if (!recipeMatchesGameFilters(restoredRecipe, game)) return;
 
   game.eligibleExtraRecipes = [...(game.eligibleExtraRecipes || []), restoredRecipe];
 }
@@ -1851,15 +2053,28 @@ function getSelectedGameModeFromForm() {
   return gameModeOpenEl.checked ? GAME_MODE_OPEN : GAME_MODE_GUESSING;
 }
 
+function getSummaryPrimaryActionLabel(game) {
+  if (game?.summaryReturnTarget === 'game') return 'Zurück ins Spiel';
+  if (game?.summaryReturnTarget === 'players') return 'Zurück zu Spielernamen';
+  return 'Weiter zu Spielernamen';
+}
+
 function renderSummaryForMode(game) {
   const guessing = isGuessingMode(game);
 
   summaryRecipeHeadingEl.textContent = guessing ? 'Verdeckte Auswahl' : 'Rundenplan';
   summaryModeNoteEl.classList.remove('hidden');
-  summaryModeNoteEl.textContent = guessing
-    ? 'Die Rezepte wurden intern ausgewählt. Sichtbar bleiben nur Einkaufsliste und Mengen.'
-    : 'Die vorgeschlagenen Rezepte sind sichtbar und können vor Spielstart angepasst werden.';
+  if (guessing) {
+    summaryModeNoteEl.textContent = game.summaryReturnTarget
+      ? 'Die verdeckte Auswahl bleibt geschützt. Du kannst hier weiterhin Einkaufsliste und Export nutzen.'
+      : 'Die Rezepte wurden intern ausgewählt. Sichtbar bleiben nur Einkaufsliste und Mengen.';
+  } else if (game.summaryReturnTarget === 'game') {
+    summaryModeNoteEl.textContent = 'Du bist zurück in der Planung. Bereits laufende oder vergangene Runden bleiben gesperrt; kommende Runden kannst du weiter anpassen.';
+  } else {
+    summaryModeNoteEl.textContent = 'Die vorgeschlagenen Rezepte sind sichtbar und können vor Spielstart angepasst werden.';
+  }
   summaryExtraRecipesSectionEl.classList.toggle('hidden', guessing);
+  startGameBtn.textContent = getSummaryPrimaryActionLabel(game);
 
   renderRecipeList(game);
   renderShoppingListFromGame(game);
@@ -2313,6 +2528,7 @@ let games = loadGames();
 let currentGameId = games.length > 0 ? games[games.length - 1].id : null;
 const searchParams = new URLSearchParams(window.location.search);
 const spectatorGameId = searchParams.get('watch');
+const spectatorSnapshotGame = decodeSpectatorSnapshot(searchParams.get('snapshot'));
 const spectatorMode = !!spectatorGameId;
 let spectatorPollIntervalId = null;
 let screenWakeLock = null;
@@ -2370,6 +2586,7 @@ restartGameBtn.addEventListener('click', () => {
   game.shoppingExport = '';
   game.eligibleExtraRecipes = [];
   game.addedExtraRecipes = 0;
+  game.summaryReturnTarget = '';
   game.players = [];
   game.scores = [];
   game.gameIndex = 0;
@@ -2419,6 +2636,7 @@ generateBtn.addEventListener('click', () => {
     recipe => !selectedRealRecipes.some(selected => selected.name === recipe.name)
   );
   game.addedExtraRecipes = 0;
+  game.summaryReturnTarget = '';
   game.players = [];
   game.scores = [];
   game.gameIndex = 0;
@@ -2520,6 +2738,7 @@ recipeListEl.addEventListener('click', event => {
 
   const removeIndex = parseInt(removeBtn.dataset.removeRoundIndex || '', 10);
   if (Number.isNaN(removeIndex)) return;
+  if (game.summaryReturnTarget === 'game' && !game.finished && removeIndex <= game.gameIndex) return;
 
   const removedRound = game.rounds.splice(removeIndex, 1)[0];
   if (!removedRound) return;
@@ -2574,6 +2793,14 @@ startGameBtn.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game || game.rounds.length === 0) return;
 
+  if (game.summaryReturnTarget) {
+    game.phase = game.summaryReturnTarget;
+    game.summaryReturnTarget = '';
+    upsertCurrentGame(game);
+    renderFromCurrentGame();
+    return;
+  }
+
   game.settings.players = Math.max(1, Math.min(6, parseInt(game.settings.players, 10) || 1));
   game.phase = 'players';
   if (game.players.length !== game.settings.players) {
@@ -2594,6 +2821,7 @@ newRoundBtn.addEventListener('click', () => {
   game.shoppingExport = '';
   game.eligibleExtraRecipes = [];
   game.addedExtraRecipes = 0;
+  game.summaryReturnTarget = '';
   game.players = [];
   game.scores = [];
   game.gameIndex = 0;
@@ -2626,6 +2854,7 @@ confirmPlayersBtn.addEventListener('click', () => {
   }
   game.rounds = shuffle(game.rounds);
   game.phase = 'game';
+  game.summaryReturnTarget = '';
   game.gameIndex = 0;
   game.awaitingRecipeReveal = isGuessingMode(game);
   game.roundHasCorrectTip = false;
@@ -2642,6 +2871,7 @@ backToSummaryBtn.addEventListener('click', () => {
   if (!game) return;
 
   game.phase = 'summary';
+  game.summaryReturnTarget = '';
   upsertCurrentGame(game);
   renderFromCurrentGame();
 });
@@ -2731,12 +2961,12 @@ qrToggleBtn.addEventListener('click', () => {
     return;
   }
 
-  const spectatorUrl = getSpectatorUrl(game.id);
+  const spectatorUrl = getSpectatorUrl(game);
   const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(spectatorUrl)}`;
   qrImageEl.src = qrApiUrl;
   qrHintEl.textContent = getSyncEndpointBase()
     ? 'Live-Sync aktiv.'
-    : 'Ohne Sync-Endpoint funktioniert Live nur auf demselben Gerät/Browser.';
+    : 'Ohne Sync-Endpoint wird der aktuelle Spielstand als Snapshot geteilt; Live-Updates auf anderen Geräten brauchen weiterhin einen Sync-Endpoint.';
   qrModalEl.classList.add('open');
   menuEl.classList.remove('open');
 });
@@ -2744,7 +2974,7 @@ qrToggleBtn.addEventListener('click', () => {
 copySpectatorLinkBtn.addEventListener('click', async () => {
   const game = getCurrentGame();
   if (!game) return;
-  const link = getSpectatorUrl(game.id);
+  const link = getSpectatorUrl(game);
   try {
     await navigator.clipboard.writeText(link);
     showStatus('Zuschauer-Link kopiert.');
@@ -2882,7 +3112,8 @@ async function refreshSpectator() {
   if (getSyncEndpointBase()) {
     syncedGame = await fetchSyncedGame(spectatorGameId);
   }
-  renderSpectator(normalizeStoredGame(syncedGame || localGame));
+  const liveGame = syncedGame || localGame;
+  renderSpectator(liveGame ? normalizeStoredGame(liveGame) : spectatorSnapshotGame);
 }
 
 if (spectatorMode) {

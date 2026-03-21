@@ -1764,11 +1764,6 @@ function getAvailableExtraRecipeGroups(game) {
     return { filtered: [], override: [] };
   }
 
-  const remainingSlots = Math.max(0, 2 - (game.addedExtraRecipes || 0));
-  if (remainingSlots === 0) {
-    return { filtered: [], override: [] };
-  }
-
   const activeRoundNames = new Set((game.rounds || []).map(entry => normalizeForId(entry.name)));
   const filtered = dedupeRecipesByName(
     (game.eligibleExtraRecipes || [])
@@ -1795,10 +1790,6 @@ function appendExtraRecipeOptions(selectEl, recipes, groupName, selectedNames) {
     option.dataset.group = groupName;
     selectEl.appendChild(option);
   });
-}
-
-function getRemainingExtraRecipeSlots(game) {
-  return Math.max(0, 2 - (game?.addedExtraRecipes || 0));
 }
 
 function renderExtraRecipeOptions(game) {
@@ -1840,9 +1831,7 @@ function renderExtraRecipePicker(game) {
   if (options.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'picker-empty';
-    empty.textContent = getRemainingExtraRecipeSlots(game) === 0
-      ? 'Maximal 2 Zusatzrezepte wurden bereits hinzugefügt.'
-      : 'Keine weiteren Rezepte verfügbar.';
+    empty.textContent = 'Keine weiteren Rezepte verfügbar.';
     extraRecipePickerListEl.appendChild(empty);
     confirmExtraRecipesBtn.disabled = true;
     return;
@@ -1916,8 +1905,7 @@ function addSelectedExtraRecipes(game, selectedNames) {
   if (!game || game.phase !== 'summary' || isGuessingMode(game)) return 0;
   if (!Array.isArray(selectedNames) || selectedNames.length === 0) return 0;
 
-  const remaining = Math.max(0, 2 - (game.addedExtraRecipes || 0));
-  const toAddNames = selectedNames.slice(0, remaining);
+  const toAddNames = selectedNames;
   const groups = getAvailableExtraRecipeGroups(game);
   const availableByName = new Map(
     dedupeRecipesByName(groups.filtered.concat(groups.override))
@@ -1930,7 +1918,6 @@ function addSelectedExtraRecipes(game, selectedNames) {
 
   const newRounds = toAdd.map(recipe => ({ ...recipe, isJoker: false, isExtraSelection: true }));
   game.rounds = game.rounds.concat(newRounds);
-  game.addedExtraRecipes = (game.addedExtraRecipes || 0) + newRounds.length;
   const addedKeys = new Set(toAdd.map(recipe => normalizeForId(recipe.name)));
   game.eligibleExtraRecipes = (game.eligibleExtraRecipes || []).filter(recipe => !addedKeys.has(normalizeForId(recipe.name)));
   recomputeShoppingArtifacts(game);

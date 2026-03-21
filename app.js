@@ -1736,16 +1736,12 @@ function renderRecipeList(game) {
 
   rounds.forEach((round, index) => {
     const li = document.createElement('li');
-    const hasLockedProgress = game.summaryReturnTarget === 'game' && !game.finished;
-    const canRemove = !hasLockedProgress || index > game.gameIndex;
     li.innerHTML = `
       <div class="recipe-plan-item">
         <span class="recipe-plan-label">${round.isJoker
           ? `${index + 1}. ${round.name} - Freie Wahl`
           : `${index + 1}. ${round.name}`}</span>
-        ${canRemove
-          ? `<button type="button" class="recipe-remove" data-remove-round-index="${index}" aria-label="${round.name} entfernen" title="Entfernen">✕</button>`
-          : ''}
+        <button type="button" class="recipe-remove" data-remove-round-index="${index}" aria-label="${round.name} entfernen" title="Entfernen">✕</button>
       </div>
     `;
     recipeListEl.appendChild(li);
@@ -1801,6 +1797,10 @@ function appendExtraRecipeOptions(selectEl, recipes, groupName, selectedNames) {
   });
 }
 
+function getRemainingExtraRecipeSlots(game) {
+  return Math.max(0, 2 - (game?.addedExtraRecipes || 0));
+}
+
 function renderExtraRecipeOptions(game) {
   if (isGuessingMode(game)) {
     extraRecipeSelectEl.innerHTML = '';
@@ -1820,7 +1820,7 @@ function renderExtraRecipeOptions(game) {
 
   if (groups.filtered.length === 0 && groups.override.length === 0) {
     extraRecipeSelectEl.disabled = true;
-    addExtraRecipesBtn.disabled = true;
+    addExtraRecipesBtn.disabled = false;
     addExtraRecipesBtn.textContent = 'Zusatzrezepte auswählen';
     return;
   }
@@ -1833,14 +1833,16 @@ function renderExtraRecipeOptions(game) {
   addExtraRecipesBtn.textContent = 'Zusatzrezepte auswählen';
 }
 
-function renderExtraRecipePicker() {
+function renderExtraRecipePicker(game) {
   extraRecipePickerListEl.innerHTML = '';
   const options = Array.from(extraRecipeSelectEl.options);
 
   if (options.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'picker-empty';
-    empty.textContent = 'Keine weiteren Rezepte verfügbar.';
+    empty.textContent = getRemainingExtraRecipeSlots(game) === 0
+      ? 'Maximal 2 Zusatzrezepte wurden bereits hinzugefügt.'
+      : 'Keine weiteren Rezepte verfügbar.';
     extraRecipePickerListEl.appendChild(empty);
     confirmExtraRecipesBtn.disabled = true;
     return;
@@ -1901,8 +1903,8 @@ function renderExtraRecipePicker() {
 
 function openExtraRecipeModal() {
   const game = getCurrentGame();
-  if (!game || game.phase !== 'summary' || isGuessingMode(game) || addExtraRecipesBtn.disabled) return;
-  renderExtraRecipePicker();
+  if (!game || game.phase !== 'summary' || isGuessingMode(game)) return;
+  renderExtraRecipePicker(game);
   extraRecipeModalEl.classList.add('open');
 }
 
@@ -2738,10 +2740,17 @@ recipeListEl.addEventListener('click', event => {
 
   const removeIndex = parseInt(removeBtn.dataset.removeRoundIndex || '', 10);
   if (Number.isNaN(removeIndex)) return;
-  if (game.summaryReturnTarget === 'game' && !game.finished && removeIndex <= game.gameIndex) return;
 
   const removedRound = game.rounds.splice(removeIndex, 1)[0];
   if (!removedRound) return;
+
+  if (game.summaryReturnTarget === 'game' && !game.finished) {
+    if (removeIndex < game.gameIndex) {
+      game.gameIndex = Math.max(0, game.gameIndex - 1);
+    } else if (game.gameIndex >= game.rounds.length) {
+      game.gameIndex = Math.max(0, game.rounds.length - 1);
+    }
+  }
 
   if (removedRound.isExtraSelection && (game.addedExtraRecipes || 0) > 0) {
     game.addedExtraRecipes -= 1;

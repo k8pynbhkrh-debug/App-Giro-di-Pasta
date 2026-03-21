@@ -983,7 +983,8 @@
         <div id="gameList" class="game-list"></div>
         <div class="button-row">
           <button id="createGame" class="primary">Neues Spiel</button>
-          <button id="restartGame" class="danger">Spiel neu starten</button>
+          <button id="restartFromBeginning">Von vorne beginnen</button>
+          <button id="restartGame" class="danger">Neu planen</button>
         </div>
       </div>
     </header>
@@ -1183,6 +1184,17 @@
       <div class="button-row">
         <button id="confirmDeleteGame" class="danger">Spiel löschen</button>
         <button id="cancelDeleteGame" class="secondary">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="restartFromBeginningModal" class="modal">
+    <div class="modal-card">
+      <h3>Spiel von vorne beginnen</h3>
+      <p>Das Spiel startet wieder bei Runde 1. Rezepte, Einkaufsliste und Spieler bleiben erhalten.</p>
+      <div class="button-row">
+        <button id="confirmRestartFromBeginning" class="primary">Von vorne beginnen</button>
+        <button id="cancelRestartFromBeginning" class="secondary">Abbrechen</button>
       </div>
     </div>
   </div>

@@ -1525,6 +1525,29 @@ function createGame(title) {
   });
 }
 
+function canRestartGameFromBeginning(game) {
+  return !!game
+    && Array.isArray(game.rounds)
+    && game.rounds.length > 0
+    && Array.isArray(game.players)
+    && game.players.length > 0;
+}
+
+function resetGameProgressToBeginning(game) {
+  if (!game) return;
+
+  game.phase = 'game';
+  game.summaryReturnTarget = '';
+  game.gameIndex = 0;
+  game.activePlayerTurnIndex = 0;
+  game.awaitingRecipeReveal = isGuessingMode(game);
+  game.roundHasCorrectTip = false;
+  game.finished = false;
+  game.scores = isGuessingMode(game)
+    ? game.players.map(() => 0)
+    : [];
+}
+
 function getCurrentGame() {
   return games.find(game => game.id === currentGameId) || null;
 }
@@ -2353,6 +2376,7 @@ function renderFromCurrentGame() {
   if (spectatorMode) return;
   const game = getCurrentGame();
   hideAllSections();
+  updateMenuActionState();
 
   if (!game) {
     landingSection.classList.remove('hidden');
@@ -2430,6 +2454,7 @@ const menuEl = document.getElementById('menu');
 const gameListEl = document.getElementById('gameList');
 const landingGameListEl = document.getElementById('landingGameList');
 const createGameBtn = document.getElementById('createGame');
+const restartFromBeginningBtn = document.getElementById('restartFromBeginning');
 const restartGameBtn = document.getElementById('restartGame');
 
 const gameTitleInputEl = document.getElementById('gameTitle');
@@ -2512,6 +2537,9 @@ const cancelExtraRecipesBtn = document.getElementById('cancelExtraRecipes');
 const deleteGameModalEl = document.getElementById('deleteGameModal');
 const confirmDeleteGameBtn = document.getElementById('confirmDeleteGame');
 const cancelDeleteGameBtn = document.getElementById('cancelDeleteGame');
+const restartFromBeginningModalEl = document.getElementById('restartFromBeginningModal');
+const confirmRestartFromBeginningBtn = document.getElementById('confirmRestartFromBeginning');
+const cancelRestartFromBeginningBtn = document.getElementById('cancelRestartFromBeginning');
 
 let games = loadGames();
 let currentGameId = games.length > 0 ? games[games.length - 1].id : null;
@@ -2522,8 +2550,43 @@ const spectatorMode = !!spectatorGameId;
 let spectatorPollIntervalId = null;
 let screenWakeLock = null;
 let pendingDeleteGameId = null;
+let pendingRestartFromBeginningGameId = null;
+
+function updateMenuActionState() {
+  const game = getCurrentGame();
+  restartGameBtn.disabled = !game;
+  restartFromBeginningBtn.disabled = !canRestartGameFromBeginning(game);
+}
+
+function openRestartFromBeginningModal() {
+  const game = getCurrentGame();
+  if (!canRestartGameFromBeginning(game)) return;
+  pendingRestartFromBeginningGameId = game.id;
+  restartFromBeginningModalEl.classList.add('open');
+  menuEl.classList.remove('open');
+}
+
+function closeRestartFromBeginningModal() {
+  pendingRestartFromBeginningGameId = null;
+  restartFromBeginningModalEl.classList.remove('open');
+}
+
+function confirmRestartFromBeginning() {
+  if (!pendingRestartFromBeginningGameId) return;
+
+  const game = games.find(entry => entry.id === pendingRestartFromBeginningGameId);
+  closeRestartFromBeginningModal();
+  if (!canRestartGameFromBeginning(game)) return;
+
+  triggerHaptic();
+  resetGameProgressToBeginning(game);
+  upsertCurrentGame(game);
+  renderFromCurrentGame();
+  showStatus('Spiel startet wieder bei Runde 1.');
+}
 
 menuToggleBtn.addEventListener('click', () => {
+  updateMenuActionState();
   menuEl.classList.toggle('open');
 });
 
@@ -2563,6 +2626,10 @@ createGameBtn.addEventListener('click', () => {
   triggerHaptic();
   openNewGameLanding();
   menuEl.classList.remove('open');
+});
+
+restartFromBeginningBtn.addEventListener('click', () => {
+  openRestartFromBeginningModal();
 });
 
 restartGameBtn.addEventListener('click', () => {
@@ -2783,6 +2850,14 @@ confirmDeleteGameBtn.addEventListener('click', () => {
 
 cancelDeleteGameBtn.addEventListener('click', () => {
   closeDeleteGameModal();
+});
+
+confirmRestartFromBeginningBtn.addEventListener('click', () => {
+  confirmRestartFromBeginning();
+});
+
+cancelRestartFromBeginningBtn.addEventListener('click', () => {
+  closeRestartFromBeginningModal();
 });
 
 startGameBtn.addEventListener('click', () => {
@@ -3023,6 +3098,9 @@ document.addEventListener('click', event => {
   }
   if (deleteGameModalEl.classList.contains('open') && target === deleteGameModalEl) {
     closeDeleteGameModal();
+  }
+  if (restartFromBeginningModalEl.classList.contains('open') && target === restartFromBeginningModalEl) {
+    closeRestartFromBeginningModal();
   }
   if (exportModalEl.classList.contains('open') && target === exportModalEl) {
     closeExportModal();

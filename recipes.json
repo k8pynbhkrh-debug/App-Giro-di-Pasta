@@ -309,14 +309,6 @@
     ]
   },
   {
-    "id": "crema_zucca",
-    "name": "Crema di Zucca",
-    "ingredients": [
-      "pumpkin",
-      "cream"
-    ]
-  },
-  {
     "id": "taleggio_pepe",
     "name": "Taleggio e Pepe",
     "ingredients": [

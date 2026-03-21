@@ -342,16 +342,6 @@ const recipesData = [
     }
   },
   {
-    "name": "Crema di zucca",
-    "ingredients": {
-      "Butter (g)": 2.5,
-      "Kürbis (g)": 37.5,
-      "Parmigiano (g)": 2.5,
-      "Sahne (ml)": 7.5,
-      "Schwarzer Pfeffer (g)": 0.125
-    }
-  },
-  {
     "name": "Taleggio e pepe",
     "ingredients": {
       "Olivenöl (ml)": 1.25,
@@ -632,7 +622,6 @@ const pdfRecipeNames = [
   'Melanzane e pomodoro',
   'Zucchine e menta',
   'Spinaci e ricotta',
-  'Crema di zucca',
 ];
 
 const recipeGuidesById = {
@@ -1043,17 +1032,6 @@ const recipeGuidesById = {
     ],
     "tip": "Ricotta nicht kochen"
   },
-  "crema_di_zucca": {
-    "difficulty": "mittel",
-    "steps": [
-      "Vorgegarte Kürbiscreme erwärmen",
-      "Pasta und Nudelwasser zugeben",
-      "Cremig emulgieren",
-      "Käse oder Muskat einarbeiten",
-      "Direkt servieren"
-    ],
-    "tip": "Als vorbereitete Basis sehr gut spielbar"
-  },
   "taleggio_e_pepe": {
     "difficulty": "leicht",
     "steps": [
@@ -1118,7 +1096,6 @@ const RECIPE_IMAGE_IDS_IN_ORDER = [
   'melanzane_pomodoro',
   'zucchine_menta',
   'spinaci_ricotta',
-  'crema_zucca',
   'taleggio_pepe',
   'stracchino_noci',
 ];
@@ -1387,6 +1364,12 @@ function isOpenMode(game) {
   return normalizeGameMode(game?.gameMode) === GAME_MODE_OPEN;
 }
 
+function isStoredRecipeStillAvailable(recipe, activeRecipeNames) {
+  if (!recipe || typeof recipe !== 'object') return false;
+  if (recipe.isJoker) return true;
+  return activeRecipeNames.has(normalizeForId(recipe.name || ''));
+}
+
 function normalizeStoredGame(game) {
   if (!game || typeof game !== 'object') return game;
 
@@ -1396,6 +1379,16 @@ function normalizeStoredGame(game) {
   if (!Array.isArray(game.scores)) game.scores = [];
   if (!Array.isArray(game.shoppingList)) game.shoppingList = [];
   if (!Array.isArray(game.eligibleExtraRecipes)) game.eligibleExtraRecipes = [];
+
+  const activeRecipeNames = new Set(getAllRecipes().map(recipe => normalizeForId(recipe.name)));
+  game.rounds = game.rounds.filter(recipe => isStoredRecipeStillAvailable(recipe, activeRecipeNames));
+  game.eligibleExtraRecipes = game.eligibleExtraRecipes.filter(recipe => isStoredRecipeStillAvailable(recipe, activeRecipeNames));
+  if (Number.isFinite(game.gameIndex)) {
+    game.gameIndex = Math.max(0, Math.min(game.gameIndex, Math.max(0, game.rounds.length - 1)));
+  } else {
+    game.gameIndex = 0;
+  }
+  recomputeShoppingArtifacts(game);
 
   if (isOpenMode(game)) {
     game.scores = [];

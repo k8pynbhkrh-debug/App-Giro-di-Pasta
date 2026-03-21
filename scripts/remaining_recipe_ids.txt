@@ -20,7 +20,6 @@ bottarga_limone
 melanzane_pomodoro
 zucchine_menta
 spinaci_ricotta
-crema_zucca
 taleggio_pepe
 stracchino_noci
 joker

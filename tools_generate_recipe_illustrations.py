@@ -60,7 +60,6 @@ RECIPES = [
 {"id":"melanzane_pomodoro","ingredients":["eggplant","tomato"]},
 {"id":"zucchine_menta","ingredients":["zucchini","mint"]},
 {"id":"spinaci_ricotta","ingredients":["spinach","ricotta"]},
-{"id":"crema_zucca","ingredients":["pumpkin","cream"]},
 {"id":"taleggio_pepe","ingredients":["taleggio","black pepper"]},
 {"id":"stracchino_noci","ingredients":["stracchino","walnut"]},
 {"id":"joker","ingredients":["olive oil","basil","chili"]},

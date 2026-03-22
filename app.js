@@ -512,7 +512,11 @@ function buildShoppingList(recipes, players) {
   });
 
   return Object.entries(aggregated)
-    .sort((a, b) => a[0].localeCompare(b[0], 'de'))
+    .sort((a, b) => {
+      if (a[0] === 'Pasta (g)') return -1;
+      if (b[0] === 'Pasta (g)') return 1;
+      return a[0].localeCompare(b[0], 'de');
+    })
     .map(([ingredient, amount]) => {
       const unit = getUnit(ingredient);
       return {
@@ -559,7 +563,11 @@ function buildPreparationPlan(game) {
   const ready = [];
 
   Array.from(uniqueEntries.values())
-    .sort((a, b) => a.label.localeCompare(b.label, 'de-DE'))
+    .sort((a, b) => {
+      if (a.label === 'Pasta') return -1;
+      if (b.label === 'Pasta') return 1;
+      return a.label.localeCompare(b.label, 'de-DE');
+    })
     .forEach(entry => {
       if (entry.category === PREPARATION_CATEGORY_PREPARE) prepare.push(entry);
       else ready.push(entry);

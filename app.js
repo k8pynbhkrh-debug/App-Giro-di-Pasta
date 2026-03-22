@@ -1734,8 +1734,22 @@ function decodeSpectatorSnapshot(value) {
   }
 }
 
-function getQrApiUrl(spectatorUrl) {
+function getQrFallbackUrl(spectatorUrl) {
   return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(spectatorUrl)}`;
+}
+
+function createLocalQrSource(spectatorUrl) {
+  if (!window.LocalQRCode?.createSvgDataUrl) return '';
+  try {
+    return window.LocalQRCode.createSvgDataUrl(spectatorUrl, {
+      cellSize: 6,
+      quietZone: 4,
+      foreground: '#2a211d',
+      background: '#ffffff'
+    });
+  } catch (error) {
+    return '';
+  }
 }
 
 function getSpectatorUrl(gameOrId) {
@@ -1750,16 +1764,20 @@ function getSpectatorUrl(gameOrId) {
   return url.toString();
 }
 
-let warmedQrApiUrl = '';
+let warmedQrSource = '';
+let warmedQrForUrl = '';
 
 function warmSpectatorQr(game) {
   if (!game) return;
-  const qrApiUrl = getQrApiUrl(getSpectatorUrl(game));
-  if (!qrApiUrl || warmedQrApiUrl === qrApiUrl) return;
-  warmedQrApiUrl = qrApiUrl;
+  const spectatorUrl = getSpectatorUrl(game);
+  if (!spectatorUrl || warmedQrForUrl === spectatorUrl) return;
+
+  warmedQrForUrl = spectatorUrl;
+  warmedQrSource = createLocalQrSource(spectatorUrl) || getQrFallbackUrl(spectatorUrl);
+
   const preload = new Image();
   preload.decoding = 'async';
-  preload.src = qrApiUrl;
+  preload.src = warmedQrSource;
 }
 
 async function pushGameSync(game) {
@@ -3591,11 +3609,15 @@ qrToggleBtn.addEventListener('click', () => {
   }
 
   const spectatorUrl = getSpectatorUrl(game);
-  const qrApiUrl = getQrApiUrl(spectatorUrl);
-  qrImageEl.src = qrApiUrl;
+  const qrSource = warmedQrForUrl === spectatorUrl
+    ? warmedQrSource
+    : (createLocalQrSource(spectatorUrl) || getQrFallbackUrl(spectatorUrl));
+  warmedQrForUrl = spectatorUrl;
+  warmedQrSource = qrSource;
+  qrImageEl.src = qrSource;
   qrHintEl.textContent = getSyncEndpointBase()
-    ? 'Live-Sync aktiv.'
-    : 'Ohne Sync-Endpoint wird der aktuelle Spielstand als Snapshot geteilt; Live-Updates auf anderen Geräten brauchen weiterhin einen Sync-Endpoint.';
+    ? 'Live-Sync aktiv. QR wird lokal in der App erzeugt.'
+    : 'QR wird lokal in der App erzeugt. Ohne Sync-Endpoint wird der aktuelle Spielstand als Snapshot geteilt; Live-Updates auf anderen Geräten brauchen weiterhin einen Sync-Endpoint.';
   qrModalEl.classList.add('open');
   menuEl.classList.remove('open');
 });
@@ -3697,7 +3719,9 @@ if (channel) {
 
 qrImageEl.onerror = () => {
   qrImageEl.onerror = null;
-  qrImageEl.src = FALLBACK_IMAGE;
+  const game = getCurrentGame();
+  const spectatorUrl = game ? getSpectatorUrl(game) : '';
+  qrImageEl.src = spectatorUrl ? getQrFallbackUrl(spectatorUrl) : FALLBACK_IMAGE;
 };
 
 if ("serviceWorker" in navigator) {

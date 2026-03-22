@@ -3,6 +3,7 @@ const CACHE_NAME = `giro-di-pasta-${CACHE_VERSION}`;
 const CORE_ASSETS = [
   "./",
   "./index.html",
+  "./assets/local-qr.js",
   "./app.js",
   "./manifest.json",
   "./assets/app-icon.png",

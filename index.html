@@ -1000,6 +1000,127 @@
         min-width: 0;
       }
     }
+
+    @media (orientation: landscape) and (max-height: 640px) {
+      body {
+        padding: 10px;
+        place-items: stretch center;
+      }
+
+      .phone {
+        max-width: min(100%, 980px);
+        min-height: calc(100vh - 20px);
+      }
+
+      .topbar {
+        padding: 12px 14px;
+      }
+
+      .brand {
+        font-size: 1.15rem;
+      }
+
+      .page {
+        padding: 12px;
+        gap: 12px;
+      }
+
+      section {
+        padding: 16px;
+      }
+
+      #gameCard {
+        grid-template-columns: minmax(0, 1.35fr) minmax(220px, 0.95fr);
+        gap: 12px 16px;
+        align-items: start;
+      }
+
+      #recipeTitle,
+      #recipeMeta,
+      #stepList,
+      #recipeSecondaryInfo {
+        grid-column: 1;
+      }
+
+      .ingredient-illustration {
+        grid-column: 2;
+        grid-row: 1 / span 4;
+        height: min(46vh, 260px);
+      }
+
+      .recipe-title {
+        font-size: 1.6rem;
+      }
+
+      .game-actions button {
+        flex: 1 1 170px;
+      }
+    }
+
+    @media (min-width: 768px) and (min-height: 700px) {
+      body {
+        padding: 20px;
+      }
+
+      .phone {
+        max-width: min(92vw, 960px);
+        min-height: min(94vh, 1100px);
+      }
+
+      .topbar {
+        padding: 16px 20px;
+      }
+
+      .brand {
+        font-size: 1.45rem;
+      }
+
+      .page {
+        padding: 20px;
+        gap: 16px;
+      }
+
+      section {
+        padding: 20px;
+      }
+
+      #gameCard {
+        grid-template-columns: minmax(0, 1.45fr) minmax(240px, 0.95fr);
+        gap: 16px 20px;
+        align-items: start;
+      }
+
+      #recipeTitle,
+      #recipeMeta,
+      #stepList,
+      #recipeSecondaryInfo {
+        grid-column: 1;
+      }
+
+      .ingredient-illustration {
+        grid-column: 2;
+        grid-row: 1 / span 4;
+        height: min(34vw, 320px);
+      }
+
+      .recipe-title {
+        font-size: 2.2rem;
+      }
+
+      .game-actions button {
+        flex: 1 1 200px;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .phone {
+        max-width: min(94vw, 1120px);
+      }
+
+      .ingredient-illustration {
+        height: min(30vw, 360px);
+      }
+    }
   </style>
 </head>
 <body>

@@ -829,8 +829,33 @@ const JOKER_RECIPE_GUIDE = {
     'Rezept kochen und gemeinsam abschmecken',
     'Normal raten und die Runde wie gewohnt werten'
   ],
-  tip: 'Joker-Runden sind flexibel, aber sollten zur Einkaufsplanung passen.'
+  tip: 'Improvisation ist auch ein Rezept.'
 };
+
+const JOKER_TIPS = Object.freeze([
+  'Heute wird nicht nur die Pasta al dente.',
+  'Joker-Runde: Jetzt wird es nudelig kreativ.',
+  'Wenn nichts klappt, einfach überzeugend umrühren.',
+  'Pasta kann alles. Heute ihr auch.',
+  'Improvisation ist auch ein Rezept.',
+  'Manchmal ist der beste Plan ein guter Pastateller.'
+]);
+
+function pickJokerTip(seed = '') {
+  const safeSeed = String(seed || 'joker');
+  let hash = 0;
+  for (let i = 0; i < safeSeed.length; i++) {
+    hash = ((hash * 31) + safeSeed.charCodeAt(i)) >>> 0;
+  }
+  return JOKER_TIPS[hash % JOKER_TIPS.length];
+}
+
+function getJokerRecipeGuide(recipe) {
+  return {
+    ...JOKER_RECIPE_GUIDE,
+    tip: pickJokerTip(recipe?.name || 'joker')
+  };
+}
 
 const supplementalRecipes = [];
 
@@ -884,14 +909,14 @@ const recipeGuidesById = {
       "Chili kurz mitziehen lassen",
       "Pasta und Nudelwasser zugeben",
       "[MITTEL] Kurz emulgierend schwenken",
-      "Petersilie zugeben"
+      "Frische Petersilie zugeben"
     ],
     "tip": "Knoblauch nicht bräunen lassen"
   },
   "cacio_e_pepe": {
     "difficulty": "mittel",
     "steps": [
-      "[MITTEL] Pfeffer trocken rösten",
+      "[MITTEL] Frisch gemahlenen schwarzen Pfeffer trocken rösten",
       "Nudelwasser zugeben und Basis rühren",
       "Pasta kurz in der Pfanne schwenken",
       "[AUS] Pecorino kräftig einarbeiten",
@@ -902,8 +927,8 @@ const recipeGuidesById = {
   "carbonara": {
     "difficulty": "mittel",
     "steps": [
-      "[MITTEL] Pancetta knusprig auslassen",
-      "[AUS] Ei, Käse und Pfeffer glattrühren",
+      "[MITTEL] Guanciale oder Pancetta knusprig auslassen",
+      "[AUS] Eigelb, Pecorino und frisch gemahlenen schwarzen Pfeffer glattrühren",
       "Pasta mit wenig Nudelwasser zugeben",
       "[AUS] Eimasse zügig unterheben",
       "Cremig ziehen und servieren"
@@ -913,8 +938,8 @@ const recipeGuidesById = {
   "gricia": {
     "difficulty": "mittel",
     "steps": [
-      "[MITTEL] Guanciale knusprig auslassen",
-      "Pfeffer kurz im Fett rösten",
+      "[MITTEL] Guanciale oder Pancetta knusprig auslassen",
+      "Frisch gemahlenen schwarzen Pfeffer kurz im Fett rösten",
       "Pasta und Nudelwasser zugeben",
       "[AUS] Pecorino cremig einrühren",
       "Mit Guanciale-Crunch servieren"
@@ -950,7 +975,7 @@ const recipeGuidesById = {
       "Sardellen einrühren bis sie zerfallen",
       "Pasta und Nudelwasser zugeben",
       "[MITTEL] Kurz emulgierend schwenken",
-      "Petersilie zugeben"
+      "Frische Petersilie zugeben"
     ],
     "tip": "Nicht zu heiß, sonst wird es streng"
   },
@@ -972,18 +997,18 @@ const recipeGuidesById = {
       "Sardellen einrühren bis sie zerfallen",
       "Pasta und Nudelwasser zugeben",
       "Kurz emulgierend schwenken",
-      "Zitronenabrieb und wenig Saft zugeben"
+      "Zitronenabrieb und wenig Zitronensaft zugeben"
     ],
     "tip": "Saft sparsam dosieren"
   },
   "pomodoro_e_basilico": {
     "difficulty": "leicht",
     "steps": [
-      "[MITTEL] Knoblauch oder Zwiebel anschwitzen",
+      "[MITTEL] Knoblauch sanft anschwitzen",
       "[HOCH] Tomaten zugeben und salzen",
       "3–4 Min köcheln lassen",
       "Pasta mit Nudelwasser binden",
-      "[AUS] Basilikum unterheben"
+      "[AUS] Frisches Basilikum unterheben"
     ],
     "tip": "Basilikum nie mitkochen"
   },
@@ -994,7 +1019,7 @@ const recipeGuidesById = {
       "Chili kurz im Öl ziehen lassen",
       "[HOCH] Tomaten 3–4 Min köcheln",
       "Pasta mit Nudelwasser binden",
-      "Petersilie oder Pecorino zugeben"
+      "Frische Petersilie oder Pecorino zugeben"
     ],
     "tip": "Schärfe lieber am Ende anpassen"
   },
@@ -1015,7 +1040,7 @@ const recipeGuidesById = {
       "[MITTEL] Tomatensauce mit Chili erwärmen",
       "[AUS] Ricotta mit Nudelwasser glattrühren",
       "Pasta in Tomate schwenken",
-      "[AUS] Ricotta-Creme unterziehen",
+      "Ricotta-Creme unterziehen",
       "Kurz abschmecken und servieren"
     ],
     "tip": "Ricotta nicht kochen"
@@ -1038,14 +1063,14 @@ const recipeGuidesById = {
       "[NIEDRIG] Butter zugeben",
       "Pasta und Nudelwasser zugeben",
       "[MITTEL] Emulgierend schwenken",
-      "Petersilie zugeben"
+      "Frische Petersilie zugeben"
     ],
     "tip": "Pilze erst bräunen, dann salzen"
   },
   "ricotta_al_limone": {
     "difficulty": "leicht",
     "steps": [
-      "[AUS] Ricotta mit Abrieb und Öl glattrühren",
+      "[AUS] Ricotta mit Zitronenabrieb und Olivenöl glattrühren",
       "Nudelwasser einarbeiten",
       "Pasta zugeben",
       "Cremig emulgieren",
@@ -1060,7 +1085,7 @@ const recipeGuidesById = {
       "Ricotta glattrühren",
       "Pasta und Nudelwasser zugeben",
       "[AUS] Cremig emulgieren",
-      "Mit Pfeffer servieren"
+      "Mit frisch gemahlenem schwarzen Pfeffer servieren"
     ],
     "tip": "Niedrige Hitze hält die Sauce stabil"
   },
@@ -1071,7 +1096,7 @@ const recipeGuidesById = {
       "[NIEDRIG] Gorgonzola in Milch schmelzen",
       "Pasta und Nudelwasser zugeben",
       "[AUS] Cremig emulgieren",
-      "Nüsse als Finish zugeben"
+      "Geröstete Walnüsse als Finish zugeben"
     ],
     "tip": "Nüsse zuletzt für Crunch"
   },
@@ -1082,7 +1107,7 @@ const recipeGuidesById = {
       "Pasta und Nudelwasser zugeben",
       "[AUS] Parmigiano einrühren",
       "Cremig ziehen",
-      "Optional Pfeffer zugeben"
+      "Optional frisch gemahlenen schwarzen Pfeffer zugeben"
     ],
     "tip": "Emulsion über Restwärme aufbauen"
   },
@@ -1115,7 +1140,7 @@ const recipeGuidesById = {
       "[MITTEL] Speck rösten",
       "Optional Tomate kurz zugeben",
       "Pasta in der Pfanne schwenken",
-      "Mit Pfeffer servieren"
+      "Mit frisch gemahlenem schwarzen Pfeffer servieren"
     ],
     "tip": "Speck bringt schon viel Salz mit"
   },
@@ -1123,9 +1148,9 @@ const recipeGuidesById = {
     "difficulty": "mittel",
     "steps": [
       "[MITTEL] Hähnchen kräftig anbraten",
-      "Zwiebel oder Knoblauch anschwitzen",
-      "Sahne zugeben und einkochen",
-      "Pasta und Parmesan binden",
+      "Zwiebel anschwitzen",
+      "Sahne zugeben und kurz einkochen",
+      "Pasta und Parmigiano binden",
       "Cremig servieren"
     ],
     "tip": "Hähnchen lieber klein schneiden"
@@ -1144,11 +1169,11 @@ const recipeGuidesById = {
   "tonno_e_pomodoro": {
     "difficulty": "leicht",
     "steps": [
-      "[MITTEL] Zwiebel oder Knoblauch anschwitzen",
-      "[HOCH] Tomate kurz simmern",
+      "[MITTEL] Knoblauch anschwitzen",
+      "[HOCH] Tomaten kurz simmern",
       "Thunfisch kurz einrühren",
       "Pasta in der Sauce schwenken",
-      "Petersilie zugeben"
+      "Frische Petersilie zugeben"
     ],
     "tip": "Thunfisch nicht lange kochen"
   },
@@ -1179,7 +1204,7 @@ const recipeGuidesById = {
     "steps": [
       "[MITTEL] Lachs kurz garen",
       "Pasta und Nudelwasser zugeben",
-      "Zitronenabrieb einrühren",
+      "Frischen Zitronenabrieb einrühren",
       "[AUS] Mit wenig Saft abschmecken",
       "Kräuter zugeben und servieren"
     ],
@@ -1192,7 +1217,7 @@ const recipeGuidesById = {
       "Garnelen kurz braten",
       "Pasta und Nudelwasser zugeben",
       "Kurz emulgierend schwenken",
-      "Petersilie zugeben"
+      "Frische Petersilie zugeben"
     ],
     "tip": "Garnelen nicht übergaren"
   },
@@ -1203,7 +1228,7 @@ const recipeGuidesById = {
       "Garnelen kurz garen",
       "Pasta und Nudelwasser zugeben",
       "Emulgierend schwenken",
-      "Petersilie zugeben"
+      "Frische Petersilie zugeben"
     ],
     "tip": "Zucchini erst am Ende salzen"
   },
@@ -1212,9 +1237,9 @@ const recipeGuidesById = {
     "steps": [
       "Vorbereitete Vongole bereithalten",
       "[MITTEL] Vongole öffnen und Saft auffangen",
-      "Flüssigkeit filtern und zugeben",
+      "Gefilterten Muschelsud zugeben",
       "Pasta emulgierend schwenken",
-      "Petersilie zugeben"
+      "Frische Petersilie zugeben"
     ],
     "tip": "Ohne Vorbereitung zu riskant"
   },
@@ -1222,10 +1247,10 @@ const recipeGuidesById = {
     "difficulty": "schwer",
     "steps": [
       "Vorbereitete Vongole bereithalten",
-      "[MITTEL] Tomate kurz köcheln",
-      "Vongole und Saft einarbeiten",
+      "[MITTEL] Tomaten kurz köcheln",
+      "Vongole und Muschelsud einarbeiten",
       "Pasta in der Sauce schwenken",
-      "Petersilie zugeben"
+      "Frische Petersilie zugeben"
     ],
     "tip": "Tomate nur leicht halten"
   },
@@ -1236,7 +1261,7 @@ const recipeGuidesById = {
       "Garzeiten kurz staffeln und erwärmen",
       "Tomate oder Sud kurz simmern",
       "Pasta in der Sauce schwenken",
-      "Petersilie zugeben"
+      "Frische Petersilie zugeben"
     ],
     "tip": "Ohne Prep nicht spielgeeignet"
   },
@@ -1246,7 +1271,7 @@ const recipeGuidesById = {
       "[NIEDRIG] Öl sanft aromatisieren",
       "Pasta und Nudelwasser zugeben",
       "[AUS] Bottarga einrühren",
-      "Zitronenabrieb zugeben",
+      "Frischen Zitronenabrieb zugeben",
       "Direkt servieren"
     ],
     "tip": "Bottarga nicht mitkochen"
@@ -1267,7 +1292,7 @@ const recipeGuidesById = {
     "steps": [
       "[MITTEL] Zucchini fein in Öl garen",
       "Pasta und Nudelwasser zugeben",
-      "Minze einrühren",
+      "Frische Minze einrühren",
       "[AUS] Käse cremig binden",
       "Kurz servieren"
     ],
@@ -1280,7 +1305,7 @@ const recipeGuidesById = {
       "[AUS] Ricotta mit Nudelwasser glattrühren",
       "Pasta zugeben",
       "Cremig emulgieren und würzen",
-      "Parmesan-Finish zugeben"
+      "Frisch geriebenen Parmigiano zugeben"
     ],
     "tip": "Ricotta nicht kochen"
   },
@@ -1288,21 +1313,21 @@ const recipeGuidesById = {
     "difficulty": "leicht",
     "steps": [
       "[NIEDRIG] Taleggio mit Milch sanft schmelzen",
-      "Pfeffer einrühren",
+      "Frisch gemahlenen schwarzen Pfeffer einrühren",
       "Pasta und Nudelwasser zugeben",
       "[AUS] Cremig emulgieren",
-      "Extra Pfeffer zugeben"
+      "Nach Bedarf extra frisch gemahlenen schwarzen Pfeffer zugeben"
     ],
     "tip": "Nicht kochen, sonst trennt es"
   },
   "stracchino_e_noci": {
     "difficulty": "leicht",
     "steps": [
-      "[MITTEL] Nüsse rösten und hacken",
+      "[MITTEL] Walnüsse rösten und grob hacken",
       "[NIEDRIG] Stracchino mit Milch cremig rühren",
       "Pasta und Nudelwasser zugeben",
       "[AUS] Cremig emulgieren",
-      "Nüsse als Finish zugeben"
+      "Walnüsse als Finish zugeben"
     ],
     "tip": "Niedrige Hitze und Nüsse zuletzt"
   }
@@ -1457,7 +1482,7 @@ function getDifficultyIndicatorText(difficulty) {
 
 function getRecipeGuide(recipe) {
   if (recipe.isJoker) {
-    return JOKER_RECIPE_GUIDE;
+    return getJokerRecipeGuide(recipe);
   }
 
   const key = normalizeForId(recipe.name || '');

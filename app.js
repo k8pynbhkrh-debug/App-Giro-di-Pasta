@@ -1301,11 +1301,11 @@ const recipeGuidesById = {
     "steps": [
       "[NIEDRIG] Öl sanft aromatisieren",
       "Pasta und Nudelwasser zugeben",
-      "[AUS] Bottarga einrühren",
+      "[AUS] Geriebenen Fischrogen einrühren",
       "Frischen Zitronenabrieb zugeben",
       "Direkt servieren"
     ],
-    "tip": "Bottarga nicht mitkochen"
+    "tip": "Fischrogen erst am Ende zugeben"
   },
   "melanzane_e_pomodoro": {
     "difficulty": "mittel",

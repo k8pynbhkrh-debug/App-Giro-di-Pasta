@@ -2704,6 +2704,7 @@ function renderFinal(game) {
 
   skipRecipeBtn.disabled = true;
   finishGameBtn.disabled = true;
+  startAnotherGameBtn.textContent = 'Spiel neu starten';
   startAnotherGameBtn.classList.remove('hidden');
   upsertCurrentGame(game);
 }
@@ -3487,9 +3488,14 @@ finishGameBtn.addEventListener('click', () => {
 });
 
 startAnotherGameBtn.addEventListener('click', () => {
+  const game = getCurrentGame();
+  if (!canRestartGameFromBeginning(game)) return;
+
   triggerHaptic('newGame');
-  openNewGameLanding();
-  menuEl.classList.remove('open');
+  resetGameProgressToBeginning(game);
+  upsertCurrentGame(game);
+  renderFromCurrentGame();
+  showStatus('Spiel startet wieder bei Runde 1.');
 });
 
 qrToggleBtn.addEventListener('click', () => {

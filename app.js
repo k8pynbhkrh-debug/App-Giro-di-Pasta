@@ -6,7 +6,8 @@ const recipesData = [
     "ingredients": {
       "Chili/Peperoncino (g)": 0.25,
       "Knoblauch (Zehen)": 0.25,
-      "Olivenöl (ml)": 5.0
+      "Olivenöl (ml)": 5.0,
+      "Petersilie (g)": 0.5
     }
   },
   {
@@ -61,6 +62,7 @@ const recipesData = [
     "ingredients": {
       "Knoblauch (Zehen)": 0.25,
       "Olivenöl (ml)": 5.0,
+      "Petersilie (g)": 0.5,
       "Sardellen (g)": 1.25
     }
   },
@@ -132,12 +134,14 @@ const recipesData = [
     "ingredients": {
       "Butter (g)": 6.25,
       "Champignons (g)": 20.0,
-      "Knoblauch (Zehen)": 0.0625
+      "Knoblauch (Zehen)": 0.0625,
+      "Petersilie (g)": 0.5
     }
   },
   {
     "name": "Ricotta al limone",
     "ingredients": {
+      "Olivenöl (ml)": 1.25,
       "Parmigiano (g)": 2.5,
       "Ricotta (g)": 17.5,
       "Schwarzer Pfeffer (g)": 0.125,
@@ -148,14 +152,17 @@ const recipesData = [
     "name": "Ricotta e gorgonzola",
     "ingredients": {
       "Gorgonzola (g)": 7.5,
+      "Milch (ml)": 5.0,
       "Olivenöl (ml)": 1.25,
-      "Ricotta (g)": 12.5
+      "Ricotta (g)": 12.5,
+      "Schwarzer Pfeffer (g)": 0.125
     }
   },
   {
     "name": "Gorgonzola e noci",
     "ingredients": {
       "Gorgonzola (g)": 8.75,
+      "Milch (ml)": 5.0,
       "Olivenöl (ml)": 1.25,
       "Walnüsse (g)": 5.0
     }
@@ -183,13 +190,15 @@ const recipesData = [
       "Fenchel (g)": 12.5,
       "Knoblauch (Zehen)": 0.0625,
       "Olivenöl (ml)": 1.25,
-      "Salsiccia (g)": 20.0
+      "Salsiccia (g)": 20.0,
+      "Zwiebeln (g)": 5.0
     }
   },
   {
     "name": "Speck e cipolla",
     "ingredients": {
       "Olivenöl (ml)": 1.25,
+      "Schwarzer Pfeffer (g)": 0.125,
       "Speck (g)": 15.0,
       "Zwiebeln (g)": 10.0
     }
@@ -199,6 +208,7 @@ const recipesData = [
     "ingredients": {
       "Hähnchen (g)": 20.0,
       "Olivenöl (ml)": 1.25,
+      "Parmigiano (g)": 2.5,
       "Sahne (ml)": 15.0,
       "Schwarzer Pfeffer (g)": 0.125,
       "Zwiebeln (g)": 5.0
@@ -219,6 +229,7 @@ const recipesData = [
     "ingredients": {
       "Knoblauch (Zehen)": 0.0625,
       "Olivenöl (ml)": 1.25,
+      "Petersilie (g)": 0.5,
       "Thunfisch (g)": 15.0,
       "Tomaten (g)": 30.0
     }
@@ -230,6 +241,7 @@ const recipesData = [
       "Knoblauch (Zehen)": 0.0625,
       "Olivenöl (ml)": 2.5,
       "Thunfisch (g)": 15.0,
+      "Tomaten (g)": 20.0,
       "Zitrone (Saft) (ml)": 2.5
     }
   },
@@ -269,6 +281,7 @@ const recipesData = [
       "Garnelen (g)": 15.0,
       "Knoblauch (Zehen)": 0.0625,
       "Olivenöl (ml)": 1.25,
+      "Petersilie (g)": 0.5,
       "Zucchini (g)": 20.0
     }
   },
@@ -344,6 +357,7 @@ const recipesData = [
   {
     "name": "Taleggio e pepe",
     "ingredients": {
+      "Milch (ml)": 5.0,
       "Olivenöl (ml)": 1.25,
       "Schwarzer Pfeffer (g)": 0.5,
       "Taleggio (g)": 10.0
@@ -352,6 +366,7 @@ const recipesData = [
   {
     "name": "Stracchino e noci",
     "ingredients": {
+      "Milch (ml)": 5.0,
       "Olivenöl (ml)": 1.25,
       "Stracchino (g)": 10.0,
       "Walnüsse (g)": 5.0
@@ -468,6 +483,8 @@ function prettyAmount(value) {
   return value.toFixed(1).replace(/\.0$/, '');
 }
 
+const PASTA_PER_PERSON_PER_ROUND_G = 25;
+
 function roundUpAmount(value, unit) {
   const normalizedUnit = (unit || '').toLowerCase();
 
@@ -483,7 +500,9 @@ function roundUpAmount(value, unit) {
 }
 
 function buildShoppingList(recipes, players) {
-  const aggregated = {};
+  const aggregated = {
+    'Pasta (g)': Math.max(0, recipes.length) * players * PASTA_PER_PERSON_PER_ROUND_G
+  };
 
   recipes.filter(recipe => !recipe.isJoker).forEach(recipe => {
     Object.entries(recipe.ingredients).forEach(([ingredient, amount]) => {
@@ -509,6 +528,44 @@ function buildReminderExport(entries) {
   return entries
     .map(entry => `${entry.label}: ${prettyAmount(entry.amount)} ${entry.unit}`.trim())
     .join('\n');
+}
+
+function getPreparationRule(ingredientName) {
+  const label = getIngredientLabel(ingredientName);
+  const key = normalizeForId(label);
+  return PREPARATION_RULES[key] || DEFAULT_PREPARATION_RULE;
+}
+
+function buildPreparationPlan(game) {
+  const uniqueEntries = new Map();
+  const shoppingEntries = game?.shoppingList || [];
+
+  shoppingEntries.forEach(entry => {
+    const label = entry?.label || getIngredientLabel(entry?.ingredient || '');
+    const key = normalizeForId(label);
+    if (!key || uniqueEntries.has(key)) return;
+
+    const rule = getPreparationRule(entry?.ingredient || label);
+    uniqueEntries.set(key, {
+      label,
+      amount: entry?.amount ?? 0,
+      unit: entry?.unit || getUnit(entry?.ingredient || ''),
+      category: rule.category,
+      instruction: rule.instruction
+    });
+  });
+
+  const prepare = [];
+  const ready = [];
+
+  Array.from(uniqueEntries.values())
+    .sort((a, b) => a.label.localeCompare(b.label, 'de-DE'))
+    .forEach(entry => {
+      if (entry.category === PREPARATION_CATEGORY_PREPARE) prepare.push(entry);
+      else ready.push(entry);
+    });
+
+  return { prepare, ready };
 }
 
 function insertJokers(realRecipes, jokerCount) {
@@ -548,6 +605,193 @@ function normalizeForId(text) {
     .replace(/[^a-z0-9]+/g, '_')
     .replace(/^_|_$/g, '');
 }
+
+const PREPARATION_CATEGORY_PREPARE = 'prepare';
+const PREPARATION_CATEGORY_READY = 'ready';
+
+const DEFAULT_PREPARATION_RULE = Object.freeze({
+  category: PREPARATION_CATEGORY_READY,
+  instruction: 'bereitstellen'
+});
+
+const PREPARATION_RULES = Object.freeze({
+  [normalizeForId('Pasta')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'vor dem Spiel al dente kochen und warm bereitstellen'
+  }),
+  [normalizeForId('Parmigiano')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'fein reiben'
+  }),
+  [normalizeForId('Pecorino')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'fein reiben'
+  }),
+  [normalizeForId('Walnüsse')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'grob hacken'
+  }),
+  [normalizeForId('Zwiebeln')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'fein würfeln'
+  }),
+  [normalizeForId('Zucchini')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'fein würfeln'
+  }),
+  [normalizeForId('Champignons')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'in Scheiben schneiden'
+  }),
+  [normalizeForId('Knoblauch')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'fein hacken'
+  }),
+  [normalizeForId('Petersilie')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'fein hacken'
+  }),
+  [normalizeForId('Basilikum')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'grob zupfen'
+  }),
+  [normalizeForId('Minze')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'grob zupfen'
+  }),
+  [normalizeForId('Salbei')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'grob zupfen'
+  }),
+  [normalizeForId('Fenchel')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'fein würfeln'
+  }),
+  [normalizeForId('Aubergine')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'fein würfeln'
+  }),
+  [normalizeForId('Chili/Peperoncino')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'fein hacken'
+  }),
+  [normalizeForId('Spinat')]: Object.freeze({
+    category: PREPARATION_CATEGORY_PREPARE,
+    instruction: 'waschen und grob hacken'
+  }),
+  [normalizeForId('Milch')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Ricotta')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Salz')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Schwarzer Pfeffer')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Olivenöl')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Sahne')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Butter')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Eier')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Tomaten')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Oliven')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Kapern')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Oregano')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Pangrattato')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Gorgonzola')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Taleggio')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Stracchino')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Guanciale/Pancetta')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Speck')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Salsiccia')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Hähnchen')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Thunfisch')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Lachs')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Garnelen')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Vongole')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Meeresfrüchte-Mix')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Bottarga')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Weißwein')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  }),
+  [normalizeForId('Zitrone')]: Object.freeze({
+    category: PREPARATION_CATEGORY_READY,
+    instruction: 'bereitstellen'
+  })
+});
 
 const INACTIVE_RECIPE_IDS = new Set();
 
@@ -1970,6 +2214,49 @@ function renderShoppingListFromGame(game) {
   });
 }
 
+function renderPreparationItems(listEl, items, emptyText) {
+  listEl.innerHTML = '';
+
+  if (items.length === 0) {
+    const li = document.createElement('li');
+    li.className = 'subtle';
+    li.textContent = emptyText;
+    listEl.appendChild(li);
+    return;
+  }
+
+  items.forEach(entry => {
+    const li = document.createElement('li');
+    li.className = 'prep-item';
+
+    const title = document.createElement('strong');
+    title.textContent = `${entry.label}: ${prettyAmount(entry.amount)} ${entry.unit}`.trim();
+
+    const note = document.createElement('span');
+    note.className = 'prep-item-note';
+    note.textContent = entry.instruction;
+
+    li.appendChild(title);
+    li.appendChild(note);
+    listEl.appendChild(li);
+  });
+}
+
+function openPreparationModal() {
+  const game = getCurrentGame();
+  if (!game) return;
+
+  recomputeShoppingArtifacts(game);
+  const plan = buildPreparationPlan(game);
+  renderPreparationItems(prepPrepareListEl, plan.prepare, 'Keine Zutaten zum Vorbereiten.');
+  renderPreparationItems(prepReadyListEl, plan.ready, 'Keine Zutaten zum Bereitstellen.');
+  preparationModalEl.classList.add('open');
+}
+
+function closePreparationModal() {
+  preparationModalEl.classList.remove('open');
+}
+
 function renderPlayerInputs(game) {
   const playersCount = Math.max(1, Math.min(6, parseInt(game.settings.players, 10) || 1));
   game.settings.players = playersCount;
@@ -2478,6 +2765,7 @@ const summaryExtraRecipesSectionEl = document.getElementById('summaryExtraRecipe
 const recipeListEl = document.getElementById('recipeList');
 const shoppingListEl = document.getElementById('shoppingList');
 const exportShoppingBtn = document.getElementById('exportShopping');
+const showPreparationBtn = document.getElementById('showPreparation');
 const startGameBtn = document.getElementById('startGame');
 const newRoundBtn = document.getElementById('newRound');
 const extraRecipeSelectEl = document.getElementById('extraRecipeSelect');
@@ -2528,6 +2816,10 @@ const exportRemindersBtn = document.getElementById('exportReminders');
 const exportPdfBtn = document.getElementById('exportPdf');
 const exportClipboardBtn = document.getElementById('exportClipboard');
 const closeExportModalBtn = document.getElementById('closeExportModal');
+const preparationModalEl = document.getElementById('preparationModal');
+const prepPrepareListEl = document.getElementById('prepPrepareList');
+const prepReadyListEl = document.getElementById('prepReadyList');
+const closePreparationModalBtn = document.getElementById('closePreparationModal');
 
 const extraRecipeModalEl = document.getElementById('extraRecipeModal');
 const extraRecipePickerListEl = document.getElementById('extraRecipePickerList');
@@ -2776,6 +3068,10 @@ function exportShoppingPdf() {
 
 exportShoppingBtn.addEventListener('click', () => {
   openExportModal();
+});
+
+showPreparationBtn.addEventListener('click', () => {
+  openPreparationModal();
 });
 
 addExtraRecipesBtn.addEventListener('click', () => {
@@ -3062,6 +3358,10 @@ closeExportModalBtn.addEventListener('click', () => {
   closeExportModal();
 });
 
+closePreparationModalBtn.addEventListener('click', () => {
+  closePreparationModal();
+});
+
 exportClipboardBtn.addEventListener('click', async () => {
   const ok = await copyShoppingToClipboard();
   if (ok) showStatus('Einkaufsliste wurde in die Zwischenablage kopiert.');
@@ -3104,6 +3404,9 @@ document.addEventListener('click', event => {
   }
   if (exportModalEl.classList.contains('open') && target === exportModalEl) {
     closeExportModal();
+  }
+  if (preparationModalEl.classList.contains('open') && target === preparationModalEl) {
+    closePreparationModal();
   }
 });
 

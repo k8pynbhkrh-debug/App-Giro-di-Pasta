@@ -579,6 +579,19 @@
       gap: 8px;
     }
 
+    .prep-block {
+      display: grid;
+      gap: 8px;
+    }
+
+    .prep-block h4 {
+      margin: 0;
+      font-family: "Italiana", Georgia, serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+
     .landing-list {
       margin-top: 12px;
       border: 1px solid #e7dfd1;
@@ -593,6 +606,8 @@
     #scoreList,
     #stepList,
     #recipeList,
+    #prepPrepareList,
+    #prepReadyList,
     #spectatorScoreList,
     #spectatorRecipeList {
       list-style: none;
@@ -676,12 +691,31 @@
     #scoreList li,
     #stepList li,
     #recipeList li,
+    #prepPrepareList li,
+    #prepReadyList li,
     #spectatorScoreList li,
     #spectatorRecipeList li {
       border: 1px solid #ebebeb;
       border-radius: 12px;
       padding: 9px;
       background: #fff;
+    }
+
+    .prep-item {
+      display: grid;
+      gap: 4px;
+    }
+
+    .prep-item strong {
+      font-size: 1rem;
+      line-height: 1.25;
+    }
+
+    .prep-item-note {
+      color: #6a5c49;
+      font-size: 0.94rem;
+      line-height: 1.35;
+      font-weight: 600;
     }
 
     .recipe-plan-item {
@@ -1067,6 +1101,7 @@
         <h3>Export</h3>
         <div class="button-row">
           <button id="exportShopping">Einkaufsliste exportieren</button>
+          <button id="showPreparation">Vorbereitung anzeigen</button>
           <button id="startGame" class="primary">Weiter zu Spielernamen</button>
           <button id="newRound">Neu planen</button>
         </div>
@@ -1162,6 +1197,23 @@
       </div>
       <div class="button-row">
         <button id="closeExportModal" class="secondary">Schließen</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="preparationModal" class="modal">
+    <div class="modal-card">
+      <h3>Vorbereitung</h3>
+      <div class="prep-block">
+        <h4>Vorbereiten</h4>
+        <ul id="prepPrepareList"></ul>
+      </div>
+      <div class="prep-block">
+        <h4>Bereitstellen</h4>
+        <ul id="prepReadyList"></ul>
+      </div>
+      <div class="button-row">
+        <button id="closePreparationModal" class="secondary">Schließen</button>
       </div>
     </div>
   </div>

@@ -5,7 +5,8 @@
     "ingredients": [
       "garlic",
       "olive oil",
-      "chili"
+      "chili",
+      "parsley"
     ]
   },
   {
@@ -58,7 +59,8 @@
     "ingredients": [
       "garlic",
       "olive oil",
-      "anchovy"
+      "anchovy",
+      "parsley"
     ]
   },
   {
@@ -126,7 +128,8 @@
     "name": "Funghi e Burro",
     "ingredients": [
       "mushroom",
-      "butter"
+      "butter",
+      "parsley"
     ]
   },
   {
@@ -134,7 +137,8 @@
     "name": "Ricotta al Limone",
     "ingredients": [
       "ricotta",
-      "lemon"
+      "lemon",
+      "olive oil"
     ]
   },
   {
@@ -142,7 +146,9 @@
     "name": "Ricotta e Gorgonzola",
     "ingredients": [
       "ricotta",
-      "gorgonzola"
+      "gorgonzola",
+      "milk",
+      "black pepper"
     ]
   },
   {
@@ -150,7 +156,8 @@
     "name": "Gorgonzola e Noci",
     "ingredients": [
       "gorgonzola",
-      "walnut"
+      "walnut",
+      "milk"
     ]
   },
   {
@@ -175,7 +182,8 @@
     "name": "Salsiccia e Finocchio",
     "ingredients": [
       "sausage",
-      "fennel"
+      "fennel",
+      "onion"
     ]
   },
   {
@@ -183,7 +191,8 @@
     "name": "Speck e Cipolla",
     "ingredients": [
       "speck",
-      "onion"
+      "onion",
+      "black pepper"
     ]
   },
   {
@@ -191,7 +200,8 @@
     "name": "Pollo e Panna",
     "ingredients": [
       "chicken",
-      "cream"
+      "cream",
+      "parmesan"
     ]
   },
   {
@@ -207,7 +217,8 @@
     "name": "Tonno e Pomodoro",
     "ingredients": [
       "tuna",
-      "tomato"
+      "tomato",
+      "parsley"
     ]
   },
   {
@@ -215,7 +226,8 @@
     "name": "Tonno e Capperi",
     "ingredients": [
       "tuna",
-      "capers"
+      "capers",
+      "tomato"
     ]
   },
   {
@@ -247,7 +259,8 @@
     "name": "Gamberi e Zucchine",
     "ingredients": [
       "shrimp",
-      "zucchini"
+      "zucchini",
+      "parsley"
     ]
   },
   {
@@ -313,7 +326,8 @@
     "name": "Taleggio e Pepe",
     "ingredients": [
       "taleggio",
-      "black pepper"
+      "black pepper",
+      "milk"
     ]
   },
   {
@@ -321,7 +335,8 @@
     "name": "Stracchino e Noci",
     "ingredients": [
       "stracchino",
-      "walnut"
+      "walnut",
+      "milk"
     ]
   },
   {

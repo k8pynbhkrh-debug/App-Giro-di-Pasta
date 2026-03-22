@@ -820,17 +820,30 @@ const DEFAULT_RECIPE_GUIDE = {
   tip: 'Hitze kontrollieren und Sauce mit Nudelwasser cremig ziehen.'
 };
 
-const JOKER_RECIPE_GUIDE = {
-  difficulty: 'leicht',
-  steps: [
-    'Joker ziehen und als Gruppe ein freies Rezept festlegen',
-    'Verfügbare Zutaten aus der Einkaufsliste auswählen',
-    'In 5 kurzen Schritten eure eigene Zubereitung planen',
-    'Rezept kochen und gemeinsam abschmecken',
-    'Normal raten und die Runde wie gewohnt werten'
-  ],
-  tip: 'Improvisation ist auch ein Rezept.'
-};
+const JOKER_RECIPE_GUIDES = Object.freeze({
+  guessing: Object.freeze({
+    difficulty: 'leicht',
+    steps: [
+      'Frei verfügbare Zutaten vom Tisch wählen',
+      'Daraus ein eigenes Pastagericht festlegen',
+      'Zubereitung planen',
+      'Gericht kochen und abschmecken',
+      'Joker ganz normal erraten'
+    ],
+    tip: 'Improvisation ist auch ein Rezept.'
+  }),
+  open: Object.freeze({
+    difficulty: 'leicht',
+    steps: [
+      'Frei verfügbare Zutaten vom Tisch wählen',
+      'Daraus ein eigenes Pastagericht festlegen',
+      'Zubereitung planen',
+      'Gericht kochen und abschmecken',
+      'Gericht servieren'
+    ],
+    tip: 'Improvisation ist auch ein Rezept.'
+  })
+});
 
 const JOKER_TIPS = Object.freeze([
   'Heute wird nicht nur die Pasta al dente.',
@@ -850,9 +863,10 @@ function pickJokerTip(seed = '') {
   return JOKER_TIPS[hash % JOKER_TIPS.length];
 }
 
-function getJokerRecipeGuide(recipe) {
+function getJokerRecipeGuide(recipe, game = getCurrentGame()) {
+  const mode = isGuessingMode(game) ? 'guessing' : 'open';
   return {
-    ...JOKER_RECIPE_GUIDE,
+    ...JOKER_RECIPE_GUIDES[mode],
     tip: pickJokerTip(recipe?.name || 'joker')
   };
 }
@@ -1114,7 +1128,7 @@ const recipeGuidesById = {
   "pasta_all_assassina": {
     "difficulty": "mittel",
     "steps": [
-      "Passata und Wasser zu Brühe mischen",
+      "Passierte Tomaten und Wasser zu Brühe mischen",
       "[HOCH] Knoblauch und Chili anrösten",
       "Trockene Pasta in der Pfanne rösten",
       "Brühe etappenweise zugeben",
@@ -1235,8 +1249,8 @@ const recipeGuidesById = {
   "vongole_in_bianco": {
     "difficulty": "schwer",
     "steps": [
-      "Vorbereitete Vongole bereithalten",
-      "[MITTEL] Vongole öffnen und Saft auffangen",
+      "Vorbereitete Muscheln bereithalten",
+      "[MITTEL] Muscheln öffnen und Saft auffangen",
       "Gefilterten Muschelsud zugeben",
       "Pasta emulgierend schwenken",
       "Frische Petersilie zugeben"
@@ -1246,9 +1260,9 @@ const recipeGuidesById = {
   "vongole_e_pomodoro": {
     "difficulty": "schwer",
     "steps": [
-      "Vorbereitete Vongole bereithalten",
+      "Vorbereitete Muscheln bereithalten",
       "[MITTEL] Tomaten kurz köcheln",
-      "Vongole und Muschelsud einarbeiten",
+      "Muscheln und Muschelsud einarbeiten",
       "Pasta in der Sauce schwenken",
       "Frische Petersilie zugeben"
     ],
@@ -1279,10 +1293,10 @@ const recipeGuidesById = {
   "melanzane_e_pomodoro": {
     "difficulty": "mittel",
     "steps": [
-      "Vorgegarte Melanzane bereithalten",
+      "Vorgegarte Auberginen bereithalten",
       "[MITTEL] Tomatensauce erwärmen",
       "Pasta in der Sauce schwenken",
-      "Melanzane unterheben",
+      "Auberginen unterheben",
       "Basilikum oder Ricotta salata zugeben"
     ],
     "tip": "Auberginen besser vorbereitet nutzen"
@@ -1403,7 +1417,7 @@ function getCardImageForRecipe(recipeName) {
 function getAccentForRound(round) {
   if (round.isJoker) return '#2b0b0b';
   const tags = classifyRecipe(round);
-  if (tags.isMeat) return '#C0392B';
+  if (tags.isMeat || tags.isFish) return '#C0392B';
   if (tags.isAnimalProduct) return '#F4B400';
   return '#3A7D44';
 }
@@ -1477,17 +1491,17 @@ function getDifficultyIndicatorText(difficulty) {
   return 'Schwierigkeit ●●○';
 }
 
-function getRecipeGuide(recipe) {
+function getRecipeGuide(recipe, game = getCurrentGame()) {
   if (recipe.isJoker) {
-    return getJokerRecipeGuide(recipe);
+    return getJokerRecipeGuide(recipe, game);
   }
 
   const key = normalizeForId(recipe.name || '');
   return recipeGuidesById[key] || DEFAULT_RECIPE_GUIDE;
 }
 
-function getRecipeSteps(recipe) {
-  return getRecipeGuide(recipe).steps;
+function getRecipeSteps(recipe, game = getCurrentGame()) {
+  return getRecipeGuide(recipe, game).steps;
 }
 
 function getPlayerDefaultNames(count) {
@@ -2555,7 +2569,7 @@ function revealCurrentRecipe(game) {
   const accent = getAccentForRound(round);
   recipeTitleEl.style.borderBottomColor = accent;
   setGameFrameAccent(accent);
-  const recipeGuide = getRecipeGuide(round);
+  const recipeGuide = getRecipeGuide(round, game);
   difficultyIndicatorEl.textContent = getDifficultyIndicatorText(recipeGuide.difficulty);
   setRecipeIllustration(round, accent);
 

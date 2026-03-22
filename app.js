@@ -2369,7 +2369,7 @@ function getBringExportText(game = getCurrentGame()) {
 }
 
 function getRecipeRecapExportText(game = getCurrentGame()) {
-  const playedRounds = getPlayedRounds(game);
+  const playedRounds = getPlayedRecipeRounds(game);
   if (playedRounds.length === 0) return '';
 
   const lines = [];
@@ -2555,18 +2555,20 @@ function getPlayedRounds(game) {
   return rounds.slice(0, playedCount);
 }
 
+function getPlayedRecipeRounds(game) {
+  return getPlayedRounds(game).filter(round => !round?.isJoker);
+}
+
 function renderRecap(game) {
   recapSectionEl.classList.remove('hidden');
   recapScorePanelEl.classList.add('hidden');
   recapScoreListEl.innerHTML = '';
   recapRecipeListEl.innerHTML = '';
-  exportRecipesWhatsappBtn.disabled = getPlayedRounds(game).length === 0;
+  exportRecipesWhatsappBtn.disabled = getPlayedRecipeRounds(game).length === 0;
 
-  getPlayedRounds(game).forEach((round, idx) => {
+  getPlayedRecipeRounds(game).forEach((round, idx) => {
     const li = document.createElement('li');
-    li.textContent = round.isJoker
-      ? `${idx + 1}. ${round.name} - Freie Wahl`
-      : `${idx + 1}. ${round.name}`;
+    li.textContent = `${idx + 1}. ${round.name}`;
     recapRecipeListEl.appendChild(li);
   });
 }
@@ -2582,6 +2584,9 @@ function setGameSubView(mode, game = getCurrentGame()) {
   skipRecipeBtn.classList.toggle('hidden', (guessing && isHandover) || isFinal);
   finishGameBtn.classList.toggle('hidden', (guessing && isHandover) || isFinal);
   gameCardEl.classList.toggle('hidden', isFinal);
+  if (handoverInfoEl.parentElement) {
+    handoverInfoEl.parentElement.classList.toggle('hidden', isFinal);
+  }
   recipeSecondaryInfoEl.classList.toggle('hidden', !isRecipe);
   scoreSectionEl.classList.toggle('hidden', !guessing || !isRecipe);
   ingredientIllustrationEl.classList.toggle('hidden', !isRecipe);

@@ -2358,7 +2358,29 @@ function getShoppingExportText(game = getCurrentGame()) {
   return buildReminderExport(game.shoppingList || []).trim();
 }
 
-function triggerHaptic(duration = 150) {
+function getBringExportText(game = getCurrentGame()) {
+  return getShoppingDisplayEntries(game)
+    .map(entry => {
+      if (entry?.isRecommendation) return 'Küchenpapier / Küchenrolle';
+      return [entry.label, prettyAmount(entry.amount), entry.unit].filter(Boolean).join(' ').trim();
+    })
+    .join('\n')
+    .trim();
+}
+
+const HAPTIC_PATTERNS = Object.freeze({
+  tap: 40,
+  newGame: 45,
+  reveal: 40,
+  skip: 35,
+  confirm: 40,
+  score: 30
+});
+
+function triggerHaptic(type = 'tap') {
+  const duration = typeof type === 'number'
+    ? type
+    : (HAPTIC_PATTERNS[type] ?? HAPTIC_PATTERNS.tap);
   if (!('vibrate' in navigator) || typeof navigator.vibrate !== 'function') return;
   try {
     navigator.vibrate(duration);
@@ -2506,6 +2528,32 @@ function renderRecipeSteps(steps) {
   });
 }
 
+function renderRecap(game) {
+  recapSectionEl.classList.remove('hidden');
+  recapScorePanelEl.classList.toggle('hidden', !isGuessingMode(game));
+  recapScoreListEl.innerHTML = '';
+  recapRecipeListEl.innerHTML = '';
+
+  if (isGuessingMode(game)) {
+    game.players
+      .map((name, idx) => ({ name, score: game.scores[idx] ?? 0, index: idx }))
+      .sort((a, b) => (b.score - a.score) || (a.index - b.index))
+      .forEach((entry, idx) => {
+        const li = document.createElement('li');
+        li.textContent = `${idx + 1}. ${entry.name}: ${entry.score} Punkte`;
+        recapScoreListEl.appendChild(li);
+      });
+  }
+
+  (game.rounds || []).forEach((round, idx) => {
+    const li = document.createElement('li');
+    li.textContent = round.isJoker
+      ? `${idx + 1}. ${round.name} - Freie Wahl`
+      : `${idx + 1}. ${round.name}`;
+    recapRecipeListEl.appendChild(li);
+  });
+}
+
 function setGameSubView(mode, game = getCurrentGame()) {
   const isHandover = mode === 'handover';
   const isRecipe = mode === 'recipe';
@@ -2518,6 +2566,8 @@ function setGameSubView(mode, game = getCurrentGame()) {
   recipeSecondaryInfoEl.classList.toggle('hidden', !isRecipe);
   scoreSectionEl.classList.toggle('hidden', !guessing || !isRecipe);
   ingredientIllustrationEl.classList.toggle('hidden', !isRecipe);
+  stepListEl.classList.toggle('hidden', mode === 'final');
+  recapSectionEl.classList.toggle('hidden', mode !== 'final');
   scoreSectionEl.open = false;
 }
 
@@ -2619,37 +2669,14 @@ function renderFinal(game) {
   setGameSubView('final', game);
   revealScreenEl.classList.remove('open');
   handoverInfoEl.textContent = 'Spiel beendet.';
-  recipeTitleEl.textContent = isGuessingMode(game) ? 'Endstand' : 'Spiel abgeschlossen';
+  recipeTitleEl.textContent = 'Spielrückblick';
   recipeMetaEl.textContent = `${game.title}`;
   difficultyIndicatorEl.textContent = 'Schwierigkeit ●●○';
-  tipTextEl.textContent = isGuessingMode(game)
-    ? 'Tipp: Neues Spiel starten oder gespeichertes Spiel laden.'
-    : 'Tipp: Neues Spiel starten oder gespeichertes Spiel laden.';
+  tipTextEl.textContent = 'Tipp: Neues Spiel starten oder gespeichertes Spiel laden.';
   setRecipeIllustrationPlaceholder();
   recipeTitleEl.style.borderBottomColor = '#cabaa2';
   setGameFrameAccent('#cabaa2');
-
-  stepListEl.innerHTML = '';
-
-  if (isGuessingMode(game)) {
-    const ranking = game.players
-      .map((name, idx) => ({ name, score: game.scores[idx] }))
-      .sort((a, b) => b.score - a.score);
-
-    ranking.forEach((entry, idx) => {
-      const li = document.createElement('li');
-      li.textContent = `${idx + 1}. ${entry.name}: ${entry.score} Punkte`;
-      stepListEl.appendChild(li);
-    });
-  } else {
-    (game.rounds || []).forEach((round, idx) => {
-      const li = document.createElement('li');
-      li.textContent = round.isJoker
-        ? `${idx + 1}. ${round.name} - Freie Wahl`
-        : `${idx + 1}. ${round.name}`;
-      stepListEl.appendChild(li);
-    });
-  }
+  renderRecap(game);
 
   skipRecipeBtn.disabled = true;
   finishGameBtn.disabled = true;
@@ -2861,6 +2888,10 @@ const scoreSectionEl = document.getElementById('scoreSection');
 const scoreSummaryEl = document.getElementById('scoreSummary');
 const scoreSummaryLeaderEl = document.getElementById('scoreSummaryLeader');
 const scoreListEl = document.getElementById('scoreList');
+const recapSectionEl = document.getElementById('recapSection');
+const recapScorePanelEl = document.getElementById('recapScorePanel');
+const recapScoreListEl = document.getElementById('recapScoreList');
+const recapRecipeListEl = document.getElementById('recapRecipeList');
 const nextRecipeBtn = document.getElementById('nextRecipe');
 const skipRecipeBtn = document.getElementById('skipRecipe');
 const finishGameBtn = document.getElementById('finishGame');
@@ -2887,6 +2918,7 @@ const closeQrModalBtn = document.getElementById('closeQrModal');
 const exportModalEl = document.getElementById('exportModal');
 const exportWhatsappBtn = document.getElementById('exportWhatsapp');
 const exportRemindersBtn = document.getElementById('exportReminders');
+const exportBringBtn = document.getElementById('exportBring');
 const exportPdfBtn = document.getElementById('exportPdf');
 const exportClipboardBtn = document.getElementById('exportClipboard');
 const closeExportModalBtn = document.getElementById('closeExportModal');
@@ -2940,7 +2972,7 @@ function confirmRestartFromBeginning() {
   closeRestartFromBeginningModal();
   if (!canRestartGameFromBeginning(game)) return;
 
-  triggerHaptic();
+  triggerHaptic('confirm');
   resetGameProgressToBeginning(game);
   upsertCurrentGame(game);
   renderFromCurrentGame();
@@ -2975,7 +3007,7 @@ landingGameListEl.addEventListener('click', event => {
 });
 
 startNewGameBtn.addEventListener('click', () => {
-  triggerHaptic();
+  triggerHaptic('newGame');
   menuEl.classList.remove('open');
   const game = createGame(gameTitleInputEl.value);
   games.push(game);
@@ -2985,7 +3017,7 @@ startNewGameBtn.addEventListener('click', () => {
 });
 
 createGameBtn.addEventListener('click', () => {
-  triggerHaptic();
+  triggerHaptic('newGame');
   openNewGameLanding();
   menuEl.classList.remove('open');
 });
@@ -3070,8 +3102,8 @@ generateBtn.addEventListener('click', () => {
   renderFromCurrentGame();
 });
 
-async function copyShoppingToClipboard() {
-  const exportText = getShoppingExportText();
+async function copyTextToClipboard(text) {
+  const exportText = (text || '').trim();
   if (!exportText) return false;
 
   try {
@@ -3088,6 +3120,27 @@ async function copyShoppingToClipboard() {
     const copied = document.execCommand('copy');
     document.body.removeChild(temp);
     return copied;
+  }
+}
+
+async function copyShoppingToClipboard(text = getShoppingExportText()) {
+  return copyTextToClipboard(text);
+}
+
+async function shareShoppingList(game = getCurrentGame()) {
+  const text = getShoppingExportText(game);
+  if (!text) return false;
+  if (typeof navigator.share !== 'function') return false;
+
+  try {
+    await navigator.share({
+      title: 'Einkaufsliste – Giro di Pasta',
+      text
+    });
+    return true;
+  } catch (error) {
+    if (error?.name === 'AbortError') return null;
+    return false;
   }
 }
 
@@ -3192,7 +3245,7 @@ confirmExtraRecipesBtn.addEventListener('click', () => {
   });
 
   const addedCount = addSelectedExtraRecipes(game, selectedNames);
-  triggerHaptic();
+  triggerHaptic('confirm');
   closeExtraRecipeModal();
 
   if (addedCount === 0) return;
@@ -3346,6 +3399,7 @@ scoreListEl.addEventListener('click', event => {
   game.scores[index] += delta;
   if (kind === 'correct') game.roundHasCorrectTip = true;
 
+  triggerHaptic('score');
   upsertCurrentGame(game);
   renderScoreboard(game);
 });
@@ -3361,7 +3415,7 @@ revealRecipeBtn.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game || game.finished) return;
   if (!game.awaitingRecipeReveal) return;
-  triggerHaptic();
+  triggerHaptic('reveal');
   void tryLockPortrait();
   revealCurrentRecipe(game);
 });
@@ -3370,7 +3424,7 @@ skipRecipeBtn.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game || game.finished) return;
   if (game.awaitingRecipeReveal) return;
-  triggerHaptic();
+  triggerHaptic('skip');
   skipCurrentRecipe(game);
 });
 
@@ -3400,7 +3454,7 @@ finishGameBtn.addEventListener('click', () => {
 });
 
 startAnotherGameBtn.addEventListener('click', () => {
-  triggerHaptic();
+  triggerHaptic('newGame');
   openNewGameLanding();
   menuEl.classList.remove('open');
 });
@@ -3449,8 +3503,19 @@ exportClipboardBtn.addEventListener('click', async () => {
 });
 
 exportRemindersBtn.addEventListener('click', async () => {
-  const ok = await copyShoppingToClipboard();
-  if (ok) showStatus('Apple-Erinnerungen Text wurde kopiert.');
+  const shared = await shareShoppingList();
+  if (shared === true) {
+    showStatus('Teilen geöffnet.');
+  } else if (shared === false) {
+    const ok = await copyShoppingToClipboard();
+    if (ok) showStatus('Apple-Erinnerungen Text wurde kopiert.');
+  }
+  closeExportModal();
+});
+
+exportBringBtn.addEventListener('click', async () => {
+  const ok = await copyTextToClipboard(getBringExportText());
+  if (ok) showStatus('Bring-Liste kopiert.');
   closeExportModal();
 });
 

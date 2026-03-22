@@ -608,6 +608,8 @@
     #recipeList,
     #prepPrepareList,
     #prepReadyList,
+    #recapScoreList,
+    #recapRecipeList,
     #spectatorScoreList,
     #spectatorRecipeList {
       list-style: none;
@@ -693,6 +695,8 @@
     #recipeList li,
     #prepPrepareList li,
     #prepReadyList li,
+    #recapScoreList li,
+    #recapRecipeList li,
     #spectatorScoreList li,
     #spectatorRecipeList li {
       border: 1px solid #ebebeb;
@@ -817,6 +821,24 @@
 
     .spectator-panel h3 {
       margin-bottom: 6px;
+      font-size: 1rem;
+    }
+
+    .recap-section {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .recap-panel {
+      border: 1px solid #e7dfd1;
+      border-radius: 12px;
+      background: #fffdf8;
+      padding: 12px;
+    }
+
+    .recap-panel h3 {
+      margin: 0 0 8px;
       font-size: 1rem;
     }
 
@@ -1301,6 +1323,16 @@
           </summary>
           <ul id="scoreList"></ul>
         </details>
+        <div id="recapSection" class="recap-section hidden">
+          <div id="recapScorePanel" class="recap-panel hidden">
+            <h3>Endstand</h3>
+            <ul id="recapScoreList"></ul>
+          </div>
+          <div class="recap-panel">
+            <h3>Gespielte Rezepte</h3>
+            <ul id="recapRecipeList"></ul>
+          </div>
+        </div>
         <div class="button-row game-actions">
           <button id="nextRecipe" class="secondary hidden">Rezept anzeigen</button>
           <button id="skipRecipe">Rezept skippen</button>
@@ -1348,6 +1380,7 @@
       <div class="export-list">
         <button id="exportWhatsapp">WhatsApp</button>
         <button id="exportReminders">Apple Erinnerungen</button>
+        <button id="exportBring">Copy for Bring</button>
         <button id="exportPdf">PDF-Export</button>
         <button id="exportClipboard">Zwischenablage</button>
       </div>

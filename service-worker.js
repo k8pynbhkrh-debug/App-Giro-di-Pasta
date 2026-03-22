@@ -1,11 +1,11 @@
-const CACHE_VERSION = "v11";
+const CACHE_VERSION = "v12";
 const CACHE_NAME = `giro-di-pasta-${CACHE_VERSION}`;
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./app.js",
   "./manifest.json",
-  "./assets/app-icon.svg"
+  "./assets/app-icon.png"
 ];
 
 self.addEventListener("install", event => {
@@ -89,7 +89,7 @@ self.addEventListener("fetch", event => {
         const fallback = await cache.match(request);
         if (fallback) return fallback;
         if (isSameOrigin) {
-          const fallbackImage = await caches.match("./assets/app-icon.svg");
+          const fallbackImage = await caches.match("./assets/app-icon.png");
           if (fallbackImage) return fallbackImage;
         }
         throw error;

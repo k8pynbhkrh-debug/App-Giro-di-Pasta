@@ -1365,6 +1365,8 @@ const recipeGuidesById = {
 };
 
 const FALLBACK_IMAGE = 'assets/fallback.png';
+const APP_ICON_PATH = 'assets/app-icon.png';
+const SPECTATOR_ICON_PATH = 'assets/spectator-icon.svg';
 
 const RECIPE_IMAGE_IDS_IN_ORDER = [
   'aglio_olio_peperoncino',
@@ -1431,6 +1433,24 @@ function getCardImageForRecipe(recipeName) {
   return `assets/recipes/${imageId}.png`;
 }
 
+function getOptimizedCardImageForRecipe(recipeName) {
+  if (!recipeName) return '';
+  const key = normalizeForId(recipeName);
+  const imageId = recipeImageIdByName[key];
+  if (!imageId) return '';
+  return `assets/recipes_optimized/${imageId}.png`;
+}
+
+function getImageCandidatesForRound(round) {
+  if (!round) return [];
+  if (round.isJoker) {
+    return ['assets/recipes_optimized/joker.png', 'assets/recipes/joker.png'];
+  }
+  const optimized = getOptimizedCardImageForRecipe(round.name || '');
+  const original = getCardImageForRecipe(round.name || '');
+  return [...new Set([optimized, original].filter(Boolean))];
+}
+
 function getAccentForRound(round) {
   if (round.isJoker) return '#2b0b0b';
   const tags = classifyRecipe(round);
@@ -1453,12 +1473,10 @@ function setRecipeIllustrationPlaceholder() {
 let illustrationRequestToken = 0;
 
 function setRecipeIllustration(round, accent) {
-  const imagePath = round?.isJoker
-    ? 'assets/recipes/joker.png'
-    : getCardImageForRecipe(round?.name || '');
+  const imageCandidates = getImageCandidatesForRound(round);
   const token = ++illustrationRequestToken;
 
-  if (!imagePath) {
+  if (!imageCandidates.length) {
     setRecipeIllustrationPlaceholder();
     return;
   }
@@ -1466,19 +1484,31 @@ function setRecipeIllustration(round, accent) {
   // Show placeholder while loading; switch only when image is confirmed available.
   setRecipeIllustrationPlaceholder();
 
-  const probe = new Image();
-  probe.onload = () => {
-    if (token !== illustrationRequestToken) return;
-    ingredientIllustrationEl.style.border = 'none';
-    ingredientIllustrationEl.style.backgroundColor = 'transparent';
-    ingredientIllustrationEl.style.backgroundImage = `url("${imagePath}")`;
-    delete ingredientIllustrationEl.dataset.placeholder;
+  const tryLoadCandidate = candidateIndex => {
+    if (candidateIndex >= imageCandidates.length) {
+      if (token !== illustrationRequestToken) return;
+      setRecipeIllustrationPlaceholder();
+      return;
+    }
+
+    const imagePath = imageCandidates[candidateIndex];
+    const probe = new Image();
+    probe.decoding = 'async';
+    probe.onload = () => {
+      if (token !== illustrationRequestToken) return;
+      ingredientIllustrationEl.style.border = 'none';
+      ingredientIllustrationEl.style.backgroundColor = 'transparent';
+      ingredientIllustrationEl.style.backgroundImage = `url("${imagePath}")`;
+      delete ingredientIllustrationEl.dataset.placeholder;
+    };
+    probe.onerror = () => {
+      if (token !== illustrationRequestToken) return;
+      tryLoadCandidate(candidateIndex + 1);
+    };
+    probe.src = imagePath;
   };
-  probe.onerror = () => {
-    if (token !== illustrationRequestToken) return;
-    setRecipeIllustrationPlaceholder();
-  };
-  probe.src = imagePath;
+
+  tryLoadCandidate(0);
 }
 
 function getAllRecipes() {
@@ -1627,21 +1657,15 @@ function getSyncEndpointBase() {
 function createSpectatorSnapshot(game) {
   if (!game) return null;
   return {
-    id: game.id,
-    title: game.title,
-    gameMode: normalizeGameMode(game.gameMode),
-    phase: game.phase,
-    finished: !!game.finished,
-    players: Array.isArray(game.players) ? [...game.players] : [],
-    scores: Array.isArray(game.scores) ? [...game.scores] : [],
-    gameIndex: Number.isFinite(game.gameIndex) ? game.gameIndex : 0,
-    activePlayerTurnIndex: Number.isFinite(game.activePlayerTurnIndex) ? game.activePlayerTurnIndex : 0,
-    awaitingRecipeReveal: !!game.awaitingRecipeReveal,
-    roundHasCorrectTip: !!game.roundHasCorrectTip,
-    rounds: (game.rounds || []).map(round => ({
-      name: round.name,
-      isJoker: !!round.isJoker
-    }))
+    i: game.id,
+    m: normalizeGameMode(game.gameMode) === 'open' ? 'o' : 'g',
+    p: Array.isArray(game.players) ? [...game.players] : [],
+    s: Array.isArray(game.scores) ? [...game.scores] : [],
+    g: Number.isFinite(game.gameIndex) ? game.gameIndex : 0,
+    a: Number.isFinite(game.activePlayerTurnIndex) ? game.activePlayerTurnIndex : 0,
+    v: !!game.awaitingRecipeReveal ? 1 : 0,
+    c: !!game.roundHasCorrectTip ? 1 : 0,
+    r: (game.rounds || []).map(round => (round.isJoker ? '*' : round.name))
   };
 }
 
@@ -1660,12 +1684,38 @@ function encodeSpectatorSnapshot(game) {
   }
 }
 
+function expandSpectatorSnapshot(parsed) {
+  if (!parsed || typeof parsed !== 'object') return null;
+  if (!('i' in parsed) && !('r' in parsed)) return parsed;
+  return {
+    id: parsed.i || '',
+    title: '',
+    gameMode: parsed.m === 'o' ? 'open' : 'guessing',
+    phase: 'game',
+    finished: false,
+    players: Array.isArray(parsed.p) ? [...parsed.p] : [],
+    scores: Array.isArray(parsed.s) ? [...parsed.s] : [],
+    gameIndex: Number.isFinite(parsed.g) ? parsed.g : 0,
+    activePlayerTurnIndex: Number.isFinite(parsed.a) ? parsed.a : 0,
+    awaitingRecipeReveal: !!parsed.v,
+    roundHasCorrectTip: !!parsed.c,
+    rounds: Array.isArray(parsed.r)
+      ? parsed.r.map(entry => (
+        typeof entry === 'string' && entry === '*'
+          ? { name: 'Joker', isJoker: true }
+          : { name: entry, isJoker: false }
+      ))
+      : []
+  };
+}
+
 function normalizeSpectatorSnapshotGame(game) {
   if (!game || typeof game !== 'object') return null;
   game.gameMode = normalizeGameMode(game.gameMode);
   if (!Array.isArray(game.players)) game.players = [];
   if (!Array.isArray(game.scores)) game.scores = [];
   if (!Array.isArray(game.rounds)) game.rounds = [];
+  game.finished = !!game.finished || (game.rounds.length > 0 && game.gameIndex >= game.rounds.length);
   if (isOpenMode(game) && game.scores.length > 0) game.scores = [];
   return game;
 }
@@ -1677,11 +1727,15 @@ function decodeSpectatorSnapshot(value) {
     const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
     const binary = atob(padded);
     const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
-    const parsed = JSON.parse(new TextDecoder().decode(bytes));
+    const parsed = expandSpectatorSnapshot(JSON.parse(new TextDecoder().decode(bytes)));
     return normalizeSpectatorSnapshotGame(parsed);
   } catch (error) {
     return null;
   }
+}
+
+function getQrApiUrl(spectatorUrl) {
+  return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(spectatorUrl)}`;
 }
 
 function getSpectatorUrl(gameOrId) {
@@ -1694,6 +1748,18 @@ function getSpectatorUrl(gameOrId) {
     if (snapshot) url.searchParams.set('snapshot', snapshot);
   }
   return url.toString();
+}
+
+let warmedQrApiUrl = '';
+
+function warmSpectatorQr(game) {
+  if (!game) return;
+  const qrApiUrl = getQrApiUrl(getSpectatorUrl(game));
+  if (!qrApiUrl || warmedQrApiUrl === qrApiUrl) return;
+  warmedQrApiUrl = qrApiUrl;
+  const preload = new Image();
+  preload.decoding = 'async';
+  preload.src = qrApiUrl;
 }
 
 async function pushGameSync(game) {
@@ -1866,6 +1932,7 @@ function upsertCurrentGame(updatedGame) {
   saveGames();
   renderGameList();
   renderLandingGameList();
+  warmSpectatorQr(updatedGame);
   void pushGameSync(updatedGame);
   if (channel) channel.postMessage({ type: 'game-update', game: updatedGame });
 }
@@ -2790,6 +2857,7 @@ function renderFromCurrentGame() {
   }
 
   currentGameLabelEl.textContent = `Aktives Spiel: ${formatGameLabel(game)}`;
+  warmSpectatorQr(game);
 
   if (game.phase === 'config') {
     configSection.classList.remove('hidden');
@@ -2976,6 +3044,19 @@ let spectatorPollIntervalId = null;
 let screenWakeLock = null;
 let pendingDeleteGameId = null;
 let pendingRestartFromBeginningGameId = null;
+
+function applyModeBranding() {
+  if (!spectatorMode) return;
+  document.title = 'Giro di Pasta - Zuschauermodus';
+
+  const faviconLink = document.querySelector('link[rel="icon"]');
+  const appleTouchLink = document.querySelector('link[rel="apple-touch-icon"]');
+
+  if (faviconLink) faviconLink.setAttribute('href', SPECTATOR_ICON_PATH);
+  if (appleTouchLink) appleTouchLink.setAttribute('href', APP_ICON_PATH);
+}
+
+applyModeBranding();
 
 function updateMenuActionState() {
   const game = getCurrentGame();
@@ -3510,7 +3591,7 @@ qrToggleBtn.addEventListener('click', () => {
   }
 
   const spectatorUrl = getSpectatorUrl(game);
-  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(spectatorUrl)}`;
+  const qrApiUrl = getQrApiUrl(spectatorUrl);
   qrImageEl.src = qrApiUrl;
   qrHintEl.textContent = getSyncEndpointBase()
     ? 'Live-Sync aktiv.'

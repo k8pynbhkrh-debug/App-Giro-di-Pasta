@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Giro di Pasta Zuschauermodus">
+  <defs>
+    <linearGradient id="forkMetal" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f0f0f0"/>
+      <stop offset="45%" stop-color="#c7c7c7"/>
+      <stop offset="100%" stop-color="#8b8b8b"/>
+    </linearGradient>
+    <linearGradient id="pastaGold" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f0b332"/>
+      <stop offset="100%" stop-color="#d98f14"/>
+    </linearGradient>
+    <linearGradient id="leafGreen" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#78c949"/>
+      <stop offset="100%" stop-color="#2e7d32"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="60" y="60" width="904" height="904" rx="150" fill="#fbfaf7"/>
+
+  <g fill="none" stroke="#342925" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="360" cy="330" r="94"/>
+    <circle cx="648" cy="330" r="94"/>
+    <path d="M454 330c14-18 34-28 58-28s44 10 58 28"/>
+    <path d="M266 324h-18"/>
+    <path d="M742 324h18"/>
+  </g>
+
+  <g transform="translate(595 385) rotate(40)">
+    <rect x="0" y="0" width="58" height="300" rx="28" fill="url(#forkMetal)"/>
+    <rect x="4" y="-78" width="10" height="95" rx="5" fill="url(#forkMetal)"/>
+    <rect x="17" y="-88" width="10" height="105" rx="5" fill="url(#forkMetal)"/>
+    <rect x="31" y="-88" width="10" height="105" rx="5" fill="url(#forkMetal)"/>
+    <rect x="44" y="-78" width="10" height="95" rx="5" fill="url(#forkMetal)"/>
+  </g>
+
+  <g transform="translate(426 514)">
+    <path d="M0 52c34-52 93-77 155-48-8 57-61 92-128 86-12-11-20-22-27-38Z" fill="url(#leafGreen)"/>
+    <path d="M90 38c44-47 111-53 160-9-32 48-99 65-150 38-6-10-8-18-10-29Z" fill="url(#leafGreen)"/>
+    <path d="M73 119c36-52 98-70 157-37-13 56-67 87-133 77-10-11-17-24-24-40Z" fill="url(#leafGreen)"/>
+    <path d="M72 112c16-23 35-42 57-56M95 117c20-27 43-49 68-64M98 60c-12 20-21 41-25 66" fill="none" stroke="#256b2b" stroke-width="7" stroke-linecap="round"/>
+  </g>
+
+  <g fill="none" stroke="url(#pastaGold)" stroke-width="16" stroke-linecap="round">
+    <path d="M246 642c0-149 121-270 270-270 59 0 114 19 159 52"/>
+    <path d="M246 642c0 149 121 270 270 270 70 0 135-27 183-70"/>
+    <path d="M296 642c0-121 99-220 220-220 46 0 89 14 124 39"/>
+    <path d="M296 642c0 121 99 220 220 220 56 0 107-21 146-55"/>
+    <path d="M346 642c0-94 76-170 170-170 34 0 67 10 94 28"/>
+    <path d="M346 642c0 94 76 170 170 170 42 0 81-15 111-40"/>
+    <path d="M395 642c0-66 54-120 120-120 22 0 43 6 61 17"/>
+    <path d="M395 642c0 66 54 120 120 120 27 0 52-9 73-25"/>
+    <path d="M432 642c0-43 35-78 78-78 13 0 26 3 37 9"/>
+  </g>
+</svg>

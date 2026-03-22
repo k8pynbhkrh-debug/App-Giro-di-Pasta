@@ -2578,14 +2578,16 @@ function setGameSubView(mode, game = getCurrentGame()) {
   const isRecipe = mode === 'recipe';
   const isFinal = mode === 'final';
   const guessing = isGuessingMode(game);
+  const showReveal = guessing && isHandover;
 
-  revealScreenEl.classList.toggle('open', guessing && isHandover);
+  gameSection.classList.toggle('handover-mode', showReveal);
+  revealScreenEl.classList.toggle('open', showReveal);
   nextRecipeBtn.classList.add('hidden');
-  skipRecipeBtn.classList.toggle('hidden', (guessing && isHandover) || isFinal);
-  finishGameBtn.classList.toggle('hidden', (guessing && isHandover) || isFinal);
-  gameCardEl.classList.toggle('hidden', isFinal);
+  skipRecipeBtn.classList.toggle('hidden', showReveal || isFinal);
+  finishGameBtn.classList.toggle('hidden', showReveal || isFinal);
+  gameCardEl.classList.toggle('hidden', isFinal || showReveal);
   if (handoverInfoEl.parentElement) {
-    handoverInfoEl.parentElement.classList.toggle('hidden', isFinal);
+    handoverInfoEl.parentElement.classList.toggle('hidden', isFinal || showReveal);
   }
   recipeSecondaryInfoEl.classList.toggle('hidden', !isRecipe);
   scoreSectionEl.classList.toggle('hidden', !guessing || !isRecipe);
@@ -2791,6 +2793,8 @@ function renderFromCurrentGame() {
 
   if (game.phase === 'config') {
     configSection.classList.remove('hidden');
+    statusEl.classList.add('hidden');
+    statusEl.textContent = '';
     game.settings.players = Math.max(1, Math.min(6, parseInt(game.settings.players, 10) || 1));
     playersInputEl.value = game.settings.players;
     recipesPerPersonEl.value = game.settings.recipesPerPerson || 6;

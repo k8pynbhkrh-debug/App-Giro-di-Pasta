@@ -484,6 +484,11 @@ function prettyAmount(value) {
 }
 
 const PASTA_PER_PERSON_PER_ROUND_G = 25;
+const SHOPPING_RECOMMENDATION = Object.freeze({
+  isRecommendation: true,
+  label: 'Empfehlung',
+  text: 'Küchenpapier / Küchenrolle für Wok oder Tischpfanne zwischen den Runden mitnehmen'
+});
 
 function roundUpAmount(value, unit) {
   const normalizedUnit = (unit || '').toLowerCase();
@@ -529,9 +534,21 @@ function buildShoppingList(recipes, players) {
 }
 
 function buildReminderExport(entries) {
-  return entries
-    .map(entry => `${entry.label}: ${prettyAmount(entry.amount)} ${entry.unit}`.trim())
+  return [...entries, SHOPPING_RECOMMENDATION]
+    .map(formatShoppingEntry)
     .join('\n');
+}
+
+function formatShoppingEntry(entry) {
+  if (entry?.isRecommendation) {
+    return `${entry.label}: ${entry.text}`.trim();
+  }
+  return `${entry.label}: ${prettyAmount(entry.amount)} ${entry.unit}`.trim();
+}
+
+function getShoppingDisplayEntries(game = getCurrentGame()) {
+  const baseEntries = Array.isArray(game?.shoppingList) ? game.shoppingList : [];
+  return [...baseEntries, SHOPPING_RECOMMENDATION];
 }
 
 function getPreparationRule(ingredientName) {
@@ -2252,9 +2269,10 @@ function restoreRemovedRecipeToPool(game, round) {
 
 function renderShoppingListFromGame(game) {
   shoppingListEl.innerHTML = '';
-  game.shoppingList.forEach(entry => {
+  getShoppingDisplayEntries(game).forEach(entry => {
     const li = document.createElement('li');
-    li.textContent = `${entry.label}: ${prettyAmount(entry.amount)} ${entry.unit}`.trim();
+    li.textContent = formatShoppingEntry(entry);
+    if (entry.isRecommendation) li.classList.add('shopping-recommendation');
     shoppingListEl.appendChild(li);
   });
 }
@@ -2336,7 +2354,8 @@ function renderScoreStrip(game) {
 }
 
 function getShoppingExportText(game = getCurrentGame()) {
-  return (game?.shoppingExport || '').trim();
+  if (!game) return '';
+  return buildReminderExport(game.shoppingList || []).trim();
 }
 
 function triggerHaptic(duration = 150) {

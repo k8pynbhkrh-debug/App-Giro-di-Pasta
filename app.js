@@ -1441,9 +1441,6 @@ function setRecipeIllustration(round, accent) {
     ingredientIllustrationEl.style.border = 'none';
     ingredientIllustrationEl.style.backgroundColor = 'transparent';
     ingredientIllustrationEl.style.backgroundImage = `url("${imagePath}")`;
-    ingredientIllustrationEl.style.backgroundSize = 'contain';
-    ingredientIllustrationEl.style.backgroundRepeat = 'no-repeat';
-    ingredientIllustrationEl.style.backgroundPosition = 'center';
     delete ingredientIllustrationEl.dataset.placeholder;
   };
   probe.onerror = () => {

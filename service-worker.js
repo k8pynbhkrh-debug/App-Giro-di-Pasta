@@ -1,4 +1,4 @@
-const CACHE_VERSION = "v10";
+const CACHE_VERSION = "v11";
 const CACHE_NAME = `giro-di-pasta-${CACHE_VERSION}`;
 const CORE_ASSETS = [
   "./",
@@ -69,16 +69,29 @@ self.addEventListener("fetch", event => {
 
   if (isImage) {
     event.respondWith((async () => {
-      try {
-        const networkResponse = await fetch(request, { cache: "no-store" });
-        if (isSameOrigin && networkResponse && networkResponse.ok) {
-          const cache = await caches.open(CACHE_NAME);
+      const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(request);
+      const networkFetch = fetch(request).then(networkResponse => {
+        if (networkResponse && (networkResponse.ok || networkResponse.type === "opaque")) {
           cache.put(request, networkResponse.clone());
         }
         return networkResponse;
+      });
+
+      if (cached) {
+        event.waitUntil(networkFetch.catch(() => undefined));
+        return cached;
+      }
+
+      try {
+        return await networkFetch;
       } catch (error) {
-        const cached = await caches.match(request);
-        if (cached) return cached;
+        const fallback = await cache.match(request);
+        if (fallback) return fallback;
+        if (isSameOrigin) {
+          const fallbackImage = await caches.match("./assets/app-icon.svg");
+          if (fallbackImage) return fallbackImage;
+        }
         throw error;
       }
     })());

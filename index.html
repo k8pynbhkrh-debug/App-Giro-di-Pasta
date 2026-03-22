@@ -825,15 +825,16 @@
     }
 
     .ingredient-illustration {
-      height: 160px;
+      height: 210px;
       border-radius: 18px;
       border: none;
       background-color: transparent;
-      background-size: contain;
+      background-size: 110%;
       background-position: center;
       background-repeat: no-repeat;
       position: relative;
       overflow: hidden;
+      margin-inline: -10px;
     }
 
     .ingredient-illustration::after {
@@ -1051,7 +1052,9 @@
       .ingredient-illustration {
         grid-column: 2;
         grid-row: 1 / span 4;
-        height: min(46vh, 260px);
+        height: min(50vh, 300px);
+        background-size: 112%;
+        margin-inline: -14px;
       }
 
       .recipe-title {
@@ -1106,7 +1109,9 @@
       .ingredient-illustration {
         grid-column: 2;
         grid-row: 1 / span 4;
-        height: min(34vw, 320px);
+        height: min(38vw, 360px);
+        background-size: 112%;
+        margin-inline: -16px;
       }
 
       .recipe-title {
@@ -1124,7 +1129,8 @@
       }
 
       .ingredient-illustration {
-        height: min(30vw, 360px);
+        height: min(30vw, 420px);
+        margin-inline: -18px;
       }
     }
   </style>

@@ -2368,6 +2368,19 @@ function getBringExportText(game = getCurrentGame()) {
     .trim();
 }
 
+function getRecipeRecapExportText(game = getCurrentGame()) {
+  const playedRounds = getPlayedRounds(game);
+  if (playedRounds.length === 0) return '';
+
+  const lines = playedRounds.map((round, idx) => (
+    round.isJoker
+      ? `${idx + 1}. ${round.name} - Freie Wahl`
+      : `${idx + 1}. ${round.name}`
+  ));
+
+  return [`Giro di Pasta - Gespielte Rezepte`, ...lines].join('\n').trim();
+}
+
 const HAPTIC_PATTERNS = Object.freeze({
   tap: 40,
   newGame: 45,
@@ -2528,24 +2541,21 @@ function renderRecipeSteps(steps) {
   });
 }
 
+function getPlayedRounds(game) {
+  const rounds = Array.isArray(game?.rounds) ? game.rounds : [];
+  if (game?.finished) return [...rounds];
+  const playedCount = Math.max(0, Math.min(Number.isFinite(game?.gameIndex) ? game.gameIndex : 0, rounds.length));
+  return rounds.slice(0, playedCount);
+}
+
 function renderRecap(game) {
   recapSectionEl.classList.remove('hidden');
-  recapScorePanelEl.classList.toggle('hidden', !isGuessingMode(game));
+  recapScorePanelEl.classList.add('hidden');
   recapScoreListEl.innerHTML = '';
   recapRecipeListEl.innerHTML = '';
+  exportRecipesWhatsappBtn.disabled = getPlayedRounds(game).length === 0;
 
-  if (isGuessingMode(game)) {
-    game.players
-      .map((name, idx) => ({ name, score: game.scores[idx] ?? 0, index: idx }))
-      .sort((a, b) => (b.score - a.score) || (a.index - b.index))
-      .forEach((entry, idx) => {
-        const li = document.createElement('li');
-        li.textContent = `${idx + 1}. ${entry.name}: ${entry.score} Punkte`;
-        recapScoreListEl.appendChild(li);
-      });
-  }
-
-  (game.rounds || []).forEach((round, idx) => {
+  getPlayedRounds(game).forEach((round, idx) => {
     const li = document.createElement('li');
     li.textContent = round.isJoker
       ? `${idx + 1}. ${round.name} - Freie Wahl`
@@ -2668,13 +2678,13 @@ function renderFinal(game) {
   game.phase = 'game';
   setGameSubView('final', game);
   revealScreenEl.classList.remove('open');
-  handoverInfoEl.textContent = 'Spiel beendet.';
-  recipeTitleEl.textContent = 'Spielrückblick';
-  recipeMetaEl.textContent = `${game.title}`;
+  handoverInfoEl.textContent = '';
+  recipeTitleEl.textContent = '';
+  recipeMetaEl.textContent = '';
   difficultyIndicatorEl.textContent = 'Schwierigkeit ●●○';
-  tipTextEl.textContent = 'Tipp: Neues Spiel starten oder gespeichertes Spiel laden.';
+  tipTextEl.textContent = '';
   setRecipeIllustrationPlaceholder();
-  recipeTitleEl.style.borderBottomColor = '#cabaa2';
+  recipeTitleEl.style.borderBottomColor = 'transparent';
   setGameFrameAccent('#cabaa2');
   renderRecap(game);
 
@@ -2892,6 +2902,7 @@ const recapSectionEl = document.getElementById('recapSection');
 const recapScorePanelEl = document.getElementById('recapScorePanel');
 const recapScoreListEl = document.getElementById('recapScoreList');
 const recapRecipeListEl = document.getElementById('recapRecipeList');
+const exportRecipesWhatsappBtn = document.getElementById('exportRecipesWhatsapp');
 const nextRecipeBtn = document.getElementById('nextRecipe');
 const skipRecipeBtn = document.getElementById('skipRecipe');
 const finishGameBtn = document.getElementById('finishGame');
@@ -3156,6 +3167,13 @@ function openWhatsappExport() {
   const text = getShoppingExportText();
   if (!text) return;
   const encoded = encodeURIComponent(`Giro di Pasta Einkaufsliste\n${text}`);
+  window.location.href = `whatsapp://send?text=${encoded}`;
+}
+
+function openRecipeRecapWhatsappExport() {
+  const text = getRecipeRecapExportText();
+  if (!text) return;
+  const encoded = encodeURIComponent(text);
   window.location.href = `whatsapp://send?text=${encoded}`;
 }
 
@@ -3517,6 +3535,10 @@ exportBringBtn.addEventListener('click', async () => {
   const ok = await copyTextToClipboard(getBringExportText());
   if (ok) showStatus('Bring-Liste kopiert.');
   closeExportModal();
+});
+
+exportRecipesWhatsappBtn.addEventListener('click', () => {
+  openRecipeRecapWhatsappExport();
 });
 
 exportWhatsappBtn.addEventListener('click', () => {

@@ -706,6 +706,12 @@
       gap: 4px;
     }
 
+    .prep-item.important {
+      border-color: #ccb08d;
+      background: #fff7e8;
+      box-shadow: inset 0 0 0 1px rgba(204, 176, 141, 0.18);
+    }
+
     .prep-item strong {
       font-size: 1rem;
       line-height: 1.25;
@@ -1231,12 +1237,12 @@
         <h3>Vorbereitung</h3>
         <p class="subtle">Alles für den Kochabend vorbereiten, ohne spätere Kochschritte vorwegzunehmen.</p>
         <div class="prep-block" style="margin-top: 16px;">
-          <h4>Bereitstellen</h4>
-          <ul id="prepReadyList"></ul>
-        </div>
-        <div class="prep-block" style="margin-top: 18px;">
           <h4>Vorbereiten</h4>
           <ul id="prepPrepareList"></ul>
+        </div>
+        <div class="prep-block" style="margin-top: 18px;">
+          <h4>Bereitstellen</h4>
+          <ul id="prepReadyList"></ul>
         </div>
         <div class="button-row">
           <button id="preparationNext" class="primary">Weiter zu Spielernamen</button>

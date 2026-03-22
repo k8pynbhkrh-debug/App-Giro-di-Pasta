@@ -624,7 +624,7 @@ const DEFAULT_PREPARATION_RULE = Object.freeze({
 
 const PREPARATION_RULES = Object.freeze({
   [normalizeForId('Pasta')]: Object.freeze({
-    category: PREPARATION_CATEGORY_READY,
+    category: PREPARATION_CATEGORY_PREPARE,
     instruction: 'vor dem Spiel al dente kochen und warm bereitstellen'
   }),
   [normalizeForId('Parmigiano')]: Object.freeze({
@@ -2248,7 +2248,8 @@ function renderShoppingListFromGame(game) {
   });
 }
 
-function renderPreparationItems(listEl, items, emptyText) {
+function renderPreparationItems(listEl, items, emptyText, options = {}) {
+  const { showInstruction = true } = options;
   listEl.innerHTML = '';
 
   if (items.length === 0) {
@@ -2262,28 +2263,32 @@ function renderPreparationItems(listEl, items, emptyText) {
   items.forEach(entry => {
     const li = document.createElement('li');
     li.className = 'prep-item';
+    if (entry.label === 'Pasta') {
+      li.classList.add('important');
+    }
 
     const title = document.createElement('strong');
     title.textContent = `${entry.label}: ${prettyAmount(entry.amount)} ${entry.unit}`.trim();
 
-    const note = document.createElement('span');
-    note.className = 'prep-item-note';
-    note.textContent = entry.instruction;
-
     li.appendChild(title);
-    li.appendChild(note);
+    if (showInstruction) {
+      const note = document.createElement('span');
+      note.className = 'prep-item-note';
+      note.textContent = entry.instruction;
+      li.appendChild(note);
+    }
     listEl.appendChild(li);
   });
 }
 
 function renderPreparationSection(game) {
-  renderPreparationItems(prepPrepareListEl, [], 'Keine Zutaten zum Vorbereiten.');
-  renderPreparationItems(prepReadyListEl, [], 'Keine Zutaten zum Bereitstellen.');
+  renderPreparationItems(prepPrepareListEl, [], 'Keine Zutaten zum Vorbereiten.', { showInstruction: true });
+  renderPreparationItems(prepReadyListEl, [], 'Keine Zutaten zum Bereitstellen.', { showInstruction: false });
   if (!game) return;
   recomputeShoppingArtifacts(game);
   const plan = buildPreparationPlan(game);
-  renderPreparationItems(prepPrepareListEl, plan.prepare, 'Keine Zutaten zum Vorbereiten.');
-  renderPreparationItems(prepReadyListEl, plan.ready, 'Keine Zutaten zum Bereitstellen.');
+  renderPreparationItems(prepPrepareListEl, plan.prepare, 'Keine Zutaten zum Vorbereiten.', { showInstruction: true });
+  renderPreparationItems(prepReadyListEl, plan.ready, 'Keine Zutaten zum Bereitstellen.', { showInstruction: false });
 }
 
 function renderPlayerInputs(game) {

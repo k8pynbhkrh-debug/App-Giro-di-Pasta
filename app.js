@@ -2372,11 +2372,18 @@ function getRecipeRecapExportText(game = getCurrentGame()) {
   const playedRounds = getPlayedRounds(game);
   if (playedRounds.length === 0) return '';
 
-  const lines = playedRounds.map((round, idx) => (
-    round.isJoker
+  const lines = [];
+
+  playedRounds.forEach((round, idx) => {
+    const recipeGuide = getRecipeGuide(round, game);
+    lines.push(round.isJoker
       ? `${idx + 1}. ${round.name} - Freie Wahl`
-      : `${idx + 1}. ${round.name}`
-  ));
+      : `${idx + 1}. ${round.name}`);
+    recipeGuide.steps.forEach(step => {
+      lines.push(`- ${step}`);
+    });
+    lines.push('');
+  });
 
   return [`Giro di Pasta - Gespielte Rezepte`, ...lines].join('\n').trim();
 }
@@ -2567,17 +2574,19 @@ function renderRecap(game) {
 function setGameSubView(mode, game = getCurrentGame()) {
   const isHandover = mode === 'handover';
   const isRecipe = mode === 'recipe';
+  const isFinal = mode === 'final';
   const guessing = isGuessingMode(game);
 
   revealScreenEl.classList.toggle('open', guessing && isHandover);
   nextRecipeBtn.classList.add('hidden');
-  skipRecipeBtn.classList.toggle('hidden', (guessing && isHandover) || mode === 'final');
-  finishGameBtn.classList.toggle('hidden', (guessing && isHandover) || mode === 'final');
+  skipRecipeBtn.classList.toggle('hidden', (guessing && isHandover) || isFinal);
+  finishGameBtn.classList.toggle('hidden', (guessing && isHandover) || isFinal);
+  gameCardEl.classList.toggle('hidden', isFinal);
   recipeSecondaryInfoEl.classList.toggle('hidden', !isRecipe);
   scoreSectionEl.classList.toggle('hidden', !guessing || !isRecipe);
   ingredientIllustrationEl.classList.toggle('hidden', !isRecipe);
-  stepListEl.classList.toggle('hidden', mode === 'final');
-  recapSectionEl.classList.toggle('hidden', mode !== 'final');
+  stepListEl.classList.toggle('hidden', isFinal);
+  recapSectionEl.classList.toggle('hidden', !isFinal);
   scoreSectionEl.open = false;
 }
 
@@ -2887,6 +2896,7 @@ const confirmPlayersBtn = document.getElementById('confirmPlayers');
 const backToSummaryBtn = document.getElementById('backToSummary');
 
 const handoverInfoEl = document.getElementById('handoverInfo');
+const gameCardEl = document.getElementById('gameCard');
 const recipeTitleEl = document.getElementById('recipeTitle');
 const recipeMetaEl = document.getElementById('recipeMeta');
 const recipeSecondaryInfoEl = document.getElementById('recipeSecondaryInfo');

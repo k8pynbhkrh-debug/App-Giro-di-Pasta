@@ -1101,9 +1101,25 @@
         <h3>Export</h3>
         <div class="button-row">
           <button id="exportShopping">Einkaufsliste exportieren</button>
-          <button id="showPreparation">Vorbereitung anzeigen</button>
-          <button id="startGame" class="primary">Weiter zu Spielernamen</button>
+          <button id="startGame" class="primary">Weiter zur Vorbereitung</button>
           <button id="newRound">Neu planen</button>
+        </div>
+      </section>
+
+      <section id="preparation" class="hidden">
+        <h3>Vorbereitung</h3>
+        <p class="subtle">Alles für den Kochabend vorbereiten, ohne spätere Kochschritte vorwegzunehmen.</p>
+        <div class="prep-block" style="margin-top: 16px;">
+          <h4>Vorbereiten</h4>
+          <ul id="prepPrepareList"></ul>
+        </div>
+        <div class="prep-block" style="margin-top: 18px;">
+          <h4>Bereitstellen</h4>
+          <ul id="prepReadyList"></ul>
+        </div>
+        <div class="button-row">
+          <button id="preparationNext" class="primary">Weiter zu Spielernamen</button>
+          <button id="preparationBack">Zurück</button>
         </div>
       </section>
 
@@ -1197,23 +1213,6 @@
       </div>
       <div class="button-row">
         <button id="closeExportModal" class="secondary">Schließen</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="preparationModal" class="modal">
-    <div class="modal-card">
-      <h3>Vorbereitung</h3>
-      <div class="prep-block">
-        <h4>Vorbereiten</h4>
-        <ul id="prepPrepareList"></ul>
-      </div>
-      <div class="prep-block">
-        <h4>Bereitstellen</h4>
-        <ul id="prepReadyList"></ul>
-      </div>
-      <div class="button-row">
-        <button id="closePreparationModal" class="secondary">Schließen</button>
       </div>
     </div>
   </div>

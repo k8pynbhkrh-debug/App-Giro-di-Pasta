@@ -1850,6 +1850,7 @@ function hideAllSections() {
   landingSection.classList.add('hidden');
   configSection.classList.add('hidden');
   summarySection.classList.add('hidden');
+  preparationSection.classList.add('hidden');
   playersSetupSection.classList.add('hidden');
   gameSection.classList.add('hidden');
   spectatorSection.classList.add('hidden');
@@ -2242,19 +2243,14 @@ function renderPreparationItems(listEl, items, emptyText) {
   });
 }
 
-function openPreparationModal() {
-  const game = getCurrentGame();
+function renderPreparationSection(game) {
+  renderPreparationItems(prepPrepareListEl, [], 'Keine Zutaten zum Vorbereiten.');
+  renderPreparationItems(prepReadyListEl, [], 'Keine Zutaten zum Bereitstellen.');
   if (!game) return;
-
   recomputeShoppingArtifacts(game);
   const plan = buildPreparationPlan(game);
   renderPreparationItems(prepPrepareListEl, plan.prepare, 'Keine Zutaten zum Vorbereiten.');
   renderPreparationItems(prepReadyListEl, plan.ready, 'Keine Zutaten zum Bereitstellen.');
-  preparationModalEl.classList.add('open');
-}
-
-function closePreparationModal() {
-  preparationModalEl.classList.remove('open');
 }
 
 function renderPlayerInputs(game) {
@@ -2355,7 +2351,7 @@ function getSelectedGameModeFromForm() {
 function getSummaryPrimaryActionLabel(game) {
   if (game?.summaryReturnTarget === 'game') return 'Zurück ins Spiel';
   if (game?.summaryReturnTarget === 'players') return 'Zurück zu Spielernamen';
-  return 'Weiter zu Spielernamen';
+  return 'Weiter zur Vorbereitung';
 }
 
 function renderSummaryForMode(game) {
@@ -2697,6 +2693,12 @@ function renderFromCurrentGame() {
     return;
   }
 
+  if (game.phase === 'preparation') {
+    preparationSection.classList.remove('hidden');
+    renderPreparationSection(game);
+    return;
+  }
+
   if (game.phase === 'players') {
     playersSetupSection.classList.remove('hidden');
     renderPlayerInputs(game);
@@ -2732,6 +2734,7 @@ function renderFromCurrentGame() {
 const landingSection = document.getElementById('landing');
 const configSection = document.getElementById('config');
 const summarySection = document.getElementById('summary');
+const preparationSection = document.getElementById('preparation');
 const playersSetupSection = document.getElementById('playersSetup');
 const gameSection = document.getElementById('game');
 
@@ -2765,11 +2768,14 @@ const summaryExtraRecipesSectionEl = document.getElementById('summaryExtraRecipe
 const recipeListEl = document.getElementById('recipeList');
 const shoppingListEl = document.getElementById('shoppingList');
 const exportShoppingBtn = document.getElementById('exportShopping');
-const showPreparationBtn = document.getElementById('showPreparation');
 const startGameBtn = document.getElementById('startGame');
 const newRoundBtn = document.getElementById('newRound');
 const extraRecipeSelectEl = document.getElementById('extraRecipeSelect');
 const addExtraRecipesBtn = document.getElementById('addExtraRecipes');
+const prepPrepareListEl = document.getElementById('prepPrepareList');
+const prepReadyListEl = document.getElementById('prepReadyList');
+const preparationNextBtn = document.getElementById('preparationNext');
+const preparationBackBtn = document.getElementById('preparationBack');
 
 const playerInputsEl = document.getElementById('playerInputs');
 const confirmPlayersBtn = document.getElementById('confirmPlayers');
@@ -2816,10 +2822,6 @@ const exportRemindersBtn = document.getElementById('exportReminders');
 const exportPdfBtn = document.getElementById('exportPdf');
 const exportClipboardBtn = document.getElementById('exportClipboard');
 const closeExportModalBtn = document.getElementById('closeExportModal');
-const preparationModalEl = document.getElementById('preparationModal');
-const prepPrepareListEl = document.getElementById('prepPrepareList');
-const prepReadyListEl = document.getElementById('prepReadyList');
-const closePreparationModalBtn = document.getElementById('closePreparationModal');
 
 const extraRecipeModalEl = document.getElementById('extraRecipeModal');
 const extraRecipePickerListEl = document.getElementById('extraRecipePickerList');
@@ -3070,10 +3072,6 @@ exportShoppingBtn.addEventListener('click', () => {
   openExportModal();
 });
 
-showPreparationBtn.addEventListener('click', () => {
-  openPreparationModal();
-});
-
 addExtraRecipesBtn.addEventListener('click', () => {
   openExtraRecipeModal();
 });
@@ -3168,12 +3166,30 @@ startGameBtn.addEventListener('click', () => {
     return;
   }
 
+  game.phase = 'preparation';
+  upsertCurrentGame(game);
+  renderFromCurrentGame();
+});
+
+preparationNextBtn.addEventListener('click', () => {
+  const game = getCurrentGame();
+  if (!game || game.rounds.length === 0) return;
+
   game.settings.players = Math.max(1, Math.min(6, parseInt(game.settings.players, 10) || 1));
   game.phase = 'players';
   if (game.players.length !== game.settings.players) {
     game.players = getPlayerDefaultNames(game.settings.players);
   }
 
+  upsertCurrentGame(game);
+  renderFromCurrentGame();
+});
+
+preparationBackBtn.addEventListener('click', () => {
+  const game = getCurrentGame();
+  if (!game) return;
+
+  game.phase = 'summary';
   upsertCurrentGame(game);
   renderFromCurrentGame();
 });
@@ -3237,7 +3253,7 @@ backToSummaryBtn.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game) return;
 
-  game.phase = 'summary';
+  game.phase = 'preparation';
   game.summaryReturnTarget = '';
   upsertCurrentGame(game);
   renderFromCurrentGame();
@@ -3358,10 +3374,6 @@ closeExportModalBtn.addEventListener('click', () => {
   closeExportModal();
 });
 
-closePreparationModalBtn.addEventListener('click', () => {
-  closePreparationModal();
-});
-
 exportClipboardBtn.addEventListener('click', async () => {
   const ok = await copyShoppingToClipboard();
   if (ok) showStatus('Einkaufsliste wurde in die Zwischenablage kopiert.');
@@ -3404,9 +3416,6 @@ document.addEventListener('click', event => {
   }
   if (exportModalEl.classList.contains('open') && target === exportModalEl) {
     closeExportModal();
-  }
-  if (preparationModalEl.classList.contains('open') && target === preparationModalEl) {
-    closePreparationModal();
   }
 });
 

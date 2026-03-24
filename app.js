@@ -958,22 +958,22 @@ const recipeGuidesById = {
   "carbonara": {
     "difficulty": "mittel",
     "steps": [
-      "[MITTEL] Guanciale oder Pancetta knusprig auslassen",
+      "[MITTEL] Guanciale oder Pancetta knusprig auslassen und kurz herausnehmen",
       "[AUS] Eigelb, Pecorino und frisch gemahlenen schwarzen Pfeffer glattrühren",
       "Pasta mit wenig Nudelwasser zugeben",
       "[AUS] Eimasse zügig unterheben",
-      "Cremig ziehen und servieren"
+      "Guanciale oder Pancetta wieder zugeben und cremig servieren"
     ],
     "tip": "Ziel ist Emulsion, nicht Rührei"
   },
   "gricia": {
     "difficulty": "mittel",
     "steps": [
-      "[MITTEL] Guanciale oder Pancetta knusprig auslassen",
+      "[MITTEL] Guanciale oder Pancetta knusprig auslassen und kurz herausnehmen",
       "Frisch gemahlenen schwarzen Pfeffer kurz im Fett rösten",
       "Pasta und Nudelwasser zugeben",
       "[AUS] Pecorino cremig einrühren",
-      "Mit Guanciale-Crunch servieren"
+      "Mit Guanciale oder Pancetta als Crunch servieren"
     ],
     "tip": "Käse nicht auf voller Hitze einrühren"
   },
@@ -1123,7 +1123,7 @@ const recipeGuidesById = {
   "gorgonzola_e_noci": {
     "difficulty": "leicht",
     "steps": [
-      "[MITTEL] Walnüsse trocken rösten",
+      "[MITTEL] Walnüsse trocken rösten und beiseitelegen",
       "[NIEDRIG] Gorgonzola in Milch schmelzen",
       "Pasta und Nudelwasser zugeben",
       "[AUS] Cremig emulgieren",
@@ -1354,7 +1354,7 @@ const recipeGuidesById = {
   "stracchino_e_noci": {
     "difficulty": "leicht",
     "steps": [
-      "[MITTEL] Walnüsse rösten und grob hacken",
+      "[MITTEL] Walnüsse rösten, grob hacken und beiseitelegen",
       "[NIEDRIG] Stracchino mit Milch cremig rühren",
       "Pasta und Nudelwasser zugeben",
       "[AUS] Cremig emulgieren",

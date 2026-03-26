@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#d94f04">
+  <title>Giro di Pasta - Datenschutz</title>
+  <style>
+    :root {
+      --bg: #f2ebdf;
+      --surface: #ffffff;
+      --text: #111111;
+      --muted: #5d5348;
+      --line: #e4dccf;
+      --accent: #d94f04;
+      --shadow: 0 12px 28px rgba(17, 17, 17, 0.08);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 8%, rgba(255, 255, 255, 0.45), transparent 36%),
+        radial-gradient(circle at 88% 12%, rgba(236, 221, 198, 0.48), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: Georgia, serif;
+      padding: 20px;
+    }
+
+    .shell {
+      max-width: 760px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      display: grid;
+      gap: 14px;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      color: #2f2a23;
+    }
+
+    p,
+    li {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.25rem;
+      display: grid;
+      gap: 8px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .button-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid #d8cdbd;
+      background: #fff;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .button-link.primary {
+      border-color: #cdb69b;
+      background: #fffaf3;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="card">
+      <p class="eyebrow">Giro di Pasta</p>
+      <h1>Datenschutz</h1>
+      <p>Diese App funktioniert ohne Benutzerkonto. Spielstände werden standardmäßig lokal auf dem Gerät gespeichert.</p>
+      <div class="actions">
+        <a href="./" class="button-link primary">Zur App zurück</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Welche Daten lokal gespeichert werden</h2>
+      <ul>
+        <li>Spieltitel</li>
+        <li>Spielmodus, Runden und Einkaufsliste</li>
+        <li>Spielernamen und Punktestand</li>
+        <li>aktueller Spielfortschritt</li>
+      </ul>
+      <p>Diese Informationen liegen standardmäßig im lokalen Gerätespeicher des Browsers bzw. der installierten Web-App.</p>
+    </section>
+
+    <section class="card">
+      <h2>QR-Code und Zuschauer-Link</h2>
+      <p>Wenn der Zuschauermodus aktiv geteilt wird, erzeugt die App einen Link für die Read-only-Ansicht.</p>
+      <ul>
+        <li>Ohne konfigurierten Sync-Endpunkt enthält der Link einen Snapshot des aktuellen Spielstands.</li>
+        <li>Dieser Snapshot kann Spielernamen, Punktestand und Spielstatus enthalten.</li>
+        <li>Im Modus „Mit Raten“ wird die verdeckte tatsächliche Rezeptauswahl nicht in den Snapshot aufgenommen.</li>
+        <li>Im Modus „Ohne Raten“ können die offen geplanten Rezepte im Snapshot enthalten sein.</li>
+      </ul>
+      <p>Teile diesen Link daher nur bewusst mit Personen, die den Zuschauerzugang erhalten sollen.</p>
+    </section>
+
+    <section class="card">
+      <h2>Optionale externe Übertragung</h2>
+      <p>Die App bietet technisch die Möglichkeit, einen externen Sync-Endpunkt für Live-Updates des Zuschauermodus zu konfigurieren.</p>
+      <ul>
+        <li>Standardmäßig ist kein solcher Endpunkt aktiv.</li>
+        <li>Wenn ein Endpunkt eingerichtet wird, werden aktuelle Spielstände an diesen Endpunkt übertragen.</li>
+        <li>Nutze dafür nur vertrauenswürdige, selbst kontrollierte Infrastruktur.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Externe Infrastruktur</h2>
+      <p>Beim Laden der App können technische Anfragen an die Hosting-Infrastruktur und eingebundene Schriftdateien entstehen. Diese Anfragen dienen nur der Darstellung der App.</p>
+    </section>
+
+    <section class="card">
+      <h2>Löschen gespeicherter Daten</h2>
+      <ul>
+        <li>Einzelne Spiele können direkt in der App gelöscht werden.</li>
+        <li>Alle lokal gespeicherten Daten lassen sich durch das Entfernen der Website-Daten bzw. der App-Daten auf dem Gerät löschen.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

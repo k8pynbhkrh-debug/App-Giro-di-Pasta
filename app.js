@@ -1654,19 +1654,44 @@ function getSyncEndpointBase() {
   return raw.replace(/\/+$/, '');
 }
 
+function getSpectatorSnapshotPhaseCode(game) {
+  const phase = game?.phase;
+  if (phase === 'summary') return 's';
+  if (phase === 'preparation') return 'p';
+  if (phase === 'players') return 'n';
+  if (phase === 'config') return 'c';
+  return 'g';
+}
+
+function decodeSpectatorSnapshotPhase(code) {
+  if (code === 's') return 'summary';
+  if (code === 'p') return 'preparation';
+  if (code === 'n') return 'players';
+  if (code === 'c') return 'config';
+  return 'game';
+}
+
 function createSpectatorSnapshot(game) {
   if (!game) return null;
-  return {
+  const guessing = normalizeGameMode(game.gameMode) !== GAME_MODE_OPEN;
+  const snapshot = {
     i: game.id,
-    m: normalizeGameMode(game.gameMode) === 'open' ? 'o' : 'g',
+    m: guessing ? 'g' : 'o',
+    h: getSpectatorSnapshotPhaseCode(game),
+    f: game.finished ? 1 : 0,
+    t: Array.isArray(game.rounds) ? game.rounds.length : 0,
     p: Array.isArray(game.players) ? [...game.players] : [],
-    s: Array.isArray(game.scores) ? [...game.scores] : [],
     g: Number.isFinite(game.gameIndex) ? game.gameIndex : 0,
-    a: Number.isFinite(game.activePlayerTurnIndex) ? game.activePlayerTurnIndex : 0,
-    v: !!game.awaitingRecipeReveal ? 1 : 0,
-    c: !!game.roundHasCorrectTip ? 1 : 0,
-    r: (game.rounds || []).map(round => (round.isJoker ? '*' : round.name))
+    a: Number.isFinite(game.activePlayerTurnIndex) ? game.activePlayerTurnIndex : 0
   };
+
+  if (guessing) {
+    snapshot.s = Array.isArray(game.scores) ? [...game.scores] : [];
+  } else {
+    snapshot.r = (game.rounds || []).map(round => (round.isJoker ? '*' : round.name));
+  }
+
+  return snapshot;
 }
 
 function encodeSpectatorSnapshot(game) {
@@ -1687,25 +1712,30 @@ function encodeSpectatorSnapshot(game) {
 function expandSpectatorSnapshot(parsed) {
   if (!parsed || typeof parsed !== 'object') return null;
   if (!('i' in parsed) && !('r' in parsed)) return parsed;
+  const gameMode = parsed.m === 'o' ? 'open' : 'guessing';
+  const totalRounds = Number.isFinite(parsed.t)
+    ? Math.max(0, parsed.t)
+    : (Array.isArray(parsed.r) ? parsed.r.length : 0);
   return {
     id: parsed.i || '',
     title: '',
-    gameMode: parsed.m === 'o' ? 'open' : 'guessing',
-    phase: 'game',
-    finished: false,
+    gameMode,
+    phase: decodeSpectatorSnapshotPhase(parsed.h),
+    finished: !!parsed.f,
     players: Array.isArray(parsed.p) ? [...parsed.p] : [],
-    scores: Array.isArray(parsed.s) ? [...parsed.s] : [],
+    scores: gameMode === GAME_MODE_GUESSING && Array.isArray(parsed.s) ? [...parsed.s] : [],
     gameIndex: Number.isFinite(parsed.g) ? parsed.g : 0,
     activePlayerTurnIndex: Number.isFinite(parsed.a) ? parsed.a : 0,
-    awaitingRecipeReveal: !!parsed.v,
-    roundHasCorrectTip: !!parsed.c,
     rounds: Array.isArray(parsed.r)
       ? parsed.r.map(entry => (
         typeof entry === 'string' && entry === '*'
           ? { name: 'Joker', isJoker: true }
           : { name: entry, isJoker: false }
       ))
-      : []
+      : Array.from({ length: totalRounds }, (_, index) => ({
+        name: `Runde ${index + 1}`,
+        isJoker: false
+      }))
   };
 }
 
@@ -1762,6 +1792,23 @@ function getSpectatorUrl(gameOrId) {
     if (snapshot) url.searchParams.set('snapshot', snapshot);
   }
   return url.toString();
+}
+
+function getSpectatorShareHint(game) {
+  const base = getSyncEndpointBase();
+  if (!game) {
+    return 'QR wird lokal in der App erzeugt.';
+  }
+
+  if (base) {
+    return isGuessingMode(game)
+      ? 'Live-Sync aktiv. Geteilt werden Spielstatus, Spielernamen und Punktestand. Die verdeckte Rezeptauswahl bleibt im Modus Mit Raten geschützt.'
+      : 'Live-Sync aktiv. Geteilt werden Spielstatus, Spielernamen und die offen geplanten Rezepte dieses Spiels.';
+  }
+
+  return isGuessingMode(game)
+    ? 'Der Link enthält einen Snapshot mit Spielernamen, Punktestand und Spielstatus. Die verdeckte tatsächliche Rezeptauswahl wird im Modus Mit Raten nicht geteilt.'
+    : 'Der Link enthält einen Snapshot mit Spielernamen, Spielstatus und den offen geplanten Rezepten dieses Spiels.';
 }
 
 let warmedQrSource = '';
@@ -3615,9 +3662,7 @@ qrToggleBtn.addEventListener('click', () => {
   warmedQrForUrl = spectatorUrl;
   warmedQrSource = qrSource;
   qrImageEl.src = qrSource;
-  qrHintEl.textContent = getSyncEndpointBase()
-    ? 'Live-Sync aktiv. QR wird lokal in der App erzeugt.'
-    : 'QR wird lokal in der App erzeugt. Ohne Sync-Endpoint wird der aktuelle Spielstand als Snapshot geteilt; Live-Updates auf anderen Geräten brauchen weiterhin einen Sync-Endpoint.';
+  qrHintEl.textContent = getSpectatorShareHint(game);
   qrModalEl.classList.add('open');
   menuEl.classList.remove('open');
 });

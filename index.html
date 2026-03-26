@@ -401,7 +401,29 @@
       font-size: var(--font-size-button);
     }
 
+    .button-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      border-radius: 12px;
+      border: 1px solid var(--neutral-btn-line);
+      background: var(--neutral-btn);
+      color: var(--text);
+      padding: 9px 12px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      min-height: 46px;
+      font-size: var(--font-size-button);
+      transition: background .2s ease, border-color .2s ease;
+    }
+
     button:hover {
+      background: #fffdf8;
+      border-color: #cabba8;
+    }
+
+    .button-link:hover {
       background: #fffdf8;
       border-color: #cabba8;
     }
@@ -1176,6 +1198,7 @@
           <button id="createGame" class="primary">Neues Spiel</button>
           <button id="restartFromBeginning">Von vorne beginnen</button>
           <button id="restartGame" class="danger">Neu planen</button>
+          <a href="privacy.html" class="button-link" id="privacyLinkMenu">Datenschutz</a>
         </div>
       </div>
     </header>
@@ -1189,6 +1212,7 @@
         </div>
         <div class="button-row">
           <button id="startNewGame" class="primary">Neues Spiel starten</button>
+          <a href="privacy.html" class="button-link" id="privacyLinkLanding">Datenschutz</a>
         </div>
         <h3 style="margin-top:10px;">Bestehende Spiele</h3>
         <div id="landingGameList" class="landing-list"></div>

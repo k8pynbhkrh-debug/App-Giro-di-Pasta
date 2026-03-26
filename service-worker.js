@@ -1,8 +1,9 @@
-const CACHE_VERSION = "v15";
+const CACHE_VERSION = "v16";
 const CACHE_NAME = `giro-di-pasta-${CACHE_VERSION}`;
 const CORE_ASSETS = [
   "./",
   "./index.html",
+  "./privacy.html",
   "./assets/local-qr.js",
   "./app.js",
   "./manifest.json",

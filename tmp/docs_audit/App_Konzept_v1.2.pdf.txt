@@ -1,0 +1,53 @@
+--- PAGE 1 ---
+Stand 2026-03-21 - Seite 1
+ GIRO DI PASTA - App Konzept v1.2
+Diese Fassung beschreibt das aktuelle Produkt ohne Timer und mit zwei klar getrennten Spielmodi.
+Grundidee
+- Giro di Pasta ist ein gemeinsames Kochspiel fuer den Tisch: Das Smartphone ersetzt Rezeptkarten,
+Shoppingzettel und Teile der Spielleitung.
+- Der Koch liest nur die Schritte. Geraten wird muendlich zwischen den Mitspielern, nicht in der App.
+- Die App soll auch mit fettigen oder nassen Haenden bedienbar bleiben: grosse Buttons, klare
+Ueberschriften, wenig visuelle Ablenkung.
+Konfiguration
+- Spieler- bzw. Gruppenanzahl (bis 6 spielende Parteien).
+- Rezepte pro Spiel mit dem Hinweis auf ca. 25 g Pasta pro Person pro Runde.
+- Spielmodus-Auswahl: Mit Raten (empfohlen) oder Ohne Raten.
+- Filter fuer Fleisch, Fisch, tierische Produkte und Scharf.
+Spielmodus 1 - Mit Raten (empfohlen)
+- Die App waehlt passende Rezepte intern aus, ohne sie in der Summary preiszugeben.
+- Vor jeder Runde schuetzt ein neutraler Handover-Screen den geheimen Rezeptnamen.
+- Das Rezept wird erst nach Tipp auf Rezept anzeigen sichtbar.
+- Punkte, Rangliste und Gewinnerlogik sind nur hier aktiv.
+Spielmodus 2 - Ohne Raten
+- Die App zeigt den vorgeschlagenen Rezeptplan offen in der Summary.
+- Der Organisator kann Rezepte loeschen und aus dem noch erlaubten Filterpool passende Zusatzrezepte
+bestaetigt hinzufuegen.
+- Es gibt keine Punkte, keine Rangliste und keinen Wettbewerbsvorteil ueber Guessing.
+- Der Kochfluss bleibt offen; der Spectator dient hier nur als Rezeptuebersicht.
+
+--- PAGE 2 ---
+Stand 2026-03-21 - Seite 2
+Summary, Einkauf und Export
+- Die Summary verbindet Einkaufsliste und Modus-spezifische Planung.
+- Mit Raten zeigt sie nur die Einkaufsliste und eine neutrale Info ueber die Anzahl der ausgewaehlten
+Rezepte.
+- Ohne Raten zeigt sie den konkreten Rezeptplan inklusive Entfernen-Buttons und dem Picker fuer
+Zusatzrezepte.
+- Exportwege: Clipboard, Apple-Erinnerungen-kompatibler Text, WhatsApp und Druck / PDF.
+Gameplay UX
+- Reveal-Screen fuer geheimen Handy-Handover im Wettbewerbsmodus.
+- Kochscreen mit Gerichtstitel, Schrittliste, kompakter Score-Anzeige, Skip-Button sowie kompakter
+Schwierigkeit und Tipp.
+- Haptisches Feedback auf Neue Spiele, Rezept anzeigen, Rezept skippen und Bestaetigen.
+- Aktuelle Rezeptbilder werden unter dem Titel gezeigt, sobald passende PNG-Assets vorliegen.
+Zuschauermodus
+- Startet ueber QR-Code oder direkten Watch-Link.
+- Mit Raten: Punkte plus kompletter verfuegbarer Rezeptkatalog fuer die Ratenden.
+- Ohne Raten: nur die wirklich gespielten Rezepte; das aktuelle Rezept wird markiert.
+- Der Spectator bleibt read-only und kann keine Spielaktionen ausloesen.
+Produktgrenzen im aktuellen Stand
+- Kein Timer, keine Audio-Signale und keine Timer-Farbwechsel.
+- Kein nativer Web Share Flow und noch keine IndexedDB-Migration.
+- Rezeptbilder sind technisch vorbereitet; derzeit sind 16 Bilder eingebunden, die Bildgenerierung bleibt
+extern.
+

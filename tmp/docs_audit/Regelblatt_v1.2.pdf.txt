@@ -1,0 +1,40 @@
+--- PAGE 1 ---
+Stand 2026-03-21 - Seite 1
+ GIRO DI PASTA - Regelblatt v1.2
+Aktuelle Spielregeln ohne Timer, mit zwei Spielmodi.
+Gemeinsame Grundregeln
+- Maximal 6 spielende Parteien. Ab 6 Personen werden Teams gebildet; jedes Team zaehlt als eine Partei.
+- Die Rezeptschritte sind nicht interaktiv. Der Koch liest und kocht, die anderen sprechen ihre Vermutungen
+nur muendlich aus.
+- Joker-Runden koennen im Spiel auftauchen und stehen fuer eine freie Wahl statt eines festen Rezepts.
+- Rezept skippen bleibt als sichtbare Aktion waehrend des Kochens erlaubt.
+Ablauf einer Runde - Mit Raten
+- Das Smartphone wird an den naechsten Koch uebergeben.
+- Der Reveal-Screen zeigt nur Nächster Koch und den Namen der aktiven Person.
+- Erst nach Tipp auf Rezept anzeigen sieht der Koch das Rezept.
+- Andere Spieler raten muendlich, waehrend der Koch arbeitet.
+- Die Punkte werden direkt auf dem Kochscreen vergeben.
+Punktevergabe - nur Mit Raten
+- Erster richtiger Tipp: +2 Punkte.
+- Jeder falsche Tipp: -1 Punkt.
+- Niemand errät das Rezept: Koch +3 Punkte.
+- Mindestens ein richtiger Tipp: Koch 0 Punkte.
+
+--- PAGE 2 ---
+Stand 2026-03-21 - Seite 2
+Ablauf einer Runde - Ohne Raten
+- Die Rezepte sind bereits in der Planung sichtbar.
+- Das Spiel laeuft offen, ohne geheime Reveal-Pflicht und ohne Score-System.
+- Es gibt keinen Sieger ueber Punkte; am Ende sieht man die gespielten Rezepte.
+Spielende
+- Mit Raten endet mit einer Rangliste nach Punkten.
+- Ohne Raten endet mit einer Uebersicht der gespielten Runden.
+- In beiden Modi kann danach direkt ein neues Spiel angelegt oder ein gespeichertes Spiel geladen werden.
+Zuschauermodus
+- Der Spectator wird per QR-Code geoeffnet und bleibt read-only.
+- Mit Raten zeigt er Punkte sowie den gesamten verfuegbaren Rezeptkatalog als Hilfestellung fuer die
+Ratenden.
+- Ohne Raten zeigt er nur die wirklich gespielten Rezepte und markiert das aktuelle Rezept.
+Wichtiger Hinweis
+- Der fruehere Timer ist vollstaendig aus dem Produkt entfernt. Es gibt keine Countdown-Regel mehr.
+

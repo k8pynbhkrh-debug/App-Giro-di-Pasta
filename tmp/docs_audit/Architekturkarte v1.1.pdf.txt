@@ -1,0 +1,32 @@
+--- PAGE 1 ---
+Stand 2026-03-21 - Seite 1
+ GIRO DI PASTA - Architekturkarte v1.1
+Kompakte Uebersicht des aktuellen App-Flows
+1. Landing
+Spiel anlegen, laden oder loeschen
+2. Konfiguration
+Spielerzahl, Rezepte pro Spiel, Spielmodus und Filter
+3. Generierung
+Rezepte aus dem erlaubten Pool plus Joker-Runden erzeugen
+4a. Summary - Mit Raten
+Nur Einkaufsliste und neutrale Auswahl-Info, keine Rezeptnamen
+4b. Summary - Ohne Raten
+Rezeptplan sichtbar, entfernen und passende Zusatzrezepte ergaenzen
+5. Spieler-Setup
+Spielernamen erfassen, Reihenfolge mischen, Spiel starten
+6a. Runde - Mit Raten
+Nächster Koch -> Rezept anzeigen -> Score / Skip -> Runde beenden
+6b. Runde - Ohne Raten
+Direkt Rezeptansicht -> Skip optional -> Runde beenden
+7a. Finale - Mit Raten
+Rangliste nach Punkten
+7b. Finale - Ohne Raten
+Liste der gespielten Rezepte
+Shared
+Einkaufsliste, Autosave, QR-Spectator, PWA / Offline, Bildslot unter dem Titel
+Wichtige Architekturregeln
+- Der Spielmodus trennt Sichtbarkeit, Score-Verhalten und Spectator-Darstellung eindeutig.
+- Mit Raten leakt den konkreten Plan in der Summary nicht an den Organisator.
+- Ohne Raten rechnet keine Punkte im Hintergrund mit.
+- Timer-bezogene Altlogik ist nicht mehr Bestandteil des Produktflusses.
+

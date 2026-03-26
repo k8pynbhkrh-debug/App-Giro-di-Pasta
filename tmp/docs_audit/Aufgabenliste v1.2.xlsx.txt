@@ -1,0 +1,31 @@
+=== SHEET Giro di Pasta Tasks v1.2 ===
+Prioritaet	Kategorie	Aufgabe	Beschreibung / Ziel	Status	Stand / Hinweis
+1	UX	Privacy Screen beim Handy-Handover	Rezept erst nach Uebergabe sichtbar machen	Erledigt	Reveal-Screen aktiv im Modus Mit Raten.
+2	UX	Cooking Screen bereinigen	Titel, Schritte, Score, Skip, Schwierigkeit und Tipp sauber darstellen	Erledigt	Timer-UI entfernt, Kochscreen bleibt praktisch.
+3	UX	Spielmodus Mit Raten	Verdeckte Rezeptplanung und Wettbewerb aktiv halten	Erledigt	Summary versteckt Rezeptnamen, Reveal und Score aktiv.
+4	UX	Spielmodus Ohne Raten	Offene Planung ohne Wettbewerb	Erledigt	Rezeptplan sichtbar und editierbar, Score komplett aus.
+5	UX	Big Tap Targets	Alle kritischen Buttons mobil gut treffbar machen	Teilweise	Spielkritische Buttons gross, nicht alle Randaktionen bereits vereinheitlicht.
+6	UX	Kompakte Score-Anzeige	Punktestand sichtbar halten ohne den Kochscreen zu ueberladen	Erledigt	Aufklappbare Ranglistenansicht im Hauptspiel vorhanden.
+7	Feedback	Haptik fuer Schluesselaktionen	Kurzes Vibrationsfeedback bei wichtigen Buttons	Erledigt	Neu, Reveal, Skip und Bestaetigen nutzen navigator.vibrate mit Fallback.
+8	Feedback	Timer-Sound / Timer-Vibration / Timer-HUD	Fruehere Countdown-Features	Aus Scope	Der Timer wurde bewusst aus dem Produkt entfernt.
+9	Stabilitaet	Autosave implementieren	Spielstaende automatisch speichern	Erledigt	Speicherung erfolgt ueber upsertCurrentGame in localStorage.
+10	Datenstruktur	Rezept-Datenmodell strukturieren	Zutaten, IDs, Guides und Bilder konsistenter zusammenfuehren	Teilweise	Runtime-Daten liegen noch in app.js und recipes.json verteilt.
+11	Datenstruktur	IndexedDB statt localStorage	Robustere Speicherung	Offen	Persistenz laeuft weiterhin ausschliesslich ueber localStorage.
+12	PWA	Service Worker	Offlinefaehigkeit der App	Erledigt	service-worker.js ist aktiv und versioniert.
+13	PWA	App Shell Caching	Schneller App-Start und Fallbacks	Erledigt	index.html, app.js, Manifest, Icon und Bilder werden gecacht.
+14	Feature	QR Spectator Mode	Read-only Zuschaueransicht ueber QR	Erledigt	Watch-Link und QR-Modal sind produktiv.
+15	Feature	Spectator mode-aware UI	Anzeige an Mit Raten / Ohne Raten anpassen	Erledigt	Mit Raten zeigt Scores und alle Rezepte, Ohne Raten nur gespielte Rezepte.
+16	Planung	Einkaufsliste generieren	Zutaten automatisch aggregieren	Erledigt	Nicht-Joker-Runden werden fuer die Einkaufsliste zusammengefasst.
+17	Integration	Bring-friendly Export	Einkaufsliste besser fuer Bring nutzbar machen	Teilweise	Clipboard-Export ist da, kein Bring-spezifisches Format.
+18	Integration	Web Share API	Liste nativ ueber das Betriebssystem teilen	Offen	navigator.share ist noch nicht eingebunden.
+19	Integration	Apple Erinnerungen Export	iOS-kompatiblen Listenfluss anbieten	Teilweise	Aktuell wird Erinnerungen-kompatibler Text kopiert.
+20	Gameplay	Rezeptplanung offen editieren	Rezepte entfernen und passende Zusatzrezepte bestaetigen	Erledigt	Nur im Modus Ohne Raten sichtbar und nutzbar.
+21	Gameplay	Zusatzpunkt bestes Gericht	Optionaler Bonuspunkt pro Runde	Offen	Keine UI und keine State-Logik vorhanden.
+22	Gameplay	Rezepte nach Spiel bereitstellen	Saubere Nach-Spiel-Uebersicht aller gekochten Gerichte	Teilweise	Offener Modus zeigt Abschlussliste, dediziertes Recap fehlt noch.
+23	Content	Rezeptkatalog V2.0 synchronisieren	Aktive Rezepte auf neuen Dokumentenstand bringen	Erledigt	Pesto, Dessert-Rezepte und Crema di zucca sind entfernt.
+24	Rezepte	Puttanesca pruefen	Fachliche Pruefung dokumentieren	Erledigt	Review-Notiz vorhanden; Rezept selbst bewusst noch nicht umgeschrieben.
+25	Rezepte	Amatriciana Zwiebel klaeren	Aromaten-Frage fachlich final entscheiden	Teilweise	In RECIPE_REVIEW_NOTES dokumentiert, noch nicht final entschieden.
+26	Rezepte	Pasta all'Assassina validieren	Fachliche Beschreibung final absichern	Teilweise	Review vorhanden, Endentscheidung noch offen.
+27	Content	Rezeptbilder Hook	Bild-Slot unter dem Titel und externe Assets nutzen	Teilweise	Hook aktiv, 16 Bilder vorhanden; Generierung bleibt extern.
+28	Produkt	Asia Edition Konzept	Alternative Rezeptbibliothek	Verschoben	Aktuell nicht im Fokus der App-Umsetzung.
+29	Business	Zutatenpartner / Rabatt / Commission	Partner- und Erlosmodell bewerten	Extern	Kein Code-Thema, bleibt ausserhalb des Produktkerns.

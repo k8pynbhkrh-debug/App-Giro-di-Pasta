@@ -1,0 +1,54 @@
+--- PAGE 1 ---
+Stand 2026-03-21 - Seite 1
+ GIRO DI PASTA - Rezeptliste v1.1
+Aktiver Rezeptkatalog der App auf Basis des aktuellen V2.0-Stands.
+Aktive Rezepte: 39. Joker-Runden werden separat erzeugt und sind kein eigenes Rezept.
+Klassiker und rote Saucen
+- Aglio e olio e peperoncino
+- Pomodoro e basilico
+- Arrabbiata
+- Marinara
+- Ricotta e pomodoro al peperoncino
+- Cacio e pepe
+- Carbonara
+- Gricia
+- Amatriciana
+- Puttanesca
+- Pasta all’Assassina
+Sardellen, Kaese und cremige Saucen
+- Aglio, olio e acciughe
+- Sardellen e limone
+- Sardellen e pangrattato
+- Burro e salvia
+- Parmigiano e burro
+- Funghi e burro
+- Ricotta al limone
+- Ricotta e gorgonzola
+- Gorgonzola e noci
+- Taleggio e pepe
+- Stracchino e noci
+Fleisch, Gefluegel und Wurst
+- Salsiccia e finocchio
+- Speck e cipolla
+- Pollo e panna
+- Pollo e funghi
+Fisch und Meeresfruechte
+- Tonno e pomodoro
+- Tonno e capperi
+
+--- PAGE 2 ---
+Stand 2026-03-21 - Seite 2
+- Salmone e panna
+- Salmone e limone
+- Gamberi e aglio
+- Gamberi e zucchine
+- Vongole in bianco
+- Vongole e pomodoro
+- Frutti di mare
+- Bottarga e limone
+Gemuese
+- Melanzane e pomodoro
+- Zucchine e menta
+- Spinaci e ricotta
+Nicht mehr im aktiven Katalog: Pesto-Rezepte, Dessert-Rezepte, Ragus, Quattro formaggi und Crema di zucca.
+

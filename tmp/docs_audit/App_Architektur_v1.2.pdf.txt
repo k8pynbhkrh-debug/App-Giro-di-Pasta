@@ -1,0 +1,64 @@
+--- PAGE 1 ---
+Stand 2026-03-21 - Seite 1
+ GIRO DI PASTA - App Architektur v1.2
+Diese Version ersetzt die timerbasierte Beschreibung aus v1.1 und bildet den aktuellen Stand der Web-App ab.
+Technische Basis
+- Single-page Web-App mit HTML, CSS und Vanilla JavaScript.
+- Zentrale UI-Dateien: index.html und app.js.
+- Gespeicherte Spiele bleiben in localStorage; keine Serverpflicht fuer den normalen Spielbetrieb.
+- manifest.json und service-worker.js bilden die PWA- und Offline-Basis.
+Zentraler Spielzustand
+- Jedes Spiel besitzt u. a. id, title, phase, gameMode, settings, rounds, players, gameIndex,
+activePlayerTurnIndex, scores, shoppingList und finished.
+- gameMode ist ein First-class-State mit den Werten 'guessing' oder 'open'.
+- Alte Savegames werden beim Laden normalisiert; entfernte Rezepte werden bereinigt und die Einkaufsliste
+neu berechnet.
+Hauptfluss der App
+- Landing / Spielverwaltung
+- Konfiguration mit Spielerzahl, Rezepte pro Spiel, Spielmodus und Lebensmittel-Filtern
+- Summary / Planung mit Einkaufsliste
+- Spieler-Setup
+- Game Screen mit reveal / recipe view je nach Modus
+- Abschlussscreen mit Rangliste oder Rezeptuebersicht
+Zwei sauber getrennte Spielmodi
+- Mit Raten (empfohlen): Rezeptplan bleibt in der Summary verborgen, Reveal-Screen schuetzt vor Spoilern,
+Punkte und Rangliste sind aktiv.
+- Ohne Raten: Rezeptplan ist in der Summary sichtbar und editierbar, Score-Logik bleibt komplett aus, das
+Spiel laeuft offen durch.
+- Die Filterlogik fuer Fleisch, Fisch, tierische Produkte und Scharf gilt in beiden Modi identisch vor der
+Rezeptauswahl.
+
+--- PAGE 2 ---
+Stand 2026-03-21 - Seite 2
+Rezept- und Planungslogik
+- Aktiver Rezeptkatalog: 39 Saucen aus dem aktuellen V2.0-Stand; Joker-Runden werden separat erzeugt.
+- Pro Spiel werden ca. 20 Prozent Joker-Runden eingestreut, der Rest kommt aus dem gefilterten
+Rezeptpool.
+- Im offenen Modus koennen vorgeschlagene Rezepte entfernt und bis zu zwei weitere passende Rezepte
+aus dem verbleibenden Filterpool hinzugefuegt werden.
+- Die Einkaufsliste aggregiert alle Nicht-Joker-Runden auf Basis von ca. 25 g Pasta pro Person pro Runde.
+Score- und Reveal-Logik
+- Punkte gelten nur im Modus Mit Raten.
+- Erster richtiger Tipp: +2, jeder falsche Tipp: -1.
+- Wenn niemand richtig liegt, bekommt der Koch +3; bei mindestens einem richtigen Tipp gibt es fuer den
+Koch 0 Punkte.
+- Waehrend des Kochens bleiben Score-Anzeige und Score-Bedienung sichtbar.
+Spectator, Export und PWA
+- Spectator-Ansicht ist read-only und wird per QR-Link mit watch-Parameter geoeffnet.
+- Mit Raten zeigt der Spectator Scores plus den gesamten verfuegbaren Rezeptkatalog; Ohne Raten zeigt er
+nur die wirklich gespielten Rezepte und markiert das aktuelle Rezept.
+- Einkaufsliste kann per Clipboard, Apple-Erinnerungen-kompatiblem Text, WhatsApp-Deep-Link und Druck /
+PDF weitergegeben werden.
+- Der Service Worker cached App Shell, Skripte, Manifest, Fonts und Bilder mit Network-first plus
+Cache-Fallback.
+Rezeptbilder
+- Der Bild-Slot sitzt unter dem Gerichtsnamen; aktuell liegen 16 PNG-Rezeptbilder im Projekt.
+- Die eigentliche Bildgenerierung findet weiterhin extern statt; die App erwartet passende PNG-Dateinamen
+im Ordner assets/recipes.
+Bewusst nicht im Scope
+- Kein Timer, keine Countdown-Logik, keine Timer-Sounds und keine timergetriebene Haptik.
+- Kein Framework, kein serverseitiger Pflicht-Backend-Flow und weiterhin keine IndexedDB-Migration.
+- Keine native Web-Share-Integration; Sharing laeuft derzeit ueber Clipboard, WhatsApp-Link und Druck /
+PDF.
+Aktive Rezeptanzahl ohne Joker: 39
+

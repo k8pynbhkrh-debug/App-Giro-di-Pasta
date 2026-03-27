@@ -874,6 +874,132 @@
       font-size: var(--font-size-heading);
     }
 
+    .commerce-screen {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 12% 10%, rgba(255, 255, 255, 0.92), transparent 34%),
+        radial-gradient(circle at 88% 14%, rgba(240, 212, 172, 0.7), transparent 28%),
+        linear-gradient(180deg, #fffdf8 0%, #fff5e7 100%);
+      border-color: #e6d5bd;
+      min-height: 100%;
+    }
+
+    .commerce-screen.unlocking {
+      animation: commerce-unlock 0.52s ease;
+    }
+
+    @keyframes commerce-unlock {
+      0% {
+        transform: scale(0.985);
+        box-shadow: 0 10px 28px rgba(17, 17, 17, 0.08);
+      }
+      55% {
+        transform: scale(1.01);
+        box-shadow: 0 18px 38px rgba(217, 79, 4, 0.18);
+      }
+      100% {
+        transform: scale(1);
+        box-shadow: var(--shadow);
+      }
+    }
+
+    .commerce-content {
+      position: relative;
+      display: grid;
+      gap: 14px;
+      min-height: min(78vh, 720px);
+      align-content: center;
+    }
+
+    .commerce-kicker {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      min-height: 36px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid #ebcfac;
+      background: rgba(255, 250, 241, 0.92);
+      color: #6f5135;
+      letter-spacing: 0.05em;
+      font-size: 0.98rem;
+      font-weight: 700;
+    }
+
+    .commerce-headline {
+      margin: 0;
+      font-family: var(--font-ui);
+      font-size: clamp(2rem, 5.2vw, 2.8rem);
+      line-height: 1.05;
+      color: #1f1a12;
+      letter-spacing: 0.03em;
+      text-wrap: balance;
+    }
+
+    .commerce-copy {
+      max-width: 26rem;
+      font-size: 1.08rem;
+      line-height: 1.55;
+      color: #5f5141;
+      text-wrap: balance;
+    }
+
+    .commerce-benefits {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .commerce-benefits li {
+      border: 1px solid #ecdcc6;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.88);
+      padding: 12px 14px;
+      color: #2f2a23;
+      font-weight: 700;
+    }
+
+    .commerce-price {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      padding: 12px 16px;
+      border-radius: 16px;
+      border: 1px solid #efc79a;
+      background: #fff3de;
+      color: #9a4205;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .commerce-screen .button-row {
+      margin-top: 4px;
+    }
+
+    .commerce-screen .primary {
+      background: #d94f04;
+      border-color: #d94f04;
+      color: #fffaf4;
+    }
+
+    .commerce-screen .primary:hover {
+      background: #c64700;
+      border-color: #c64700;
+    }
+
+    .commerce-meta {
+      font-size: 0.96rem;
+      line-height: 1.45;
+      color: #7a6a56;
+      max-width: 28rem;
+    }
+
     .spectator-recipe-current {
       border-color: #cabaa2;
       background: #fff7e8;
@@ -1361,6 +1487,21 @@
           <button id="finishGame">Runde beenden</button>
           <button id="skipRecipe">Rezept skippen</button>
           <button id="startAnotherGame" class="primary hidden">Spiel neu starten</button>
+        </div>
+      </section>
+
+      <section id="commerceGate" class="commerce-screen hidden">
+        <div class="commerce-content">
+          <span id="commerceKicker" class="commerce-kicker">39+ Rezepte verfügbar</span>
+          <h2 id="commerceTitle" class="commerce-headline">Alle Rezepte freischalten</h2>
+          <p id="commerceText" class="commerce-copy">Das war erst der Anfang. Spiele unbegrenzt mit allen Rezepten und Funktionen.</p>
+          <ul id="commerceBenefits" class="commerce-benefits"></ul>
+          <div id="commercePrice" class="commerce-price">Einmalig 2,99 €</div>
+          <p id="commerceMeta" class="commerce-meta subtle">Die Freischaltung wird in diesem MVP lokal auf diesem Gerät gespeichert.</p>
+          <div class="button-row">
+            <button id="commercePrimary" class="primary">Vollversion freischalten</button>
+            <button id="commerceSecondary" class="secondary">Später</button>
+          </div>
         </div>
       </section>
 

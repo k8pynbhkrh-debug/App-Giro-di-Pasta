@@ -2,16 +2,16 @@
 
 ## Implemented
 
-- Added centralized haptic feedback via `triggerHaptic(type)` in `/Users/eric/GitHub/App Giro di Pasta/app.js`
-- Added a dedicated recap view after the last round in `/Users/eric/GitHub/App Giro di Pasta/index.html` and `/Users/eric/GitHub/App Giro di Pasta/app.js`
-- Improved Apple Erinnerungen export with Web Share API support plus clipboard fallback in `/Users/eric/GitHub/App Giro di Pasta/app.js`
-- Added a dedicated `Copy for Bring` export action in `/Users/eric/GitHub/App Giro di Pasta/index.html` and `/Users/eric/GitHub/App Giro di Pasta/app.js`
+- Added centralized haptic feedback via `triggerHaptic(type)` in `/Users/eric/GitHub/App Giro Pasta Night/app.js`
+- Added a dedicated recap view after the last round in `/Users/eric/GitHub/App Giro Pasta Night/index.html` and `/Users/eric/GitHub/App Giro Pasta Night/app.js`
+- Improved Apple Erinnerungen export with Web Share API support plus clipboard fallback in `/Users/eric/GitHub/App Giro Pasta Night/app.js`
+- Added a dedicated `Copy for Bring` export action in `/Users/eric/GitHub/App Giro Pasta Night/index.html` and `/Users/eric/GitHub/App Giro Pasta Night/app.js`
 
 ## Changed Files
 
-- `/Users/eric/GitHub/App Giro di Pasta/app.js`
-- `/Users/eric/GitHub/App Giro di Pasta/index.html`
-- `/Users/eric/GitHub/App Giro di Pasta/FEATURE_IMPLEMENTATION_SUMMARY.md`
+- `/Users/eric/GitHub/App Giro Pasta Night/app.js`
+- `/Users/eric/GitHub/App Giro Pasta Night/index.html`
+- `/Users/eric/GitHub/App Giro Pasta Night/FEATURE_IMPLEMENTATION_SUMMARY.md`
 
 ## Haptic Feedback
 

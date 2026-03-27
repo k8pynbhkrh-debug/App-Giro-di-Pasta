@@ -77,4 +77,4 @@ Für die aktuelle Web-/PWA-Auslieferung kann die Datenschutzseite unter folgende
 
 Bei der Live-Domain entspricht das:
 
-- `https://giro-di-pasta-app.vercel.app/privacy.html`
+- `https://giro-pasta-night.vercel.app/privacy.html`

@@ -36,7 +36,7 @@ Die vollständigen Regeln findest du hier:
 
 Die App ist hier erreichbar:
 
-**https://k8pynbhkrh-debug.github.io/giro-di-pasta-app/**
+**https://giro-pasta-night.vercel.app/**
 
 Die Web-App funktioniert auch als **installierbare PWA** auf Smartphones.
 

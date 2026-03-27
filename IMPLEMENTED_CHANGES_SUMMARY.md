@@ -4,14 +4,14 @@ This file summarizes the implementation completed after the audit. The timer fea
 
 ## Timer remnants removed
 
-- Removed obsolete timer-era round state from `/Users/eric/GitHub/App Giro di Pasta/app.js`, including the old `roundStarted` and `roundTimerEndsAt` flow remnants.
-- Removed old timer-style naming from spectator status UI and kept only a neutral activity status in `/Users/eric/GitHub/App Giro di Pasta/index.html` and `/Users/eric/GitHub/App Giro di Pasta/app.js`.
-- Removed obsolete countdown / start-timer styling and labels from `/Users/eric/GitHub/App Giro di Pasta/index.html`.
+- Removed obsolete timer-era round state from `/Users/eric/GitHub/App Giro Pasta Night/app.js`, including the old `roundStarted` and `roundTimerEndsAt` flow remnants.
+- Removed old timer-style naming from spectator status UI and kept only a neutral activity status in `/Users/eric/GitHub/App Giro Pasta Night/index.html` and `/Users/eric/GitHub/App Giro Pasta Night/app.js`.
+- Removed obsolete countdown / start-timer styling and labels from `/Users/eric/GitHub/App Giro Pasta Night/index.html`.
 - Confirmed there is no active countdown, timer HUD, timer label, timer vibration, timer sound, timer color state, or timer-driven screen transition in the runtime code.
 
 ## Score logic corrected
 
-- `/Users/eric/GitHub/App Giro di Pasta/app.js` now enforces `+2` only for the first correct guess in a round.
+- `/Users/eric/GitHub/App Giro Pasta Night/app.js` now enforces `+2` only for the first correct guess in a round.
 - Additional correct guesses in the same round no longer award `+2`.
 - Wrong guesses remain `-1` each.
 - If nobody guessed correctly by round end, the cook still gets `+3` automatically.
@@ -22,7 +22,7 @@ This file summarizes the implementation completed after the audit. The timer fea
 ## Cooking screen cleanup performed
 
 - Kept the cooking screen focused on the recipe title, recipe steps, compact score summary, detailed score controls, skip action, and round completion action.
-- Restored difficulty and tip in a compact secondary info block below the steps in `/Users/eric/GitHub/App Giro di Pasta/index.html`.
+- Restored difficulty and tip in a compact secondary info block below the steps in `/Users/eric/GitHub/App Giro Pasta Night/index.html`.
 - Kept difficulty and tip visually secondary so they stay visible without dominating the layout.
 - Left the heavier visual extras reduced so the cooking card stays practical for tabletop use.
 
@@ -38,4 +38,4 @@ This file summarizes the implementation completed after the audit. The timer fea
 ## Recipe review notes
 
 - No recipe content was changed in this run.
-- Review findings were documented in `/Users/eric/GitHub/App Giro di Pasta/RECIPE_REVIEW_NOTES.md`.
+- Review findings were documented in `/Users/eric/GitHub/App Giro Pasta Night/RECIPE_REVIEW_NOTES.md`.

@@ -1,0 +1,479 @@
+Giro: Pasta Night – finale pfannentaugliche Rezeptliste v2.3
+
+Stand: 2026-03-26
+
+Entfernt / nicht mehr im aktiven Spielkatalog:
+- Pesto genovese
+- Pesto rosso
+- Ragu alla Bolognese
+- Ragu bianco
+- Quattro formaggi
+- Crema di zucca
+- Dessert-Rezepte aus dem alten V1-Katalog
+
+Aglio e olio e peperoncino
+
+1. [NIEDRIG] Knoblauch in Öl ansetzen
+2. Chili kurz mitziehen lassen
+3. Pasta und Nudelwasser zugeben
+4. [MITTEL] Kurz emulgierend schwenken
+5. Frische Petersilie zugeben
+
+Schwierigkeit ●○○
+Knoblauch nicht bräunen lassen
+
+
+Aglio, olio e acciughe
+
+1. [NIEDRIG] Knoblauch sanft in Öl erwärmen
+2. Sardellen einrühren bis sie zerfallen
+3. Pasta und Nudelwasser zugeben
+4. [MITTEL] Kurz emulgierend schwenken
+5. Frische Petersilie zugeben
+
+Schwierigkeit ●○○
+Nicht zu heiß, sonst wird es streng
+
+
+Sardellen e limone
+
+1. [NIEDRIG] Knoblauch sanft in Öl erwärmen
+2. Sardellen einrühren bis sie zerfallen
+3. Pasta und Nudelwasser zugeben
+4. Kurz emulgierend schwenken
+5. Zitronenabrieb und wenig Zitronensaft zugeben
+
+Schwierigkeit ●○○
+Saft sparsam dosieren
+
+
+Sardellen e pangrattato
+
+1. [MITTEL] Pangrattato goldbraun rösten
+2. Brösel herausnehmen, Sardellen schmelzen
+3. Pasta und Nudelwasser zugeben
+4. Kurz emulgierend schwenken
+5. Mit Bröseln toppen
+
+Schwierigkeit ●○○
+Brösel separat knusprig halten
+
+
+Pomodoro e basilico
+
+1. [MITTEL] Knoblauch sanft anschwitzen
+2. [HOCH] Tomaten zugeben und salzen
+3. 3–4 Min köcheln lassen
+4. Pasta mit Nudelwasser binden
+5. [AUS] Frisches Basilikum unterheben
+
+Schwierigkeit ●○○
+Basilikum nie mitkochen
+
+
+Arrabbiata
+
+1. [MITTEL] Knoblauch anrösten
+2. Chili kurz im Öl ziehen lassen
+3. [HOCH] Tomaten 3–4 Min köcheln
+4. Pasta mit Nudelwasser binden
+5. Frische Petersilie oder Pecorino zugeben
+
+Schwierigkeit ●○○
+Schärfe lieber am Ende anpassen
+
+
+Marinara
+
+1. [MITTEL] Knoblauch sanft anrösten
+2. [HOCH] Tomaten zugeben und köcheln
+3. Oregano einrühren
+4. Pasta in der Sauce schwenken
+5. Kräuter-Finish zugeben
+
+Schwierigkeit ●○○
+Tomate und Oregano klar halten
+
+
+Ricotta e pomodoro al peperoncino
+
+1. [MITTEL] Tomatensauce mit Chili erwärmen
+2. [AUS] Ricotta mit Nudelwasser glattrühren
+3. Pasta in Tomate schwenken
+4. Ricotta-Creme unterziehen
+5. Kurz abschmecken und servieren
+
+Schwierigkeit ●○○
+Ricotta nicht kochen
+
+
+Cacio e pepe
+
+1. [MITTEL] Frisch gemahlenen schwarzen Pfeffer trocken rösten
+2. Nudelwasser zugeben und Basis rühren
+3. Pasta kurz in der Pfanne schwenken
+4. [AUS] Pecorino kräftig einarbeiten
+5. Mit wenig Wasser cremig ziehen
+
+Schwierigkeit ●●○
+Käse immer off heat einarbeiten
+
+
+Carbonara
+
+1. [MITTEL] Guanciale oder Pancetta knusprig auslassen und kurz herausnehmen
+2. [AUS] Eigelb, Pecorino und frisch gemahlenen schwarzen Pfeffer glattrühren
+3. Pasta mit wenig Nudelwasser zugeben
+4. [AUS] Eimasse zügig unterheben
+5. Guanciale oder Pancetta wieder zugeben und cremig servieren
+
+Schwierigkeit ●●○
+Ziel ist Emulsion, nicht Rührei
+
+
+Gricia
+
+1. [MITTEL] Guanciale oder Pancetta knusprig auslassen und kurz herausnehmen
+2. Frisch gemahlenen schwarzen Pfeffer kurz im Fett rösten
+3. Pasta und Nudelwasser zugeben
+4. [AUS] Pecorino cremig einrühren
+5. Mit Guanciale oder Pancetta als Crunch servieren
+
+Schwierigkeit ●●○
+Käse nicht auf voller Hitze einrühren
+
+
+Amatriciana
+
+1. [MITTEL] Guanciale auslassen
+2. Optional mit Weißwein kurz ablöschen
+3. [HOCH] Tomaten sanft köcheln
+4. Pasta in der Sauce schwenken
+5. Pecorino beim Servieren zugeben
+
+Schwierigkeit ●●○
+Tomate nicht zu dick einkochen
+
+
+Burro e salvia
+
+1. [NIEDRIG] Butter schmelzen
+2. Salbei kurz knusprig ziehen lassen
+3. Pasta und Nudelwasser zugeben
+4. [MITTEL] Emulgierend schwenken
+5. Optional Käse zugeben
+
+Schwierigkeit ●○○
+Butter nur leicht bräunen
+
+
+Parmigiano e burro
+
+1. [NIEDRIG] Butter schmelzen
+2. Pasta und Nudelwasser zugeben
+3. [AUS] Parmigiano einrühren
+4. Cremig ziehen
+5. Optional frisch gemahlenen schwarzen Pfeffer zugeben
+
+Schwierigkeit ●○○
+Emulsion über Restwärme aufbauen
+
+
+Funghi e burro
+
+1. [HOCH] Pilze heiß anbraten
+2. [NIEDRIG] Butter zugeben
+3. Pasta und Nudelwasser zugeben
+4. [MITTEL] Emulgierend schwenken
+5. Frische Petersilie zugeben
+
+Schwierigkeit ●●○
+Pilze erst bräunen, dann salzen
+
+
+Ricotta al limone
+
+1. [AUS] Ricotta mit Zitronenabrieb und Olivenöl glattrühren
+2. Nudelwasser einarbeiten
+3. Pasta zugeben
+4. Cremig emulgieren
+5. Mit wenig Zitronensaft abschmecken
+
+Schwierigkeit ●○○
+Abrieb ist wichtiger als Saft
+
+
+Ricotta e gorgonzola
+
+1. [NIEDRIG] Gorgonzola sanft mit Milch schmelzen
+2. Ricotta glattrühren
+3. Pasta und Nudelwasser zugeben
+4. [AUS] Cremig emulgieren
+5. Mit frisch gemahlenem schwarzen Pfeffer servieren
+
+Schwierigkeit ●○○
+Niedrige Hitze hält die Sauce stabil
+
+
+Gorgonzola e noci
+
+1. [MITTEL] Walnüsse trocken rösten und beiseitelegen
+2. [NIEDRIG] Gorgonzola in Milch schmelzen
+3. Pasta und Nudelwasser zugeben
+4. [AUS] Cremig emulgieren
+5. Geröstete Walnüsse als Finish zugeben
+
+Schwierigkeit ●○○
+Nüsse zuletzt für Crunch
+
+
+Taleggio e pepe
+
+1. [NIEDRIG] Taleggio mit Milch sanft schmelzen
+2. Frisch gemahlenen schwarzen Pfeffer einrühren
+3. Pasta und Nudelwasser zugeben
+4. [AUS] Cremig emulgieren
+5. Nach Bedarf extra frisch gemahlenen schwarzen Pfeffer zugeben
+
+Schwierigkeit ●○○
+Nicht kochen, sonst trennt es
+
+
+Stracchino e noci
+
+1. [MITTEL] Walnüsse rösten, grob hacken und beiseitelegen
+2. [NIEDRIG] Stracchino mit Milch cremig rühren
+3. Pasta und Nudelwasser zugeben
+4. [AUS] Cremig emulgieren
+5. Walnüsse als Finish zugeben
+
+Schwierigkeit ●○○
+Niedrige Hitze und Nüsse zuletzt
+
+
+Pasta all’Assassina
+
+1. Passierte Tomaten und Wasser zu Brühe mischen
+2. [HOCH] Knoblauch und Chili anrösten
+3. Trockene Pasta in der Pfanne rösten
+4. Brühe etappenweise zugeben
+5. Röstaroma kontrollieren und servieren
+
+Schwierigkeit ●●○
+Fast anbrennen ist gewollt
+
+
+Puttanesca
+
+1. [MITTEL] Knoblauch anrösten
+2. Sardellen im Öl auflösen
+3. Kapern und Oliven zugeben
+4. [HOCH] Tomaten köcheln lassen
+5. Pasta kurz emulgierend schwenken
+
+Schwierigkeit ●○○
+Erst probieren, dann salzen
+
+
+Salsiccia e finocchio
+
+1. [MITTEL] Salsiccia krümelig braten
+2. Zwiebel weich werden lassen
+3. Optional Tomate oder Wein zugeben
+4. Pasta mit Nudelwasser binden
+5. Kurz servierfertig schwenken
+
+Schwierigkeit ●●○
+Salsiccia gut zerkrümeln
+
+
+Speck e cipolla
+
+1. [NIEDRIG] Zwiebel langsam glasig ziehen
+2. [MITTEL] Speck rösten
+3. Optional Tomate kurz zugeben
+4. Pasta in der Pfanne schwenken
+5. Mit frisch gemahlenem schwarzen Pfeffer servieren
+
+Schwierigkeit ●○○
+Speck bringt schon viel Salz mit
+
+
+Pollo e panna
+
+1. [MITTEL] Hähnchen kräftig anbraten
+2. Zwiebel anschwitzen
+3. Sahne zugeben und kurz einkochen
+4. Pasta und Parmigiano binden
+5. Cremig servieren
+
+Schwierigkeit ●●○
+Hähnchen lieber klein schneiden
+
+
+Pollo e funghi
+
+1. [HOCH] Pilze heiß anbraten
+2. Hähnchen zugeben und garen
+3. Optional Sahne kurz einkochen
+4. Pasta in der Pfanne schwenken
+5. Kräuter-Finish zugeben
+
+Schwierigkeit ●●○
+Pilze erst Farbe nehmen lassen
+
+
+Tonno e pomodoro
+
+1. [MITTEL] Knoblauch anschwitzen
+2. [HOCH] Tomaten kurz simmern
+3. Thunfisch kurz einrühren
+4. Pasta in der Sauce schwenken
+5. Frische Petersilie zugeben
+
+Schwierigkeit ●○○
+Thunfisch nicht lange kochen
+
+
+Tonno e capperi
+
+1. [MITTEL] Knoblauch und Kapern anschwitzen
+2. Tomate kurz simmern lassen
+3. Thunfisch zugeben
+4. Pasta in der Sauce schwenken
+5. Kurz abschmecken und servieren
+
+Schwierigkeit ●○○
+Kapern vorher abspülen
+
+
+Salmone e panna
+
+1. [MITTEL] Lachs kurz anrösten
+2. Sahne 2–3 Min köcheln lassen
+3. Pasta und Nudelwasser zugeben
+4. Cremig emulgieren
+5. Kräuter-Finish zugeben
+
+Schwierigkeit ●●○
+Lachs nur kurz garen
+
+
+Salmone e limone
+
+1. [MITTEL] Lachs kurz garen
+2. Pasta und Nudelwasser zugeben
+3. Frischen Zitronenabrieb einrühren
+4. [AUS] Mit wenig Saft abschmecken
+5. Kräuter zugeben und servieren
+
+Schwierigkeit ●●○
+Säure immer erst am Ende
+
+
+Gamberi e aglio
+
+1. [MITTEL] Knoblauch anschwitzen
+2. Garnelen kurz braten
+3. Pasta und Nudelwasser zugeben
+4. Kurz emulgierend schwenken
+5. Frische Petersilie zugeben
+
+Schwierigkeit ●●○
+Garnelen nicht übergaren
+
+
+Gamberi e zucchine
+
+1. [MITTEL] Zucchini bissfest anbraten
+2. Garnelen kurz garen
+3. Pasta und Nudelwasser zugeben
+4. Emulgierend schwenken
+5. Frische Petersilie zugeben
+
+Schwierigkeit ●●○
+Zucchini erst am Ende salzen
+
+
+Vongole in bianco
+
+1. Vorbereitete Muscheln bereithalten
+2. [MITTEL] Muscheln öffnen und Saft auffangen
+3. Gefilterten Muschelsud zugeben
+4. Pasta emulgierend schwenken
+5. Frische Petersilie zugeben
+
+Schwierigkeit ●●●
+Ohne Vorbereitung zu riskant
+
+
+Vongole e pomodoro
+
+1. Vorbereitete Muscheln bereithalten
+2. [MITTEL] Tomaten kurz köcheln
+3. Muscheln und Muschelsud einarbeiten
+4. Pasta in der Sauce schwenken
+5. Frische Petersilie zugeben
+
+Schwierigkeit ●●●
+Tomate nur leicht halten
+
+
+Frutti di mare
+
+1. Vorgegarte Meeresfrüchte bereithalten
+2. Garzeiten kurz staffeln und erwärmen
+3. Tomate oder Sud kurz simmern
+4. Pasta in der Sauce schwenken
+5. Frische Petersilie zugeben
+
+Schwierigkeit ●●●
+Ohne Prep nicht spielgeeignet
+
+
+Bottarga e limone
+
+1. [NIEDRIG] Öl sanft aromatisieren
+2. Pasta und Nudelwasser zugeben
+3. [AUS] Geriebenen Fischrogen einrühren
+4. Frischen Zitronenabrieb zugeben
+5. Direkt servieren
+
+Schwierigkeit ●○○
+Fischrogen erst am Ende zugeben
+
+
+Melanzane e pomodoro
+
+1. Vorgegarte Auberginen bereithalten
+2. [MITTEL] Tomatensauce erwärmen
+3. Pasta in der Sauce schwenken
+4. Auberginen unterheben
+5. Basilikum oder Ricotta salata zugeben
+
+Schwierigkeit ●●○
+Auberginen besser vorbereitet nutzen
+
+
+Zucchine e menta
+
+1. [MITTEL] Zucchini fein in Öl garen
+2. Pasta und Nudelwasser zugeben
+3. Frische Minze einrühren
+4. [AUS] Käse cremig binden
+5. Kurz servieren
+
+Schwierigkeit ●○○
+Minze immer erst ganz am Ende
+
+
+Spinaci e ricotta
+
+1. [MITTEL] Spinat kurz zusammenfallen lassen
+2. [AUS] Ricotta mit Nudelwasser glattrühren
+3. Pasta zugeben
+4. Cremig emulgieren und würzen
+5. Frisch geriebenen Parmigiano zugeben
+
+Schwierigkeit ●○○
+Ricotta nicht kochen

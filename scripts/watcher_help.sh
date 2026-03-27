@@ -1,10 +1,12 @@
 #!/bin/zsh
 set -euo pipefail
 
-LABEL="com.girodipasta.recipe-image-sync"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+LABEL="com.giropastanight.recipe-image-sync"
 PLIST="$HOME/Library/LaunchAgents/${LABEL}.plist"
-LOG_FILE="/Users/eric/GitHub/App Giro di Pasta/tmp/recipe-image-watcher.log"
-ERROR_LOG_FILE="/Users/eric/GitHub/App Giro di Pasta/tmp/recipe-image-watcher-error.log"
+LOG_FILE="$PROJECT_ROOT/tmp/recipe-image-watcher.log"
+ERROR_LOG_FILE="$PROJECT_ROOT/tmp/recipe-image-watcher-error.log"
 DOMAIN="gui/$(id -u)"
 
 print_help() {

@@ -3,16 +3,16 @@
 <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>com.girodipasta.recipe-image-sync</string>
+    <string>com.giropastanight.recipe-image-sync</string>
 
     <key>ProgramArguments</key>
     <array>
       <string>/usr/local/bin/node</string>
-      <string>/Users/eric/GitHub/App Giro di Pasta/scripts/watch_recipe_images.js</string>
+      <string>/Users/eric/GitHub/App Giro Pasta Night/scripts/watch_recipe_images.js</string>
     </array>
 
     <key>WorkingDirectory</key>
-    <string>/Users/eric/GitHub/App Giro di Pasta</string>
+    <string>/Users/eric/GitHub/App Giro Pasta Night</string>
 
     <key>RunAtLoad</key>
     <true/>
@@ -21,9 +21,9 @@
     <true/>
 
     <key>StandardOutPath</key>
-    <string>/Users/eric/GitHub/App Giro di Pasta/tmp/recipe-image-watcher.log</string>
+    <string>/Users/eric/GitHub/App Giro Pasta Night/tmp/recipe-image-watcher.log</string>
 
     <key>StandardErrorPath</key>
-    <string>/Users/eric/GitHub/App Giro di Pasta/tmp/recipe-image-watcher-error.log</string>
+    <string>/Users/eric/GitHub/App Giro Pasta Night/tmp/recipe-image-watcher-error.log</string>
   </dict>
 </plist>

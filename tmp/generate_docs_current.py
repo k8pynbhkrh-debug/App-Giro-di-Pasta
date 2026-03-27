@@ -17,10 +17,10 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import mm
 from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
-ROOT = Path("/Users/eric/GitHub/App Giro di Pasta")
+ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "tmp" / "generated_docs"
 OUT.mkdir(parents=True, exist_ok=True)
-TODAY = date(2026, 3, 26)
+TODAY = date(2026, 3, 27)
 
 APP_JS = (ROOT / "app.js").read_text(encoding="utf-8")
 
@@ -181,7 +181,7 @@ def build_pdf(path: Path, story: list):
         topMargin=18 * mm,
         bottomMargin=16 * mm,
         title=path.stem,
-        author="Codex for Giro di Pasta",
+        author="Codex for Giro: Pasta Night",
     )
     doc.build(story, onFirstPage=footer, onLaterPages=footer)
     reader = PdfReader(str(path))
@@ -292,12 +292,12 @@ def get_image_stats() -> tuple[int, int, int]:
 
 
 def build_architecture_pdf(recipe_names: list[str]):
-    path = OUT / "App_Architektur_v1.3.pdf"
+    path = OUT / "App_Architektur_v1.4.pdf"
     original_images, optimized_images, joker_images = get_image_stats()
 
     story = [
-        p("GIRO DI PASTA - App Architektur v1.3", TITLE),
-        p("Diese Version aktualisiert v1.2 auf den aktuellen Stand der App inkl. Vorbereitungsschritt, lokalem QR, Web Share und aktuellem Rezeptkatalog.", SMALL),
+        p("GIRO: PASTA NIGHT - App Architektur v1.4", TITLE),
+        p("Diese Version aktualisiert v1.3 auf den aktuellen Stand der App inkl. Vorbereitungsschritt, lokalem QR, Web Share und aktuellem Rezeptkatalog.", SMALL),
         Spacer(1, 6),
         p("Technische Basis", SUBTITLE),
         *bullet_lines([
@@ -331,7 +331,7 @@ def build_architecture_pdf(recipe_names: list[str]):
         PageBreak(),
         p("Rezept- und Planungslogik", SUBTITLE),
         *bullet_lines([
-            "Aktiver Rezeptkatalog: 39 Saucen aus dem aktuellen Stand von Pasta Saucen v2.2; Joker-Runden werden separat erzeugt.",
+            "Aktiver Rezeptkatalog: 39 Saucen aus dem aktuellen Stand von Pasta Saucen v2.3; Joker-Runden werden separat erzeugt.",
             "Pro Spiel werden ca. 20 Prozent Joker-Runden eingestreut, der Rest kommt aus dem gefilterten Rezeptpool.",
             "Im offenen Modus koennen vorgeschlagene Rezepte entfernt und beliebig viele Zusatzrezepte bestaetigt hinzugefuegt werden - entweder passend zu den Filtern oder bewusst ausserhalb der Filter.",
             "Die Einkaufsliste aggregiert alle Nicht-Joker-Runden auf Basis von ca. 25 g Pasta pro Person pro Runde und ergaenzt eine pauschale Empfehlung fuer Kuechenpapier / Kuechenrolle.",
@@ -363,16 +363,16 @@ def build_architecture_pdf(recipe_names: list[str]):
 
 
 def build_concept_pdf():
-    path = OUT / "App_Konzept_v1.3.pdf"
+    path = OUT / "App_Konzept_v1.4.pdf"
     original_images, optimized_images, joker_images = get_image_stats()
 
     story = [
-        p("GIRO DI PASTA - App Konzept v1.3", TITLE),
+        p("GIRO: PASTA NIGHT - App Konzept v1.4", TITLE),
         p("Aktualisierte Produktbeschreibung fuer den aktuellen Stand ohne Timer, mit Vorbereitungsschritt und klar getrennten Spielmodi.", SMALL),
         Spacer(1, 6),
         p("Grundidee", SUBTITLE),
         *bullet_lines([
-            "Giro di Pasta ist ein gemeinsames Kochspiel fuer den Tisch: Das Smartphone ersetzt Rezeptkarten, Einkaufsliste, Vorbereitungszettel und Teile der Spielleitung.",
+            "Giro: Pasta Night ist ein gemeinsames Kochspiel fuer den Tisch: Das Smartphone ersetzt Rezeptkarten, Einkaufsliste, Vorbereitungszettel und Teile der Spielleitung.",
             "Der Koch liest nur die Schritte. Geraten wird muendlich zwischen den Mitspielern, nicht in der App.",
             "Die App bleibt auch mit fettigen oder nassen Haenden bedienbar: grosse Buttons, klare Ueberschriften, wenig Ablenkung und konsistente Platzierung der Weiter-Aktionen.",
         ]),
@@ -429,9 +429,9 @@ def build_concept_pdf():
 
 
 def build_architecture_card_pdf():
-    path = OUT / "Architekturkarte v1.2.pdf"
+    path = OUT / "Architekturkarte v1.3.pdf"
     story = [
-        p("GIRO DI PASTA - Architekturkarte v1.2", TITLE),
+        p("GIRO: PASTA NIGHT - Architekturkarte v1.3", TITLE),
         p("Kompakte Uebersicht des aktuellen App-Flows", SMALL),
         Spacer(1, 6),
     ]
@@ -480,9 +480,9 @@ def build_architecture_card_pdf():
 
 
 def build_rules_pdf():
-    path = OUT / "Regelblatt_v1.3.pdf"
+    path = OUT / "Regelblatt_v1.4.pdf"
     story = [
-        p("GIRO DI PASTA - Regelblatt v1.3", TITLE),
+        p("GIRO: PASTA NIGHT - Regelblatt v1.4", TITLE),
         p("Aktuelle Spielregeln ohne Timer und ohne Abschluss-Rangliste.", SMALL),
         Spacer(1, 6),
         p("Gemeinsame Grundregeln", SUBTITLE),
@@ -536,11 +536,11 @@ def build_rules_pdf():
 
 
 def build_recipe_list_pdf(recipe_names: list[str]):
-    path = OUT / "Rezeptliste v1.2.pdf"
+    path = OUT / "Rezeptliste v1.3.pdf"
     validate_grouped_recipe_list(recipe_names)
     story = [
-        p("GIRO DI PASTA - Rezeptliste v1.2", TITLE),
-        p("Aktiver Rezeptkatalog der App auf Basis von Pasta Saucen v2.2.", SMALL),
+        p("GIRO: PASTA NIGHT - Rezeptliste v1.3", TITLE),
+        p("Aktiver Rezeptkatalog der App auf Basis von Pasta Saucen v2.3.", SMALL),
         Spacer(1, 6),
         p(f"Aktive Rezepte: {len(recipe_names)}. Joker-Runden werden separat erzeugt und sind kein eigenes Rezept.", BODY),
     ]
@@ -555,7 +555,7 @@ def build_recipe_list_pdf(recipe_names: list[str]):
 
 
 def build_task_list_xlsx():
-    path = OUT / "Aufgabenliste v1.3.xlsx"
+    path = OUT / "Aufgabenliste v1.4.xlsx"
     rows = [
         (1, "UX", "Privacy Screen beim Handy-Handover", "Rezept erst nach Uebergabe sichtbar machen", "Erledigt", "Reveal-Screen aktiv im Modus Mit Raten."),
         (2, "UX", "Cooking Screen bereinigen", "Titel, Schritte, Score, Skip, Schwierigkeit und Tipp sauber darstellen", "Erledigt", "Timer-UI entfernt, Kochscreen bleibt praktisch."),
@@ -595,7 +595,7 @@ def build_task_list_xlsx():
 
     wb = Workbook()
     ws = wb.active
-    ws.title = "Giro di Pasta Tasks v1.3"
+    ws.title = "Giro Pasta Night Tasks v1.4"
     ws.append(["Prioritaet", "Kategorie", "Aufgabe", "Beschreibung / Ziel", "Status", "Stand / Hinweis"])
     for row in rows:
         ws.append(row)
@@ -645,7 +645,7 @@ def ingredient_base_label(label: str) -> str:
 
 
 def build_amount_model_xlsx(recipes_data: list[dict]):
-    path = OUT / "Mengenmodell Portionsbasis v1.3.xlsx"
+    path = OUT / "Mengenmodell Portionsbasis v1.4.xlsx"
     ingredient_columns = get_current_ingredients(recipes_data)
     recipe_count = len(recipes_data)
     default_rounds = 8
@@ -671,7 +671,7 @@ def build_amount_model_xlsx(recipes_data: list[dict]):
     ws_assumptions.title = "Assumptions"
     assumption_rows = [
         ("Parameter", "Wert", "Erläuterung"),
-        ("Anzahl Rezepte", recipe_count, "aktueller App-Stand / Pasta Saucen v2.2"),
+        ("Anzahl Rezepte", recipe_count, "aktueller App-Stand / Pasta Saucen v2.3"),
         ("Pasta pro Rezept & Person (g)", 25, "freie Pastasorte, Menge zählt pro Runde"),
         ("Referenzbasis (g Pasta)", 100, "Alle Rezeptmengen beziehen sich zusätzlich auf 100 g Pasta"),
         ("Skalierungsfaktor 100g→25g", 0.25, "25/100"),
@@ -679,7 +679,7 @@ def build_amount_model_xlsx(recipes_data: list[dict]):
         ("Rezepte gekocht (N)", default_rounds, "Für den Abend: Gesamt = Portion × N × Personen. N ist editierbar."),
         ("Interpretation Totals_1p", "1 Portion", f"Durchschnitt pro Rezeptkarte (uniform über {recipe_count} Rezepte) für 25 g Pasta."),
         ("Nicht quantifiziert", "Küchenpapier / Küchenrolle", "Empfehlung erscheint in der App-Einkaufsliste, ist aber kein Mengenmodell-Wert."),
-        ("Version", "1.3", "Auf aktuellen V2.2-Rezeptstand und aktuelle Zutaten bereinigt am 2026-03-26"),
+        ("Version", "1.4", "Auf aktuellen V2.3-Rezeptstand und aktuelle Zutaten bereinigt am 2026-03-27"),
     ]
     for row in assumption_rows:
         ws_assumptions.append(row)
@@ -752,7 +752,7 @@ def build_amount_model_xlsx(recipes_data: list[dict]):
 
 
 def build_ingredient_list_pdf(recipes_data: list[dict]):
-    path = OUT / "Zutatenliste v1.1.pdf"
+    path = OUT / "Zutatenliste v1.2.pdf"
     ingredient_set = {ingredient_base_label(label) for label in get_current_ingredients(recipes_data)}
 
     grouped = [
@@ -773,7 +773,7 @@ def build_ingredient_list_pdf(recipes_data: list[dict]):
         raise RuntimeError(f"Zutatenliste enthält noch nicht zugeordnete Zutaten: {missing}")
 
     story = [
-        p("GIRO DI PASTA - Zutatenliste v1.1", TITLE),
+        p("GIRO: PASTA NIGHT - Zutatenliste v1.2", TITLE),
         p("Aktualisierte Zutatenuebersicht passend zum aktuellen Rezeptkatalog und zur generischen Pasta-Regel.", SMALL),
         Spacer(1, 6),
         p("Hinweis: Die App rechnet immer mit generischer Pasta. Welche Form gekauft wird, bleibt bewusst offen.", BODY),
@@ -785,9 +785,9 @@ def build_ingredient_list_pdf(recipes_data: list[dict]):
 
 
 def build_pasta_sauces_text(recipe_names: list[str], recipe_guides: dict[str, dict]):
-    path = OUT / "Pasta Saucen v2.2.txt"
+    path = OUT / "Pasta Saucen v2.3.txt"
     lines = [
-        "Giro di Pasta – finale pfannentaugliche Rezeptliste v2.2",
+        "Giro: Pasta Night – finale pfannentaugliche Rezeptliste v2.3",
         "",
         "Stand: 2026-03-26",
         "",
@@ -816,25 +816,25 @@ def build_summary_md(recipe_names: list[str]):
     original_images, optimized_images, joker_images = get_image_stats()
     path = OUT / "DOCUMENT_UPDATE_SUMMARY.md"
     lines = [
-        "# Dokumentenupdate Giro di Pasta",
+        "# Dokumentenupdate Giro: Pasta Night",
         "",
         f"- Stand: {TODAY.isoformat()}",
-        "- Quelle: aktueller App-Stand in /Users/eric/GitHub/App Giro di Pasta",
+        "- Quelle: aktueller App-Stand im Projekt Giro: Pasta Night",
         "- Timer wurde in allen neuen Dokumenten weiter als entfernt / ausser Scope behandelt.",
         f"- Aktive Rezepte ohne Joker: {len(recipe_names)}",
         f"- Rezeptbilder: {original_images} Rezeptbilder + {joker_images} Joker-Bild",
         f"- Optimierte Web-Bilder: {optimized_images}",
         "",
         "## Neue Dateien",
-        "- App_Architektur_v1.3.pdf",
-        "- App_Konzept_v1.3.pdf",
-        "- Architekturkarte v1.2.pdf",
-        "- Aufgabenliste v1.3.xlsx",
-        "- Mengenmodell Portionsbasis v1.3.xlsx",
-        "- Pasta Saucen v2.2.txt",
-        "- Regelblatt_v1.3.pdf",
-        "- Rezeptliste v1.2.pdf",
-        "- Zutatenliste v1.1.pdf",
+        "- App_Architektur_v1.4.pdf",
+        "- App_Konzept_v1.4.pdf",
+        "- Architekturkarte v1.3.pdf",
+        "- Aufgabenliste v1.4.xlsx",
+        "- Mengenmodell Portionsbasis v1.4.xlsx",
+        "- Pasta Saucen v2.3.txt",
+        "- Regelblatt_v1.4.pdf",
+        "- Rezeptliste v1.3.pdf",
+        "- Zutatenliste v1.2.pdf",
     ]
     path.write_text("\n".join(lines), encoding="utf-8")
 

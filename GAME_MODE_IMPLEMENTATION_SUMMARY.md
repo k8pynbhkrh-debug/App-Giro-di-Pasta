@@ -1,4 +1,4 @@
-# Giro di Pasta - Game Mode Implementation Summary
+# Giro: Pasta Night - Game Mode Implementation Summary
 
 ## Changed files
 - `/Users/eric/GitHub/App Giro di Pasta/app.js`

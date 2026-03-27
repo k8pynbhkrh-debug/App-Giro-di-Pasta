@@ -1,4 +1,4 @@
-# Giro di Pasta – Remaining Development Tasks
+# Giro: Pasta Night – Remaining Development Tasks
 
 ## Not Done (Critical)
 - IndexedDB statt localStorage

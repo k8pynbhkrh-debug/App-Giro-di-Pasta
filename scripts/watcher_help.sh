@@ -9,7 +9,7 @@ DOMAIN="gui/$(id -u)"
 
 print_help() {
   cat <<'EOF'
-Giro di Pasta watcher helper
+Giro: Pasta Night watcher helper
 
 Benutzung:
   ./scripts/watcher_help.sh start

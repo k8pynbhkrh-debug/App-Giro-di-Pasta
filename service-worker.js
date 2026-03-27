@@ -1,5 +1,5 @@
-const CACHE_VERSION = "v16";
-const CACHE_NAME = `giro-di-pasta-${CACHE_VERSION}`;
+const CACHE_VERSION = "v17";
+const CACHE_NAME = `giro-pasta-night-${CACHE_VERSION}`;
 const CORE_ASSETS = [
   "./",
   "./index.html",

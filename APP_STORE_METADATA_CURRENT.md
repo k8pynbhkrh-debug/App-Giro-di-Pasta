@@ -1,10 +1,10 @@
-# Giro di Pasta – App Store Metadata
+# Giro: Pasta Night – App Store Metadata
 
 Stand: aktueller Funktionsumfang der App im Repository. Keine Zukunftsfeatures, keine Timer-Funktionen, kein versteckter Live-Multiplayer.
 
 ## App Name
 
-Giro di Pasta
+Giro: Pasta Night
 
 ## Untertitel
 
@@ -12,11 +12,11 @@ Pasta-Kochspiel für Gruppen
 
 ## Kurzbeschreibung
 
-Giro di Pasta begleitet euren Kochabend von der Rezeptauswahl bis zum Spielende. Die App ersetzt Rezeptkarten, erstellt Einkaufslisten und führt Runde für Runde durch das Spiel.
+Giro: Pasta Night begleitet euren Kochabend von der Rezeptauswahl bis zum Spielende. Die App ersetzt Rezeptkarten, erstellt Einkaufslisten und führt Runde für Runde durch das Spiel.
 
 ## Vollständige Beschreibung
 
-Giro di Pasta ist ein soziales Koch- und Partyspiel für Gruppen.
+Giro: Pasta Night ist ein soziales Koch- und Partyspiel für Gruppen.
 
 Die App ersetzt klassische Rezeptkarten und begleitet den Abend von der Planung bis zum Spielrückblick:
 

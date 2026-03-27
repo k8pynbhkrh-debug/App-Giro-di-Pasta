@@ -1,4 +1,4 @@
-# Giro di Pasta – Task List Status Check
+# Giro: Pasta Night – Task List Status Check
 
 ## Done
 - [done] Privacy Screen beim Handy-Handover

@@ -1533,6 +1533,9 @@ function saveFreeRecipePoolIds(recipeIds) {
     recipeIds,
     updatedAt: Date.now()
   }));
+  if (FREE_RECIPE_POOL_KEY !== LEGACY_FREE_RECIPE_POOL_KEY) {
+    localStorage.removeItem(LEGACY_FREE_RECIPE_POOL_KEY);
+  }
 }
 
 function createAndStoreFreeRecipePool(catalog = getCompleteRecipeCatalog()) {
@@ -1544,11 +1547,14 @@ function createAndStoreFreeRecipePool(catalog = getCompleteRecipeCatalog()) {
 
 function getFreeRecipePoolIds(catalog = getCompleteRecipeCatalog()) {
   try {
-    const raw = localStorage.getItem(FREE_RECIPE_POOL_KEY);
+    const raw = localStorage.getItem(FREE_RECIPE_POOL_KEY) || localStorage.getItem(LEGACY_FREE_RECIPE_POOL_KEY);
     if (!raw) return createAndStoreFreeRecipePool(catalog);
     const parsed = JSON.parse(raw);
     const recipeIds = normalizeStoredRecipePoolIds(parsed?.recipeIds, catalog);
     if (recipeIds.length >= Math.min(FREE_RECIPE_POOL_SIZE, catalog.length)) {
+      if (!localStorage.getItem(FREE_RECIPE_POOL_KEY)) {
+        saveFreeRecipePoolIds(recipeIds);
+      }
       return recipeIds;
     }
     return createAndStoreFreeRecipePool(catalog);
@@ -1624,10 +1630,14 @@ function recomputeShoppingArtifacts(game) {
   game.shoppingExport = buildReminderExport(game.shoppingList);
 }
 
-const STORAGE_KEY = 'giro_di_pasta_games_v1';
-const SYNC_ENDPOINT_KEY = 'giro_di_pasta_sync_endpoint';
-const ACCESS_STORAGE_KEY = 'giro_di_pasta_access_v1';
-const FREE_RECIPE_POOL_KEY = 'giro_di_pasta_free_recipe_pool_v1';
+const STORAGE_KEY = 'giro_pasta_night_games_v1';
+const LEGACY_STORAGE_KEY = 'giro_di_pasta_games_v1';
+const SYNC_ENDPOINT_KEY = 'giro_pasta_night_sync_endpoint';
+const LEGACY_SYNC_ENDPOINT_KEY = 'giro_di_pasta_sync_endpoint';
+const ACCESS_STORAGE_KEY = 'giro_pasta_night_access_v1';
+const LEGACY_ACCESS_STORAGE_KEY = 'giro_di_pasta_access_v1';
+const FREE_RECIPE_POOL_KEY = 'giro_pasta_night_free_recipe_pool_v1';
+const LEGACY_FREE_RECIPE_POOL_KEY = 'giro_di_pasta_free_recipe_pool_v1';
 const FREE_RECIPE_POOL_SIZE = 10;
 const MAX_FREE_GAMES = 2;
 const PREMIUM_PRICE_LABEL = 'Einmalig 2,99 €';
@@ -1659,9 +1669,14 @@ function normalizeAccessState(rawState) {
 
 function loadAccessState() {
   try {
-    const raw = localStorage.getItem(ACCESS_STORAGE_KEY);
+    const raw = localStorage.getItem(ACCESS_STORAGE_KEY) || localStorage.getItem(LEGACY_ACCESS_STORAGE_KEY);
     if (!raw) return getDefaultAccessState();
-    return normalizeAccessState(JSON.parse(raw));
+    const normalized = normalizeAccessState(JSON.parse(raw));
+    if (!localStorage.getItem(ACCESS_STORAGE_KEY)) {
+      accessState = normalized;
+      saveAccessState();
+    }
+    return normalized;
   } catch (error) {
     return getDefaultAccessState();
   }
@@ -1671,6 +1686,9 @@ function saveAccessState() {
   accessState = normalizeAccessState(accessState);
   accessState.updatedAt = Date.now();
   localStorage.setItem(ACCESS_STORAGE_KEY, JSON.stringify(accessState));
+  if (ACCESS_STORAGE_KEY !== LEGACY_ACCESS_STORAGE_KEY) {
+    localStorage.removeItem(LEGACY_ACCESS_STORAGE_KEY);
+  }
 }
 
 function markPostGamePaywallHandled() {
@@ -1787,7 +1805,15 @@ function makeRowSwipeable(row, container) {
 }
 
 function getSyncEndpointBase() {
-  const raw = localStorage.getItem(SYNC_ENDPOINT_KEY) || '';
+  const raw = localStorage.getItem(SYNC_ENDPOINT_KEY)
+    || localStorage.getItem(LEGACY_SYNC_ENDPOINT_KEY)
+    || '';
+  if (raw && !localStorage.getItem(SYNC_ENDPOINT_KEY)) {
+    localStorage.setItem(SYNC_ENDPOINT_KEY, raw);
+    if (SYNC_ENDPOINT_KEY !== LEGACY_SYNC_ENDPOINT_KEY) {
+      localStorage.removeItem(LEGACY_SYNC_ENDPOINT_KEY);
+    }
+  }
   return raw.replace(/\/+$/, '');
 }
 
@@ -2072,10 +2098,17 @@ function normalizeStoredGame(game) {
 
 function loadGames() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.map(normalizeStoredGame) : [];
+    const normalizedGames = Array.isArray(parsed) ? parsed.map(normalizeStoredGame) : [];
+    if (!localStorage.getItem(STORAGE_KEY) && normalizedGames.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(normalizedGames));
+      if (STORAGE_KEY !== LEGACY_STORAGE_KEY) {
+        localStorage.removeItem(LEGACY_STORAGE_KEY);
+      }
+    }
+    return normalizedGames;
   } catch (error) {
     return [];
   }
@@ -2083,6 +2116,9 @@ function loadGames() {
 
 function saveGames() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(games));
+  if (STORAGE_KEY !== LEGACY_STORAGE_KEY) {
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+  }
 }
 
 function formatGameLabel(game) {
@@ -2821,7 +2857,7 @@ function getRecipeRecapExportText(game = getCurrentGame()) {
     lines.push('');
   });
 
-  return [`Giro di Pasta - Gespielte Rezepte`, ...lines].join('\n').trim();
+  return [`Giro: Pasta Night - Gespielte Rezepte`, ...lines].join('\n').trim();
 }
 
 const HAPTIC_PATTERNS = Object.freeze({
@@ -3468,7 +3504,7 @@ let pendingRestartFromBeginningGameId = null;
 
 function applyModeBranding() {
   if (!spectatorMode) return;
-  document.title = 'Giro di Pasta - Zuschauermodus';
+  document.title = 'Giro: Pasta Night - Zuschauermodus';
 
   const faviconLink = document.querySelector('link[rel="icon"]');
   const appleTouchLink = document.querySelector('link[rel="apple-touch-icon"]');
@@ -3660,7 +3696,7 @@ async function shareShoppingList(game = getCurrentGame()) {
 
   try {
     await navigator.share({
-      title: 'Einkaufsliste – Giro di Pasta',
+      title: 'Einkaufsliste – Giro: Pasta Night',
       text
     });
     return true;
@@ -3681,7 +3717,7 @@ function closeExportModal() {
 function openWhatsappExport() {
   const text = getShoppingExportText();
   if (!text) return;
-  const encoded = encodeURIComponent(`Giro di Pasta Einkaufsliste\n${text}`);
+  const encoded = encodeURIComponent(`Giro: Pasta Night Einkaufsliste\n${text}`);
   window.location.href = `whatsapp://send?text=${encoded}`;
 }
 
@@ -4128,7 +4164,7 @@ window.addEventListener('storage', event => {
   }
 });
 
-const channel = 'BroadcastChannel' in window ? new BroadcastChannel('giro-di-pasta') : null;
+const channel = 'BroadcastChannel' in window ? new BroadcastChannel('giro-pasta-night') : null;
 if (channel) {
   channel.addEventListener('message', event => {
     if (spectatorMode && event.data?.type === 'game-update' && event.data?.game?.id === spectatorGameId) {

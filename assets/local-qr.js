@@ -1,4 +1,4 @@
-/* Local QR bundle for Giro di Pasta
+/* Local QR bundle for Giro: Pasta Night
  * Source adapted from qrcode-terminal / QRCode for JavaScript (MIT).
  */
 (function(global) {

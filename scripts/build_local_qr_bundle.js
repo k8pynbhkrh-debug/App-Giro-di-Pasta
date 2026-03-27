@@ -32,7 +32,7 @@ const moduleEntries = files.map(file => {
   return `    "${file}": function(module, exports, require) {\n${escapeModuleCode(source)}\n    }`;
 }).join(',\n');
 
-const bundle = `/* Local QR bundle for Giro di Pasta
+const bundle = `/* Local QR bundle for Giro: Pasta Night
  * Source adapted from qrcode-terminal / QRCode for JavaScript (MIT).
  */
 (function(global) {

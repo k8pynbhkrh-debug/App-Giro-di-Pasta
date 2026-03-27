@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Giro di Pasta",
-  "short_name": "GiroPasta",
+  "name": "Giro: Pasta Night",
+  "short_name": "Giro: Pasta Night",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

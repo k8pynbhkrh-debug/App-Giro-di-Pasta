@@ -30,7 +30,7 @@
 ## Export Logic
 
 - `Apple Erinnerungen` now tries `navigator.share(...)` first with:
-  - title: `Einkaufsliste – Giro di Pasta`
+  - title: `Einkaufsliste – Giro: Pasta Night`
   - text: formatted shopping list
 - If Web Share is unavailable or fails, the flow falls back to clipboard copy.
 - `Copy for Bring` copies a minimal line-based list to the clipboard with one entry per line and no extra decoration.

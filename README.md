@@ -1,8 +1,8 @@
-# Giro di Pasta 🍝
+# Giro: Pasta Night 🍝
 
 Ein experimentelles Koch-Partyspiel als **Progressive Web App (PWA)**.
 
-Die App unterstützt das Partyspiel **Giro di Pasta**, bei dem Spieler versteckte Rezepte kochen und andere versuchen, diese zu erraten.
+Die App unterstützt das Partyspiel **Giro: Pasta Night**, bei dem Spieler versteckte Rezepte kochen und andere versuchen, diese zu erraten.
 
 ---
 
@@ -27,7 +27,7 @@ Mehr Details im offiziellen Regelblatt.
 
 Die vollständigen Regeln findest du hier:
 
-📄 **Giro di Pasta – Regelblatt**
+📄 **Giro: Pasta Night – Regelblatt**
 
 
 ---
@@ -93,4 +93,4 @@ Aktuell wird getestet:
 
 ## 👨‍🍳 Autor
 
-Projekt von **Giro di Pasta**.
+Projekt von **Giro: Pasta Night**.

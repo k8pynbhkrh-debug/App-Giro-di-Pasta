@@ -1,4 +1,4 @@
-# Giro di Pasta - Game Mode Test Checklist
+# Giro: Pasta Night - Game Mode Test Checklist
 
 ## A. Mit Raten
 - Create a new game.

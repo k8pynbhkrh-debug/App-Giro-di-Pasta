@@ -2777,7 +2777,7 @@ function renderRoundHandover(game, fixedPlayerIndex = null) {
   recipeMetaEl.textContent = '';
   difficultyIndicatorEl.textContent = 'Schwierigkeit ●●○';
   tipTextEl.textContent = 'Tipp: Rezeptkarte wird nach der Übergabe angezeigt.';
-  stepListEl.innerHTML = '<li>Wenn das Handy uebergeben wurde, druecke auf "Rezept anzeigen".</li>';
+  stepListEl.innerHTML = '<li>Wenn das Handy übergeben wurde, drücke auf "Rezept anzeigen".</li>';
   setRecipeIllustrationPlaceholder();
   recipeTitleEl.style.borderBottomColor = '#cabaa2';
   setGameFrameAccent('#cabaa2');
@@ -3255,7 +3255,7 @@ generateBtn.addEventListener('click', () => {
   const realRecipeCount = Math.min(realRecipeTarget, eligibleRecipes.length);
 
   if (eligibleRecipes.length === 0) {
-    showStatus('Keine Rezepte passen zu den gewaehlten Regeln. Passe die Filter an.', true);
+    showStatus('Keine Rezepte passen zu den gewählten Regeln. Passe die Filter an.', true);
     return;
   }
 

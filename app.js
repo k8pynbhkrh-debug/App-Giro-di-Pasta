@@ -2545,6 +2545,22 @@ function isRoundScoringLocked(game) {
   return !game || !isGuessingMode(game) || !!game.awaitingRecipeReveal || !!game.finished;
 }
 
+function getScoreEntriesInPlayerOrder(game) {
+  if (!game || !Array.isArray(game.players)) return [];
+  return game.players.map((name, idx) => ({
+    name,
+    score: game.scores?.[idx] ?? 0,
+    index: idx
+  }));
+}
+
+function getScoreLeaders(game) {
+  const entries = getScoreEntriesInPlayerOrder(game);
+  if (entries.length === 0) return [];
+  const highestScore = Math.max(...entries.map(entry => entry.score));
+  return entries.filter(entry => entry.score === highestScore);
+}
+
 function renderScoreboard(game) {
   if (!game || !isGuessingMode(game)) {
     scoreSectionEl.classList.add('hidden');
@@ -2559,18 +2575,16 @@ function renderScoreboard(game) {
   scoreListEl.innerHTML = '';
   scoreSummaryEl.textContent = 'Punktestand';
   const scoringLocked = isRoundScoringLocked(game);
-  const ranking = game.players
-    .map((name, idx) => ({ name, score: game.scores[idx] ?? 0, index: idx }))
-    .sort((a, b) => (b.score - a.score) || (a.index - b.index));
+  const entries = getScoreEntriesInPlayerOrder(game);
 
-  ranking.forEach((entry, rankIndex) => {
+  entries.forEach(entry => {
     const isCook = !scoringLocked && entry.index === game.activePlayerTurnIndex;
     const wrongDisabled = scoringLocked || isCook;
     const correctDisabled = scoringLocked || isCook || !!game.roundHasCorrectTip;
     const li = document.createElement('li');
     li.className = 'score-item';
     li.innerHTML = `
-      <strong>${rankIndex + 1}. ${entry.name}: ${entry.score} Pkt</strong>
+      <strong>${entry.name}: ${entry.score} Pkt</strong>
       <div class="score-controls">
         <button data-score="${entry.index}" data-delta="-1" data-kind="wrong" title="Falscher Tipp (-1)" ${wrongDisabled ? 'disabled' : ''}>Falsch</button>
         <button data-score="${entry.index}" data-delta="2" data-kind="correct" title="Richtiger Tipp (+2)" ${correctDisabled ? 'disabled' : ''}>Richtig</button>
@@ -2579,9 +2593,11 @@ function renderScoreboard(game) {
     scoreListEl.appendChild(li);
   });
 
-  const leader = ranking[0];
-  scoreSummaryLeaderEl.textContent = leader
-    ? `1. ${leader.name}: ${leader.score} Pkt`
+  const leaders = getScoreLeaders(game);
+  scoreSummaryLeaderEl.textContent = leaders.length > 0
+    ? leaders.length === 1
+      ? `Führung: ${leaders[0].name} (${leaders[0].score} Pkt)`
+      : `Geteilt vorne: ${leaders.map(entry => entry.name).join(', ')} (${leaders[0].score} Pkt)`
     : 'Noch keine Punkte';
   renderScoreStrip(game);
 }
@@ -2693,10 +2709,28 @@ function getPlayedRecipeRounds(game) {
 
 function renderRecap(game) {
   recapSectionEl.classList.remove('hidden');
-  recapScorePanelEl.classList.add('hidden');
+  const guessing = isGuessingMode(game);
+  recapScorePanelEl.classList.toggle('hidden', !guessing);
   recapScoreListEl.innerHTML = '';
+  recapWinnerEl.textContent = '';
   recapRecipeListEl.innerHTML = '';
   exportRecipesWhatsappBtn.disabled = getPlayedRecipeRounds(game).length === 0;
+
+  if (guessing) {
+    const entries = getScoreEntriesInPlayerOrder(game);
+    const leaders = getScoreLeaders(game);
+    recapWinnerEl.textContent = leaders.length === 0
+      ? 'Kein Punktestand vorhanden.'
+      : leaders.length === 1
+        ? `Gewonnen hat ${leaders[0].name} mit ${leaders[0].score} Punkten.`
+        : `Geteilter 1. Platz: ${leaders.map(entry => entry.name).join(', ')} mit jeweils ${leaders[0].score} Punkten.`;
+
+    entries.forEach(entry => {
+      const li = document.createElement('li');
+      li.textContent = `${entry.name}: ${entry.score} Pkt`;
+      recapScoreListEl.appendChild(li);
+    });
+  }
 
   getPlayedRecipeRounds(game).forEach((round, idx) => {
     const li = document.createElement('li');
@@ -3053,6 +3087,7 @@ const scoreSummaryLeaderEl = document.getElementById('scoreSummaryLeader');
 const scoreListEl = document.getElementById('scoreList');
 const recapSectionEl = document.getElementById('recapSection');
 const recapScorePanelEl = document.getElementById('recapScorePanel');
+const recapWinnerEl = document.getElementById('recapWinner');
 const recapScoreListEl = document.getElementById('recapScoreList');
 const recapRecipeListEl = document.getElementById('recapRecipeList');
 const exportRecipesWhatsappBtn = document.getElementById('exportRecipesWhatsapp');

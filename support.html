@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#d94f04">
+  <title>Giro: Pasta Night - Support</title>
+  <style>
+    :root {
+      --bg: #f2ebdf;
+      --surface: #ffffff;
+      --text: #111111;
+      --muted: #5d5348;
+      --line: #e4dccf;
+      --accent: #d94f04;
+      --shadow: 0 12px 28px rgba(17, 17, 17, 0.08);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 8%, rgba(255, 255, 255, 0.45), transparent 36%),
+        radial-gradient(circle at 88% 12%, rgba(236, 221, 198, 0.48), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: Georgia, serif;
+      padding: 20px;
+    }
+
+    .shell {
+      max-width: 760px;
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      display: grid;
+      gap: 14px;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      color: #2f2a23;
+    }
+
+    p,
+    li {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.25rem;
+      display: grid;
+      gap: 8px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .button-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid #d8cdbd;
+      background: #fff;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .button-link.primary {
+      border-color: #cdb69b;
+      background: #fffaf3;
+    }
+
+    .mail-link {
+      color: var(--accent);
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="card">
+      <p class="eyebrow">Giro: Pasta Night</p>
+      <h1>Support</h1>
+      <p>Bei Fragen, Problemen oder Feedback zur App kannst du dich per E-Mail melden.</p>
+      <p><a class="mail-link" href="mailto:support.giro.app@gmail.com">support.giro.app@gmail.com</a></p>
+      <div class="actions">
+        <a href="./" class="button-link primary">Zur App zurück</a>
+        <a href="./privacy.html" class="button-link">Datenschutz</a>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Hilfreich für eine schnelle Antwort</h2>
+      <ul>
+        <li>kurze Beschreibung des Problems oder Feedbacks</li>
+        <li>verwendetes Gerät und iOS-Version</li>
+        <li>ob die App im Browser oder als installierte Web-App genutzt wurde</li>
+        <li>falls relevant: ob ein Reload, App-Neustart oder Offline-Nutzung beteiligt war</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

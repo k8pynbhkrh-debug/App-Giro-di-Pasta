@@ -1515,70 +1515,8 @@ function getCompleteRecipeCatalog() {
   return recipesData.concat(supplementalRecipes).filter(isRecipeActive);
 }
 
-function normalizeStoredRecipePoolIds(rawIds, catalog) {
-  const availableIds = new Set(catalog.map(recipe => normalizeForId(recipe.name)));
-  const uniqueIds = [];
-
-  (Array.isArray(rawIds) ? rawIds : []).forEach(id => {
-    const normalizedId = normalizeForId(id || '');
-    if (!normalizedId || !availableIds.has(normalizedId) || uniqueIds.includes(normalizedId)) return;
-    uniqueIds.push(normalizedId);
-  });
-
-  return uniqueIds;
-}
-
-function saveFreeRecipePoolIds(recipeIds) {
-  localStorage.setItem(FREE_RECIPE_POOL_KEY, JSON.stringify({
-    recipeIds,
-    updatedAt: Date.now()
-  }));
-  if (FREE_RECIPE_POOL_KEY !== LEGACY_FREE_RECIPE_POOL_KEY) {
-    localStorage.removeItem(LEGACY_FREE_RECIPE_POOL_KEY);
-  }
-}
-
-function createAndStoreFreeRecipePool(catalog = getCompleteRecipeCatalog()) {
-  const selectedRecipes = selectDiverseRecipes(catalog, Math.min(FREE_RECIPE_POOL_SIZE, catalog.length));
-  const recipeIds = selectedRecipes.map(recipe => normalizeForId(recipe.name));
-  saveFreeRecipePoolIds(recipeIds);
-  return recipeIds;
-}
-
-function getFreeRecipePoolIds(catalog = getCompleteRecipeCatalog()) {
-  try {
-    const raw = localStorage.getItem(FREE_RECIPE_POOL_KEY) || localStorage.getItem(LEGACY_FREE_RECIPE_POOL_KEY);
-    if (!raw) return createAndStoreFreeRecipePool(catalog);
-    const parsed = JSON.parse(raw);
-    const recipeIds = normalizeStoredRecipePoolIds(parsed?.recipeIds, catalog);
-    if (recipeIds.length >= Math.min(FREE_RECIPE_POOL_SIZE, catalog.length)) {
-      if (!localStorage.getItem(FREE_RECIPE_POOL_KEY)) {
-        saveFreeRecipePoolIds(recipeIds);
-      }
-      return recipeIds;
-    }
-    return createAndStoreFreeRecipePool(catalog);
-  } catch (error) {
-    return createAndStoreFreeRecipePool(catalog);
-  }
-}
-
-function getFreeRecipeCatalog() {
-  const catalog = getCompleteRecipeCatalog();
-  const recipeIds = getFreeRecipePoolIds(catalog);
-  const recipesById = new Map(catalog.map(recipe => [normalizeForId(recipe.name), recipe]));
-  return recipeIds
-    .map(id => recipesById.get(id))
-    .filter(Boolean);
-}
-
 function getAllRecipes() {
-  if (!MONETIZATION_ENABLED) return getCompleteRecipeCatalog();
-  return accessState.isPremium ? getCompleteRecipeCatalog() : getFreeRecipeCatalog();
-}
-
-function getRecipeMarketingLabel() {
-  return `${getCompleteRecipeCatalog().length}+ Rezepte verfügbar`;
+  return getCompleteRecipeCatalog();
 }
 
 function findRecipeByName(recipeName) {
@@ -1635,179 +1573,9 @@ const STORAGE_KEY = 'giro_pasta_night_games_v1';
 const LEGACY_STORAGE_KEY = 'giro_di_pasta_games_v1';
 const SYNC_ENDPOINT_KEY = 'giro_pasta_night_sync_endpoint';
 const LEGACY_SYNC_ENDPOINT_KEY = 'giro_di_pasta_sync_endpoint';
-const ACCESS_STORAGE_KEY = 'giro_pasta_night_access_v1';
-const LEGACY_ACCESS_STORAGE_KEY = 'giro_di_pasta_access_v1';
-const FREE_RECIPE_POOL_KEY = 'giro_pasta_night_free_recipe_pool_v1';
-const LEGACY_FREE_RECIPE_POOL_KEY = 'giro_di_pasta_free_recipe_pool_v1';
-const MONETIZATION_ENABLED = false;
-const FREE_RECIPE_POOL_SIZE = 10;
-const MAX_FREE_GAMES = 2;
-const PREMIUM_PRICE_LABEL = 'Einmalig 2,99 €';
 
 function createRunId() {
   return `run_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
-}
-
-function getDefaultAccessState() {
-  return {
-    isPremium: !MONETIZATION_ENABLED,
-    freeGamesPlayed: 0,
-    lastPaywallHandledAtFreeGames: 0,
-    updatedAt: Date.now()
-  };
-}
-
-function normalizeAccessState(rawState) {
-  const fallback = getDefaultAccessState();
-  if (!rawState || typeof rawState !== 'object') return fallback;
-
-  return {
-    isPremium: !MONETIZATION_ENABLED || !!rawState.isPremium,
-    freeGamesPlayed: Math.max(0, parseInt(rawState.freeGamesPlayed, 10) || 0),
-    lastPaywallHandledAtFreeGames: Math.max(0, parseInt(rawState.lastPaywallHandledAtFreeGames, 10) || 0),
-    updatedAt: Number.isFinite(rawState.updatedAt) ? rawState.updatedAt : Date.now()
-  };
-}
-
-function loadAccessState() {
-  try {
-    const raw = localStorage.getItem(ACCESS_STORAGE_KEY) || localStorage.getItem(LEGACY_ACCESS_STORAGE_KEY);
-    if (!raw) return getDefaultAccessState();
-    const normalized = normalizeAccessState(JSON.parse(raw));
-    if (!localStorage.getItem(ACCESS_STORAGE_KEY)) {
-      accessState = normalized;
-      saveAccessState();
-    }
-    return normalized;
-  } catch (error) {
-    return getDefaultAccessState();
-  }
-}
-
-function saveAccessState() {
-  accessState = normalizeAccessState(accessState);
-  accessState.updatedAt = Date.now();
-  localStorage.setItem(ACCESS_STORAGE_KEY, JSON.stringify(accessState));
-  if (ACCESS_STORAGE_KEY !== LEGACY_ACCESS_STORAGE_KEY) {
-    localStorage.removeItem(LEGACY_ACCESS_STORAGE_KEY);
-  }
-}
-
-function markPostGamePaywallHandled() {
-  if (!MONETIZATION_ENABLED) return;
-  accessState.lastPaywallHandledAtFreeGames = Math.max(
-    accessState.lastPaywallHandledAtFreeGames,
-    Math.min(accessState.freeGamesPlayed, 1)
-  );
-  saveAccessState();
-}
-
-function unlockPremiumAccess() {
-  if (!MONETIZATION_ENABLED) return;
-  accessState.isPremium = true;
-  saveAccessState();
-}
-
-function shouldOfferPostGamePaywall() {
-  return MONETIZATION_ENABLED
-    && !accessState.isPremium
-    && accessState.freeGamesPlayed >= 1
-    && accessState.lastPaywallHandledAtFreeGames < 1;
-}
-
-function shouldBlockNewGameStarts() {
-  return MONETIZATION_ENABLED && !accessState.isPremium && accessState.freeGamesPlayed >= MAX_FREE_GAMES;
-}
-
-function getFreeGamesRemaining() {
-  if (!MONETIZATION_ENABLED) return Number.POSITIVE_INFINITY;
-  return Math.max(0, MAX_FREE_GAMES - accessState.freeGamesPlayed);
-}
-
-function closeOtherSwipeRows(container, exceptRow) {
-  if (!container) return;
-  container.querySelectorAll('.swipe-row.reveal-delete').forEach(row => {
-    if (row !== exceptRow) row.classList.remove('reveal-delete');
-  });
-}
-
-function makeRowSwipeable(row, container) {
-  const content = row.querySelector('.swipe-content');
-  if (!content) return;
-
-  const dragThreshold = 14;
-  let startX = 0;
-  let startY = 0;
-  let dragging = false;
-  let intentLocked = false;
-  let wasOpen = false;
-
-  const finish = event => {
-    if (!dragging) {
-      intentLocked = false;
-      return;
-    }
-    dragging = false;
-    intentLocked = false;
-    const deltaX = event.clientX - startX;
-    const thresholdOpen = -32;
-    const thresholdClose = 16;
-    let nextOpen = wasOpen;
-    if (wasOpen && deltaX > thresholdClose) nextOpen = false;
-    else if (!wasOpen && deltaX < thresholdOpen) nextOpen = true;
-    row.classList.toggle('reveal-delete', nextOpen);
-    if (event.pointerId && row.hasPointerCapture(event.pointerId)) {
-      row.releasePointerCapture(event.pointerId);
-    }
-    content.style.transform = '';
-  };
-
-  row.addEventListener('pointerdown', event => {
-    if (event.pointerType === 'mouse' && event.button !== 0) return;
-    startX = event.clientX;
-    startY = event.clientY;
-    dragging = false;
-    intentLocked = false;
-    wasOpen = row.classList.contains('reveal-delete');
-    closeOtherSwipeRows(container, row);
-  });
-
-  row.addEventListener('pointermove', event => {
-    const deltaX = event.clientX - startX;
-    const deltaY = event.clientY - startY;
-
-    if (!intentLocked) {
-      if (Math.abs(deltaY) > dragThreshold && Math.abs(deltaY) > Math.abs(deltaX)) {
-        intentLocked = true;
-        return;
-      }
-
-      if (Math.abs(deltaX) < dragThreshold) return;
-
-      dragging = true;
-      intentLocked = true;
-      if (event.pointerId) row.setPointerCapture(event.pointerId);
-    }
-
-    if (!dragging) return;
-    const base = wasOpen ? -82 : 0;
-    const clamped = Math.max(Math.min(base + deltaX, 10), -90);
-    content.style.transform = `translateX(${clamped}px)`;
-  });
-
-  row.addEventListener('pointerup', finish);
-  row.addEventListener('pointercancel', finish);
-  row.addEventListener('pointerleave', finish);
-
-  row.addEventListener('click', event => {
-    if (!row.classList.contains('reveal-delete')) return;
-    const isDelete = event.target instanceof HTMLElement && event.target.classList.contains('swipe-action');
-    if (!isDelete) {
-      row.classList.remove('reveal-delete');
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  });
 }
 
 function getSyncEndpointBase() {
@@ -2274,7 +2042,6 @@ function hideAllSections() {
   preparationSection.classList.add('hidden');
   playersSetupSection.classList.add('hidden');
   gameSection.classList.add('hidden');
-  commerceSection.classList.add('hidden');
   spectatorSection.classList.add('hidden');
 }
 
@@ -2284,129 +2051,6 @@ function openNewGameLanding() {
   renderLandingGameList();
   gameTitleInputEl.value = '';
   setTimeout(() => gameTitleInputEl.focus(), 0);
-}
-
-const commerceState = {
-  mode: '',
-  pendingAction: null
-};
-
-function countCompletedFreeGameIfNeeded(game) {
-  if (!MONETIZATION_ENABLED) return;
-  if (!game || !game.finished || accessState.isPremium) return;
-  if (!game.runId) game.runId = createRunId();
-  if (game.countedRunId === game.runId) return;
-
-  game.countedRunId = game.runId;
-  accessState.freeGamesPlayed += 1;
-  saveAccessState();
-}
-
-function getPostGameContinueLabel() {
-  if (!MONETIZATION_ENABLED) return 'Spiel neu starten';
-  if (shouldBlockNewGameStarts() || shouldOfferPostGamePaywall()) {
-    return 'Zur Freischaltung';
-  }
-
-  if (!accessState.isPremium && accessState.freeGamesPlayed === 1 && getFreeGamesRemaining() > 0) {
-    return 'Zweites Spiel starten';
-  }
-
-  return 'Spiel neu starten';
-}
-
-function runPendingCommerceAction() {
-  const action = commerceState.pendingAction;
-  commerceState.pendingAction = null;
-  if (typeof action === 'function') {
-    action();
-    return;
-  }
-  renderFromCurrentGame();
-}
-
-function closeCommerceScreen({ continueFlow = false } = {}) {
-  commerceState.mode = '';
-  if (continueFlow) {
-    runPendingCommerceAction();
-    return;
-  }
-  commerceState.pendingAction = null;
-  renderFromCurrentGame();
-}
-
-function renderCommerceScreen() {
-  const isBlock = commerceState.mode === 'block';
-  const benefits = isBlock
-    ? []
-    : [
-        'Zugriff auf alle Rezepte',
-        'Unbegrenzte Spiele',
-        'Alle Spielmodi'
-      ];
-
-  commerceSection.classList.toggle('unlocking', false);
-  commerceKickerEl.classList.toggle('hidden', isBlock);
-  commerceBenefitsEl.classList.toggle('hidden', isBlock);
-  commercePriceEl.classList.toggle('hidden', isBlock);
-  commerceMetaEl.classList.toggle('hidden', isBlock);
-  commerceKickerEl.textContent = getRecipeMarketingLabel();
-  commerceTitleEl.textContent = isBlock ? 'Free-Version beendet' : 'Alle Rezepte freischalten';
-  commerceTextEl.textContent = isBlock
-    ? 'Du hast die kostenlose Version gespielt. Schalte jetzt die Vollversion frei, um weiterzuspielen.'
-    : 'Das war erst der Anfang. Spiele unbegrenzt mit allen Rezepten und Funktionen.';
-  commercePriceEl.textContent = PREMIUM_PRICE_LABEL;
-  commercePrimaryBtn.textContent = isBlock ? 'Jetzt freischalten' : 'Vollversion freischalten';
-  commerceSecondaryBtn.textContent = isBlock ? 'App verlassen' : 'Später';
-  commercePrimaryBtn.disabled = false;
-  commerceSecondaryBtn.disabled = false;
-
-  commerceBenefitsEl.innerHTML = '';
-  benefits.forEach(benefit => {
-    const item = document.createElement('li');
-    item.textContent = benefit;
-    commerceBenefitsEl.appendChild(item);
-  });
-}
-
-function openCommerceScreen(mode, pendingAction = null) {
-  commerceState.mode = mode;
-  commerceState.pendingAction = pendingAction;
-  hideAllSections();
-  commerceSection.classList.remove('hidden');
-  renderCommerceScreen();
-  menuEl.classList.remove('open');
-}
-
-function leaveApp() {
-  try {
-    window.close();
-  } catch (error) {
-    // Browser erlauben window.close nicht immer.
-  }
-
-  window.setTimeout(() => {
-    if (document.visibilityState === 'visible') {
-      window.location.replace('about:blank');
-    }
-  }, 120);
-}
-
-function runWithStartGate(action) {
-  if (typeof action !== 'function') return;
-  if (!MONETIZATION_ENABLED) {
-    action();
-    return;
-  }
-  if (shouldBlockNewGameStarts()) {
-    openCommerceScreen('block', action);
-    return;
-  }
-  if (shouldOfferPostGamePaywall()) {
-    openCommerceScreen('paywall', action);
-    return;
-  }
-  action();
 }
 
 function canOpenPlanningEditor(game) {
@@ -2884,7 +2528,7 @@ function triggerHaptic(type = 'tap') {
 }
 
 function isRoundScoringLocked(game) {
-  return !game || !isGuessingMode(game) || !!game.awaitingRecipeReveal || !!game.finished;
+  return !game || !isGuessingMode(game) || !!game.awaitingRecipeReveal || !!game.finished || !!game.roundHasCorrectTip;
 }
 
 function getScoreEntriesInPlayerOrder(game) {
@@ -3091,7 +2735,6 @@ function setGameSubView(mode, game = getCurrentGame()) {
 
   gameSection.classList.toggle('handover-mode', showReveal);
   revealScreenEl.classList.toggle('open', showReveal);
-  nextRecipeBtn.classList.add('hidden');
   skipRecipeBtn.classList.toggle('hidden', showReveal || isFinal);
   finishGameBtn.classList.toggle('hidden', showReveal || isFinal);
   gameCardEl.classList.toggle('hidden', isFinal || showReveal);
@@ -3200,7 +2843,6 @@ function finalizeRoundScore(game) {
 
 function renderFinal(game) {
   game.finished = true;
-  countCompletedFreeGameIfNeeded(game);
   game.phase = 'game';
   setGameSubView('final', game);
   revealScreenEl.classList.remove('open');
@@ -3216,7 +2858,7 @@ function renderFinal(game) {
 
   skipRecipeBtn.disabled = true;
   finishGameBtn.disabled = true;
-  startAnotherGameBtn.textContent = getPostGameContinueLabel();
+  startAnotherGameBtn.textContent = 'Spiel neu starten';
   startAnotherGameBtn.classList.remove('hidden');
   upsertCurrentGame(game);
 }
@@ -3289,12 +2931,6 @@ function renderSpectator(game) {
 
 function renderFromCurrentGame() {
   if (spectatorMode) return;
-  if (commerceState.mode) {
-    hideAllSections();
-    commerceSection.classList.remove('hidden');
-    renderCommerceScreen();
-    return;
-  }
   const game = getCurrentGame();
   hideAllSections();
   updateMenuActionState();
@@ -3348,7 +2984,6 @@ function renderFromCurrentGame() {
 
   gameSection.classList.remove('hidden');
   renderScoreboard(game);
-  nextRecipeBtn.disabled = false;
   skipRecipeBtn.disabled = false;
   finishGameBtn.disabled = false;
   startAnotherGameBtn.classList.add('hidden');
@@ -3378,7 +3013,6 @@ const summarySection = document.getElementById('summary');
 const preparationSection = document.getElementById('preparation');
 const playersSetupSection = document.getElementById('playersSetup');
 const gameSection = document.getElementById('game');
-const commerceSection = document.getElementById('commerceGate');
 
 const menuToggleBtn = document.getElementById('menuToggle');
 const qrToggleBtn = document.getElementById('qrToggle');
@@ -3443,18 +3077,9 @@ const recapScoreListEl = document.getElementById('recapScoreList');
 const recapRecipeListEl = document.getElementById('recapRecipeList');
 const exportRecipesWhatsappBtn = document.getElementById('exportRecipesWhatsapp');
 const exportRecipesClipboardBtn = document.getElementById('exportRecipesClipboard');
-const nextRecipeBtn = document.getElementById('nextRecipe');
 const skipRecipeBtn = document.getElementById('skipRecipe');
 const finishGameBtn = document.getElementById('finishGame');
 const startAnotherGameBtn = document.getElementById('startAnotherGame');
-const commerceKickerEl = document.getElementById('commerceKicker');
-const commerceTitleEl = document.getElementById('commerceTitle');
-const commerceTextEl = document.getElementById('commerceText');
-const commerceBenefitsEl = document.getElementById('commerceBenefits');
-const commercePriceEl = document.getElementById('commercePrice');
-const commerceMetaEl = document.getElementById('commerceMeta');
-const commercePrimaryBtn = document.getElementById('commercePrimary');
-const commerceSecondaryBtn = document.getElementById('commerceSecondary');
 
 const spectatorSection = document.getElementById('spectator');
 const spectatorRoundInfoEl = document.getElementById('spectatorRoundInfo');
@@ -3491,7 +3116,6 @@ const restartFromBeginningModalEl = document.getElementById('restartFromBeginnin
 const confirmRestartFromBeginningBtn = document.getElementById('confirmRestartFromBeginning');
 const cancelRestartFromBeginningBtn = document.getElementById('cancelRestartFromBeginning');
 
-let accessState = loadAccessState();
 let games = loadGames();
 let currentGameId = games.length > 0 ? games[games.length - 1].id : null;
 const searchParams = new URLSearchParams(window.location.search);
@@ -3542,13 +3166,11 @@ function confirmRestartFromBeginning() {
   closeRestartFromBeginningModal();
   if (!canRestartGameFromBeginning(game)) return;
 
-  runWithStartGate(() => {
-    triggerHaptic('confirm');
-    resetGameProgressToBeginning(game);
-    upsertCurrentGame(game);
-    renderFromCurrentGame();
-    showStatus('Spiel startet wieder bei Runde 1.');
-  });
+  triggerHaptic('confirm');
+  resetGameProgressToBeginning(game);
+  upsertCurrentGame(game);
+  renderFromCurrentGame();
+  showStatus('Spiel startet wieder bei Runde 1.');
 }
 
 menuToggleBtn.addEventListener('click', () => {
@@ -3579,15 +3201,13 @@ landingGameListEl.addEventListener('click', event => {
 });
 
 startNewGameBtn.addEventListener('click', () => {
-  runWithStartGate(() => {
-    triggerHaptic('newGame');
-    menuEl.classList.remove('open');
-    const game = createGame(gameTitleInputEl.value);
-    games.push(game);
-    saveGames();
-    setCurrentGame(game.id);
-    gameTitleInputEl.value = '';
-  });
+  triggerHaptic('newGame');
+  menuEl.classList.remove('open');
+  const game = createGame(gameTitleInputEl.value);
+  games.push(game);
+  saveGames();
+  setCurrentGame(game.id);
+  gameTitleInputEl.value = '';
 });
 
 createGameBtn.addEventListener('click', () => {
@@ -3604,12 +3224,10 @@ restartGameBtn.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game) return;
 
-  runWithStartGate(() => {
-    clearGeneratedGameState(game);
-    upsertCurrentGame(game);
-    menuEl.classList.remove('open');
-    renderFromCurrentGame();
-  });
+  clearGeneratedGameState(game);
+  upsertCurrentGame(game);
+  menuEl.classList.remove('open');
+  renderFromCurrentGame();
 });
 
 generateBtn.addEventListener('click', () => {
@@ -3842,46 +3460,42 @@ newRoundBtn.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game) return;
 
-  runWithStartGate(() => {
-    clearGeneratedGameState(game);
-    upsertCurrentGame(game);
-    renderFromCurrentGame();
-  });
+  clearGeneratedGameState(game);
+  upsertCurrentGame(game);
+  renderFromCurrentGame();
 });
 
 confirmPlayersBtn.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!game) return;
 
-  runWithStartGate(() => {
-    game.settings.players = Math.max(1, Math.min(6, parseInt(game.settings.players, 10) || 1));
-    const names = [];
-    for (let i = 0; i < game.settings.players; i++) {
-      const input = document.getElementById(`playerName${i + 1}`);
-      const name = input && input.value.trim() ? input.value.trim() : `Spieler ${i + 1}`;
-      names.push(name);
-    }
+  game.settings.players = Math.max(1, Math.min(6, parseInt(game.settings.players, 10) || 1));
+  const names = [];
+  for (let i = 0; i < game.settings.players; i++) {
+    const input = document.getElementById(`playerName${i + 1}`);
+    const name = input && input.value.trim() ? input.value.trim() : `Spieler ${i + 1}`;
+    names.push(name);
+  }
 
-    game.players = names;
-    if (isGuessingMode(game) && game.scores.length !== names.length) {
-      game.scores = names.map(() => 0);
-    } else if (isOpenMode(game)) {
-      game.scores = [];
-    }
-    game.rounds = shuffle(game.rounds);
-    game.phase = 'game';
-    game.summaryReturnTarget = '';
-    game.gameIndex = 0;
-    game.awaitingRecipeReveal = isGuessingMode(game);
-    game.roundHasCorrectTip = false;
-    game.activePlayerTurnIndex = 0;
-    game.finished = false;
-    if (!game.runId) game.runId = createRunId();
+  game.players = names;
+  if (isGuessingMode(game) && game.scores.length !== names.length) {
+    game.scores = names.map(() => 0);
+  } else if (isOpenMode(game)) {
+    game.scores = [];
+  }
+  game.rounds = shuffle(game.rounds);
+  game.phase = 'game';
+  game.summaryReturnTarget = '';
+  game.gameIndex = 0;
+  game.awaitingRecipeReveal = isGuessingMode(game);
+  game.roundHasCorrectTip = false;
+  game.activePlayerTurnIndex = 0;
+  game.finished = false;
+  if (!game.runId) game.runId = createRunId();
 
-    upsertCurrentGame(game);
-    void tryLockPortrait();
-    renderFromCurrentGame();
-  });
+  upsertCurrentGame(game);
+  void tryLockPortrait();
+  renderFromCurrentGame();
 });
 
 backToSummaryBtn.addEventListener('click', () => {
@@ -3911,18 +3525,14 @@ scoreListEl.addEventListener('click', event => {
   if (kind === 'correct' && game.roundHasCorrectTip) return;
 
   game.scores[index] += delta;
-  if (kind === 'correct') game.roundHasCorrectTip = true;
+  if (kind === 'correct') {
+    game.roundHasCorrectTip = true;
+    showStatus(`${game.players[index]} hat richtig geraten. Die Wertung dieser Runde ist abgeschlossen.`);
+  }
 
   triggerHaptic('score');
   upsertCurrentGame(game);
   renderScoreboard(game);
-});
-
-nextRecipeBtn.addEventListener('click', () => {
-  const game = getCurrentGame();
-  if (!game || game.finished) return;
-
-  // Legacy button kept hidden; no interaction required.
 });
 
 revealRecipeBtn.addEventListener('click', () => {
@@ -3971,36 +3581,11 @@ startAnotherGameBtn.addEventListener('click', () => {
   const game = getCurrentGame();
   if (!canRestartGameFromBeginning(game)) return;
 
-  runWithStartGate(() => {
-    triggerHaptic('newGame');
-    resetGameProgressToBeginning(game);
-    upsertCurrentGame(game);
-    renderFromCurrentGame();
-    showStatus('Spiel startet wieder bei Runde 1.');
-  });
-});
-
-commercePrimaryBtn.addEventListener('click', () => {
-  commercePrimaryBtn.disabled = true;
-  commerceSecondaryBtn.disabled = true;
-  commerceSection.classList.add('unlocking');
-  triggerHaptic('confirm');
-  unlockPremiumAccess();
-  window.setTimeout(() => {
-    commerceSection.classList.remove('unlocking');
-    closeCommerceScreen({ continueFlow: true });
-    showStatus('Vollversion freigeschaltet.');
-  }, 260);
-});
-
-commerceSecondaryBtn.addEventListener('click', () => {
-  if (commerceState.mode === 'block') {
-    leaveApp();
-    return;
-  }
-
-  markPostGamePaywallHandled();
-  closeCommerceScreen({ continueFlow: true });
+  triggerHaptic('newGame');
+  resetGameProgressToBeginning(game);
+  upsertCurrentGame(game);
+  renderFromCurrentGame();
+  showStatus('Spiel startet wieder bei Runde 1.');
 });
 
 qrToggleBtn.addEventListener('click', () => {
@@ -4086,13 +3671,6 @@ document.addEventListener('click', event => {
 });
 
 window.addEventListener('storage', event => {
-  if (event.key === ACCESS_STORAGE_KEY || event.key === FREE_RECIPE_POOL_KEY) {
-    accessState = loadAccessState();
-    games = loadGames();
-    if (!spectatorMode) renderFromCurrentGame();
-    return;
-  }
-
   if (event.key !== STORAGE_KEY) return;
   games = loadGames();
   if (!spectatorMode) {

@@ -121,7 +121,7 @@
     <section class="card">
       <p class="eyebrow">Giro: Pasta Night</p>
       <h1>Datenschutz</h1>
-      <p>Diese App funktioniert ohne Benutzerkonto. Spielstände werden standardmäßig lokal auf dem Gerät gespeichert.</p>
+      <p>Diese App funktioniert ohne Benutzerkonto. Spielstände werden standardmäßig lokal auf dem Gerät gespeichert. Es sind keine Werbe-SDKs, kein Analytics-Tracking und keine serverseitigen Benutzerprofile Bestandteil dieses MVP.</p>
       <div class="actions">
         <a href="./" class="button-link primary">Zur App zurück</a>
       </div>
@@ -135,17 +135,18 @@
         <li>Spielernamen und Punktestand</li>
         <li>aktueller Spielfortschritt</li>
       </ul>
-      <p>Diese Informationen liegen standardmäßig im lokalen Gerätespeicher des Browsers bzw. der installierten Web-App.</p>
+      <p>Diese Informationen liegen standardmäßig im lokalen Gerätespeicher des Browsers bzw. der installierten Web-App und bleiben dort, bis einzelne Spiele oder die gesamten Website-/App-Daten entfernt werden.</p>
     </section>
 
     <section class="card">
       <h2>QR-Code und Zuschauer-Link</h2>
-      <p>Wenn der Zuschauermodus aktiv geteilt wird, erzeugt die App einen Link für die Read-only-Ansicht.</p>
+      <p>Wenn der Zuschauermodus aktiv geteilt wird, erzeugt die App auf ausdrückliche Nutzeraktion einen Link für die Read-only-Ansicht.</p>
       <ul>
         <li>Ohne konfigurierten Sync-Endpunkt enthält der Link einen Snapshot des aktuellen Spielstands.</li>
         <li>Dieser Snapshot kann Spielernamen, Punktestand und Spielstatus enthalten.</li>
         <li>Im Modus „Mit Raten“ wird die verdeckte tatsächliche Rezeptauswahl nicht in den Snapshot aufgenommen.</li>
         <li>Im Modus „Ohne Raten“ können die offen geplanten Rezepte im Snapshot enthalten sein.</li>
+        <li>QR-Codes werden bevorzugt lokal in der App erzeugt. Falls die lokale QR-Erzeugung fehlschlägt, kann ersatzweise ein externer QR-Bilddienst mit dem Zuschauer-Link aufgerufen werden.</li>
       </ul>
       <p>Teile diesen Link daher nur bewusst mit Personen, die den Zuschauerzugang erhalten sollen.</p>
     </section>
@@ -156,13 +157,14 @@
       <ul>
         <li>Standardmäßig ist kein solcher Endpunkt aktiv.</li>
         <li>Wenn ein Endpunkt eingerichtet wird, werden aktuelle Spielstände an diesen Endpunkt übertragen.</li>
+        <li>Welche Daten dort gespeichert oder protokolliert werden, hängt vom Betreiber dieses Endpunkts ab und liegt außerhalb dieses Repositorys.</li>
         <li>Nutze dafür nur vertrauenswürdige, selbst kontrollierte Infrastruktur.</li>
       </ul>
     </section>
 
     <section class="card">
       <h2>Externe Infrastruktur</h2>
-      <p>Beim Laden der App können technische Anfragen an die Hosting-Infrastruktur und eingebundene Schriftdateien entstehen. Diese Anfragen dienen nur der Darstellung der App.</p>
+      <p>Beim Laden der App können technische Anfragen an die Hosting-Infrastruktur und eingebundene Schriftdateien entstehen. Zusätzlich kann im beschriebenen Fehlerfall für QR-Codes ein externer Bilddienst angefragt werden. Diese Anfragen dienen nur der Bereitstellung bzw. Darstellung der App.</p>
     </section>
 
     <section class="card">
@@ -170,6 +172,7 @@
       <ul>
         <li>Einzelne Spiele können direkt in der App gelöscht werden.</li>
         <li>Alle lokal gespeicherten Daten lassen sich durch das Entfernen der Website-Daten bzw. der App-Daten auf dem Gerät löschen.</li>
+        <li>Falls ein externer Sync-Endpunkt verwendet wird, muss eine eventuelle Löschung dort über dessen Betreiber erfolgen.</li>
       </ul>
     </section>
   </main>

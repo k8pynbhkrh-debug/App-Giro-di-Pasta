@@ -1573,6 +1573,7 @@ function getFreeRecipeCatalog() {
 }
 
 function getAllRecipes() {
+  if (!MONETIZATION_ENABLED) return getCompleteRecipeCatalog();
   return accessState.isPremium ? getCompleteRecipeCatalog() : getFreeRecipeCatalog();
 }
 
@@ -1638,6 +1639,7 @@ const ACCESS_STORAGE_KEY = 'giro_pasta_night_access_v1';
 const LEGACY_ACCESS_STORAGE_KEY = 'giro_di_pasta_access_v1';
 const FREE_RECIPE_POOL_KEY = 'giro_pasta_night_free_recipe_pool_v1';
 const LEGACY_FREE_RECIPE_POOL_KEY = 'giro_di_pasta_free_recipe_pool_v1';
+const MONETIZATION_ENABLED = false;
 const FREE_RECIPE_POOL_SIZE = 10;
 const MAX_FREE_GAMES = 2;
 const PREMIUM_PRICE_LABEL = 'Einmalig 2,99 €';
@@ -1648,7 +1650,7 @@ function createRunId() {
 
 function getDefaultAccessState() {
   return {
-    isPremium: false,
+    isPremium: !MONETIZATION_ENABLED,
     freeGamesPlayed: 0,
     lastPaywallHandledAtFreeGames: 0,
     updatedAt: Date.now()
@@ -1660,7 +1662,7 @@ function normalizeAccessState(rawState) {
   if (!rawState || typeof rawState !== 'object') return fallback;
 
   return {
-    isPremium: !!rawState.isPremium,
+    isPremium: !MONETIZATION_ENABLED || !!rawState.isPremium,
     freeGamesPlayed: Math.max(0, parseInt(rawState.freeGamesPlayed, 10) || 0),
     lastPaywallHandledAtFreeGames: Math.max(0, parseInt(rawState.lastPaywallHandledAtFreeGames, 10) || 0),
     updatedAt: Number.isFinite(rawState.updatedAt) ? rawState.updatedAt : Date.now()
@@ -1692,6 +1694,7 @@ function saveAccessState() {
 }
 
 function markPostGamePaywallHandled() {
+  if (!MONETIZATION_ENABLED) return;
   accessState.lastPaywallHandledAtFreeGames = Math.max(
     accessState.lastPaywallHandledAtFreeGames,
     Math.min(accessState.freeGamesPlayed, 1)
@@ -1700,21 +1703,24 @@ function markPostGamePaywallHandled() {
 }
 
 function unlockPremiumAccess() {
+  if (!MONETIZATION_ENABLED) return;
   accessState.isPremium = true;
   saveAccessState();
 }
 
 function shouldOfferPostGamePaywall() {
-  return !accessState.isPremium
+  return MONETIZATION_ENABLED
+    && !accessState.isPremium
     && accessState.freeGamesPlayed >= 1
     && accessState.lastPaywallHandledAtFreeGames < 1;
 }
 
 function shouldBlockNewGameStarts() {
-  return !accessState.isPremium && accessState.freeGamesPlayed >= MAX_FREE_GAMES;
+  return MONETIZATION_ENABLED && !accessState.isPremium && accessState.freeGamesPlayed >= MAX_FREE_GAMES;
 }
 
 function getFreeGamesRemaining() {
+  if (!MONETIZATION_ENABLED) return Number.POSITIVE_INFINITY;
   return Math.max(0, MAX_FREE_GAMES - accessState.freeGamesPlayed);
 }
 
@@ -2286,6 +2292,7 @@ const commerceState = {
 };
 
 function countCompletedFreeGameIfNeeded(game) {
+  if (!MONETIZATION_ENABLED) return;
   if (!game || !game.finished || accessState.isPremium) return;
   if (!game.runId) game.runId = createRunId();
   if (game.countedRunId === game.runId) return;
@@ -2296,6 +2303,7 @@ function countCompletedFreeGameIfNeeded(game) {
 }
 
 function getPostGameContinueLabel() {
+  if (!MONETIZATION_ENABLED) return 'Spiel neu starten';
   if (shouldBlockNewGameStarts() || shouldOfferPostGamePaywall()) {
     return 'Zur Freischaltung';
   }
@@ -2386,6 +2394,10 @@ function leaveApp() {
 
 function runWithStartGate(action) {
   if (typeof action !== 'function') return;
+  if (!MONETIZATION_ENABLED) {
+    action();
+    return;
+  }
   if (shouldBlockNewGameStarts()) {
     openCommerceScreen('block', action);
     return;
@@ -2830,16 +2842,6 @@ function getShoppingExportText(game = getCurrentGame()) {
   return buildReminderExport(game.shoppingList || []).trim();
 }
 
-function getBringExportText(game = getCurrentGame()) {
-  return getShoppingDisplayEntries(game)
-    .map(entry => {
-      if (entry?.isRecommendation) return 'Küchenpapier / Küchenrolle';
-      return [entry.label, prettyAmount(entry.amount), entry.unit].filter(Boolean).join(' ').trim();
-    })
-    .join('\n')
-    .trim();
-}
-
 function getRecipeRecapExportText(game = getCurrentGame()) {
   const playedRounds = getPlayedRecipeRounds(game);
   if (playedRounds.length === 0) return '';
@@ -3055,6 +3057,7 @@ function renderRecap(game) {
   recapWinnerEl.textContent = '';
   recapRecipeListEl.innerHTML = '';
   exportRecipesWhatsappBtn.disabled = getPlayedRecipeRounds(game).length === 0;
+  exportRecipesClipboardBtn.disabled = getPlayedRecipeRounds(game).length === 0;
 
   if (guessing) {
     const entries = getScoreEntriesInPlayerOrder(game);
@@ -3439,6 +3442,7 @@ const recapWinnerEl = document.getElementById('recapWinner');
 const recapScoreListEl = document.getElementById('recapScoreList');
 const recapRecipeListEl = document.getElementById('recapRecipeList');
 const exportRecipesWhatsappBtn = document.getElementById('exportRecipesWhatsapp');
+const exportRecipesClipboardBtn = document.getElementById('exportRecipesClipboard');
 const nextRecipeBtn = document.getElementById('nextRecipe');
 const skipRecipeBtn = document.getElementById('skipRecipe');
 const finishGameBtn = document.getElementById('finishGame');
@@ -3472,9 +3476,6 @@ const closeQrModalBtn = document.getElementById('closeQrModal');
 
 const exportModalEl = document.getElementById('exportModal');
 const exportWhatsappBtn = document.getElementById('exportWhatsapp');
-const exportRemindersBtn = document.getElementById('exportReminders');
-const exportBringBtn = document.getElementById('exportBring');
-const exportPdfBtn = document.getElementById('exportPdf');
 const exportClipboardBtn = document.getElementById('exportClipboard');
 const closeExportModalBtn = document.getElementById('closeExportModal');
 
@@ -3689,23 +3690,6 @@ async function copyShoppingToClipboard(text = getShoppingExportText()) {
   return copyTextToClipboard(text);
 }
 
-async function shareShoppingList(game = getCurrentGame()) {
-  const text = getShoppingExportText(game);
-  if (!text) return false;
-  if (typeof navigator.share !== 'function') return false;
-
-  try {
-    await navigator.share({
-      title: 'Einkaufsliste – Giro: Pasta Night',
-      text
-    });
-    return true;
-  } catch (error) {
-    if (error?.name === 'AbortError') return null;
-    return false;
-  }
-}
-
 function openExportModal() {
   exportModalEl.classList.add('open');
 }
@@ -3726,36 +3710,6 @@ function openRecipeRecapWhatsappExport() {
   if (!text) return;
   const encoded = encodeURIComponent(text);
   window.location.href = `whatsapp://send?text=${encoded}`;
-}
-
-function exportShoppingPdf() {
-  const game = getCurrentGame();
-  const title = game ? game.title : 'Einkaufsliste';
-  const lines = getShoppingExportText(game).split('\n').filter(Boolean);
-  if (lines.length === 0) return;
-  const printable = window.open('', '_blank', 'width=640,height=800');
-  if (!printable) return;
-  const listHtml = lines.map(line => `<li>${line.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</li>`).join('');
-  printable.document.write(`<!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8">
-  <title>${title}</title>
-  <style>
-    body { font-family: 'Cormorant Garamond', Georgia, serif; padding: 24px; color: #111; }
-    h1 { font-family: 'Italiana', Georgia, serif; font-size: 24px; margin: 0 0 16px; letter-spacing: 0.04em; }
-    ul { padding-left: 18px; }
-    li { margin: 6px 0; }
-  </style>
-</head>
-<body>
-  <h1>${title} - Einkaufsliste</h1>
-  <ul>${listHtml}</ul>
-</body>
-</html>`);
-  printable.document.close();
-  printable.focus();
-  printable.print();
 }
 
 exportShoppingBtn.addEventListener('click', () => {
@@ -4094,34 +4048,17 @@ exportClipboardBtn.addEventListener('click', async () => {
   closeExportModal();
 });
 
-exportRemindersBtn.addEventListener('click', async () => {
-  const shared = await shareShoppingList();
-  if (shared === true) {
-    showStatus('Teilen geöffnet.');
-  } else if (shared === false) {
-    const ok = await copyShoppingToClipboard();
-    if (ok) showStatus('Apple-Erinnerungen Text wurde kopiert.');
-  }
-  closeExportModal();
-});
-
-exportBringBtn.addEventListener('click', async () => {
-  const ok = await copyTextToClipboard(getBringExportText());
-  if (ok) showStatus('Bring-Liste kopiert.');
-  closeExportModal();
-});
-
 exportRecipesWhatsappBtn.addEventListener('click', () => {
   openRecipeRecapWhatsappExport();
 });
 
-exportWhatsappBtn.addEventListener('click', () => {
-  openWhatsappExport();
-  closeExportModal();
+exportRecipesClipboardBtn.addEventListener('click', async () => {
+  const ok = await copyTextToClipboard(getRecipeRecapExportText());
+  if (ok) showStatus('Rezepte wurden in die Zwischenablage kopiert.');
 });
 
-exportPdfBtn.addEventListener('click', () => {
-  exportShoppingPdf();
+exportWhatsappBtn.addEventListener('click', () => {
+  openWhatsappExport();
   closeExportModal();
 });
 

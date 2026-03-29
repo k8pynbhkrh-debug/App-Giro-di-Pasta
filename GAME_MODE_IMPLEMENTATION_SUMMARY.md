@@ -1,10 +1,10 @@
 # Giro: Pasta Night - Game Mode Implementation Summary
 
 ## Changed files
-- `/Users/eric/GitHub/App Giro Pasta Night/app.js`
-- `/Users/eric/GitHub/App Giro Pasta Night/index.html`
-- `/Users/eric/GitHub/App Giro Pasta Night/GAME_MODE_IMPLEMENTATION_SUMMARY.md`
-- `/Users/eric/GitHub/App Giro Pasta Night/GAME_MODE_TEST_CHECKLIST.md`
+- `/Users/eric/Projekte/GiroPastaNight-Web/app.js`
+- `/Users/eric/Projekte/GiroPastaNight-Web/index.html`
+- `/Users/eric/Projekte/GiroPastaNight-Web/GAME_MODE_IMPLEMENTATION_SUMMARY.md`
+- `/Users/eric/Projekte/GiroPastaNight-Web/GAME_MODE_TEST_CHECKLIST.md`
 
 ## Central game mode state
 - The app now stores the mode as a top-level saved game field: `game.gameMode`.
@@ -75,7 +75,7 @@
 - Legacy saved games without `gameMode` default to `guessing`.
 
 ## Validation completed
-- JavaScript syntax check: `node --check /Users/eric/GitHub/App Giro Pasta Night/app.js`
+- JavaScript syntax check: `node --check /Users/eric/Projekte/GiroPastaNight-Web/app.js`
 - Static verification of mode-specific rendering and persisted state helpers.
 - A real browser smoke test was attempted, but the local Playwright browser runtime was not available in this environment.
 
